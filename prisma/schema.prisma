@@ -1,0 +1,286 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// --- Enums
+
+enum AspirationStatus {
+  pending
+  in_progress
+  completed
+  rejected
+}
+
+// --- Auth & users
+
+/// Better Auth plus application roles:
+/// - admin | kepala_bpbd | operator: staff (dashboard)
+/// - masyarakat: portal users (aspirations, news comments)
+model User {
+  id            String    @id @default(cuid())
+  name          String
+  email         String    @unique
+  emailVerified Boolean   @default(false)
+  image         String?
+
+  /// Username plugin (better-auth)
+  username        String? @unique
+  displayUsername String?
+
+  /// Extra fields from lib/auth.ts
+  photoUrl    String?
+  isActive    Boolean   @default(true)
+  lastLoginAt DateTime?
+
+  role      String   @default("masyarakat")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  sessions Session[]
+  accounts Account[]
+
+  authoredNewsArticles NewsArticle[] @relation("NewsArticleAuthor")
+  newsComments         NewsComment[]
+  aspirations          Aspiration[]
+
+  @@map("user")
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  expiresAt DateTime
+  token     String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id @default(cuid())
+  accountId             String
+  providerId            String
+  userId                String
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([providerId, accountId])
+  @@index([userId])
+  @@map("account")
+}
+
+model Verification {
+  id         String    @id @default(cuid())
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime? @default(now())
+  updatedAt  DateTime? @updatedAt
+
+  @@map("verification")
+}
+
+// --- News (public /berita + dashboard CMS)
+
+/// News posts; `content` is JSON (e.g. rich text / blocks). `category` is a free-form string slug or label.
+model NewsArticle {
+  id       String @id @default(cuid())
+  slug     String @unique
+  title    String
+  excerpt  String
+  category String
+
+  content Json
+
+  /// Cover image URL
+  imageUrl String @map("image_url")
+
+  /// Optional display date label for the UI (e.g. localized string)
+  dateLabel String? @map("date_label")
+
+  publishedAt DateTime? @map("published_at")
+  isPublished Boolean   @default(false) @map("is_published")
+
+  authorId String? @map("author_id")
+  author   User?   @relation("NewsArticleAuthor", fields: [authorId], references: [id], onDelete: SetNull)
+
+  comments NewsComment[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([category])
+  @@index([publishedAt])
+  @@index([slug])
+  @@map("news_article")
+}
+
+/// Comments on news articles; `body` is JSON (e.g. plain text wrapper or structured payload).
+model NewsComment {
+  id String @id @default(cuid())
+
+  articleId String      @map("article_id")
+  article   NewsArticle @relation(fields: [articleId], references: [id], onDelete: Cascade)
+
+  /// Optional author account (admin/staff or citizen). If deleted, keep the comment record.
+  userId String? @map("user_id")
+  user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  /// Display name to keep history even when account changes.
+  authorName String @map("author_name")
+
+  /// Threading: admin (or anyone) can reply to a parent comment.
+  parentId String?      @map("parent_id")
+  parent   NewsComment? @relation("NewsCommentThread", fields: [parentId], references: [id], onDelete: Cascade)
+  replies  NewsComment[] @relation("NewsCommentThread")
+
+  /// Sanitized HTML body (limited tags); store exactly what we render.
+  bodyHtml String @map("body_html")
+
+  /// Flag to style/admin-badge the response.
+  isAdmin Boolean @default(false) @map("is_admin")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([articleId])
+  @@index([userId])
+  @@index([parentId])
+  @@index([isAdmin])
+  @@index([createdAt])
+  @@map("news_comment")
+}
+
+// --- Aspirations (citizen feedback)
+
+/// Citizen aspiration / suggestion; `description` is JSON (e.g. long-form or structured text).
+model Aspiration {
+  id String @id @default(cuid())
+
+  /// Public display name (also used when not logged in)
+  submitterName String @map("submitter_name")
+
+  description Json
+  status      AspirationStatus @default(pending)
+
+  /// Optional account link when the user is logged in
+  userId String? @map("user_id")
+  user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status])
+  @@index([createdAt])
+  @@map("aspiration")
+}
+
+// --- Disaster map & PDF archive
+
+/// Operational disaster map points (API /api/map-disasters, public detail /arsip/[id]).
+model MapDisasterPoint {
+  id          String @id @default(cuid())
+  type        String
+  location    String
+  kecamatan   String
+  date        String
+  casualties  Int    @default(0)
+  displaced   Int    @default(0)
+  description String
+  image       String
+  lat         Float
+  lng         Float
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([kecamatan])
+  @@index([updatedAt])
+  @@map("map_disaster_point")
+}
+
+/// Official disaster PDF archive; `description` is JSON (e.g. summary blocks or metadata).
+model ArsipDocument {
+  id          String @id @default(cuid())
+  name        String
+  description Json
+  dateLabel   String @map("date_label")
+  fileSize    String @map("file_size")
+  year        String @map("tahun")
+  downloadUrl String @map("download_url")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([year])
+  @@map("arsip_document")
+}
+
+// --- Site settings (public homepage / landing content)
+
+/// Hero carousel slide (ordered list for the landing hero section).
+model HeroSlide {
+  id String @id @default(cuid())
+
+  sortOrder Int @default(0) @map("sort_order")
+  imageUrl  String @map("image_url")
+
+  title    String?
+  subtitle String?
+
+  /// Optional CTA link (internal route or external URL)
+  linkUrl String? @map("link_url")
+
+  isActive Boolean @default(true) @map("is_active")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([sortOrder])
+  @@index([isActive])
+  @@map("hero_slide")
+}
+
+/// Singleton site-wide settings: about, contact, and social links.
+/// Use a single row with `id = "default"` (create via upsert in application code).
+model SiteSettings {
+  id String @id @default("default")
+
+  /// About section copy (JSON: rich text, blocks, or structured content).
+  aboutDescription Json? @map("about_description")
+
+  /// Profile / organization URL (e.g. YouTube embed or Image).
+  aboutProfileUrl String? @map("about_profile_url")
+
+  contactEmail String? @map("contact_email")
+  contactPhone String? @map("contact_phone")
+
+  socialInstagram String? @map("social_instagram")
+  socialX         String? @map("social_x")
+  socialTiktok    String? @map("social_tiktok")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("site_settings")
+}
