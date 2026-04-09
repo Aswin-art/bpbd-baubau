@@ -48,7 +48,6 @@ export type MapDisasterPointMinAggregateOutputType = {
   date: string | null
   casualties: number | null
   displaced: number | null
-  description: string | null
   image: string | null
   lat: number | null
   lng: number | null
@@ -64,7 +63,6 @@ export type MapDisasterPointMaxAggregateOutputType = {
   date: string | null
   casualties: number | null
   displaced: number | null
-  description: string | null
   image: string | null
   lat: number | null
   lng: number | null
@@ -112,7 +110,6 @@ export type MapDisasterPointMinAggregateInputType = {
   date?: true
   casualties?: true
   displaced?: true
-  description?: true
   image?: true
   lat?: true
   lng?: true
@@ -128,7 +125,6 @@ export type MapDisasterPointMaxAggregateInputType = {
   date?: true
   casualties?: true
   displaced?: true
-  description?: true
   image?: true
   lat?: true
   lng?: true
@@ -247,7 +243,7 @@ export type MapDisasterPointGroupByOutputType = {
   date: string
   casualties: number
   displaced: number
-  description: string
+  description: runtime.JsonValue
   image: string
   lat: number
   lng: number
@@ -286,7 +282,7 @@ export type MapDisasterPointWhereInput = {
   date?: Prisma.StringFilter<"MapDisasterPoint"> | string
   casualties?: Prisma.IntFilter<"MapDisasterPoint"> | number
   displaced?: Prisma.IntFilter<"MapDisasterPoint"> | number
-  description?: Prisma.StringFilter<"MapDisasterPoint"> | string
+  description?: Prisma.JsonFilter<"MapDisasterPoint">
   image?: Prisma.StringFilter<"MapDisasterPoint"> | string
   lat?: Prisma.FloatFilter<"MapDisasterPoint"> | number
   lng?: Prisma.FloatFilter<"MapDisasterPoint"> | number
@@ -321,7 +317,7 @@ export type MapDisasterPointWhereUniqueInput = Prisma.AtLeast<{
   date?: Prisma.StringFilter<"MapDisasterPoint"> | string
   casualties?: Prisma.IntFilter<"MapDisasterPoint"> | number
   displaced?: Prisma.IntFilter<"MapDisasterPoint"> | number
-  description?: Prisma.StringFilter<"MapDisasterPoint"> | string
+  description?: Prisma.JsonFilter<"MapDisasterPoint">
   image?: Prisma.StringFilter<"MapDisasterPoint"> | string
   lat?: Prisma.FloatFilter<"MapDisasterPoint"> | number
   lng?: Prisma.FloatFilter<"MapDisasterPoint"> | number
@@ -361,7 +357,7 @@ export type MapDisasterPointScalarWhereWithAggregatesInput = {
   date?: Prisma.StringWithAggregatesFilter<"MapDisasterPoint"> | string
   casualties?: Prisma.IntWithAggregatesFilter<"MapDisasterPoint"> | number
   displaced?: Prisma.IntWithAggregatesFilter<"MapDisasterPoint"> | number
-  description?: Prisma.StringWithAggregatesFilter<"MapDisasterPoint"> | string
+  description?: Prisma.JsonWithAggregatesFilter<"MapDisasterPoint">
   image?: Prisma.StringWithAggregatesFilter<"MapDisasterPoint"> | string
   lat?: Prisma.FloatWithAggregatesFilter<"MapDisasterPoint"> | number
   lng?: Prisma.FloatWithAggregatesFilter<"MapDisasterPoint"> | number
@@ -377,7 +373,7 @@ export type MapDisasterPointCreateInput = {
   date: string
   casualties?: number
   displaced?: number
-  description: string
+  description: Prisma.JsonNullValueInput | runtime.InputJsonValue
   image: string
   lat: number
   lng: number
@@ -393,7 +389,7 @@ export type MapDisasterPointUncheckedCreateInput = {
   date: string
   casualties?: number
   displaced?: number
-  description: string
+  description: Prisma.JsonNullValueInput | runtime.InputJsonValue
   image: string
   lat: number
   lng: number
@@ -409,7 +405,7 @@ export type MapDisasterPointUpdateInput = {
   date?: Prisma.StringFieldUpdateOperationsInput | string
   casualties?: Prisma.IntFieldUpdateOperationsInput | number
   displaced?: Prisma.IntFieldUpdateOperationsInput | number
-  description?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   image?: Prisma.StringFieldUpdateOperationsInput | string
   lat?: Prisma.FloatFieldUpdateOperationsInput | number
   lng?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -425,7 +421,7 @@ export type MapDisasterPointUncheckedUpdateInput = {
   date?: Prisma.StringFieldUpdateOperationsInput | string
   casualties?: Prisma.IntFieldUpdateOperationsInput | number
   displaced?: Prisma.IntFieldUpdateOperationsInput | number
-  description?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   image?: Prisma.StringFieldUpdateOperationsInput | string
   lat?: Prisma.FloatFieldUpdateOperationsInput | number
   lng?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -441,7 +437,7 @@ export type MapDisasterPointCreateManyInput = {
   date: string
   casualties?: number
   displaced?: number
-  description: string
+  description: Prisma.JsonNullValueInput | runtime.InputJsonValue
   image: string
   lat: number
   lng: number
@@ -457,7 +453,7 @@ export type MapDisasterPointUpdateManyMutationInput = {
   date?: Prisma.StringFieldUpdateOperationsInput | string
   casualties?: Prisma.IntFieldUpdateOperationsInput | number
   displaced?: Prisma.IntFieldUpdateOperationsInput | number
-  description?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   image?: Prisma.StringFieldUpdateOperationsInput | string
   lat?: Prisma.FloatFieldUpdateOperationsInput | number
   lng?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -473,7 +469,7 @@ export type MapDisasterPointUncheckedUpdateManyInput = {
   date?: Prisma.StringFieldUpdateOperationsInput | string
   casualties?: Prisma.IntFieldUpdateOperationsInput | number
   displaced?: Prisma.IntFieldUpdateOperationsInput | number
-  description?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   image?: Prisma.StringFieldUpdateOperationsInput | string
   lat?: Prisma.FloatFieldUpdateOperationsInput | number
   lng?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -512,7 +508,6 @@ export type MapDisasterPointMaxOrderByAggregateInput = {
   date?: Prisma.SortOrder
   casualties?: Prisma.SortOrder
   displaced?: Prisma.SortOrder
-  description?: Prisma.SortOrder
   image?: Prisma.SortOrder
   lat?: Prisma.SortOrder
   lng?: Prisma.SortOrder
@@ -528,7 +523,6 @@ export type MapDisasterPointMinOrderByAggregateInput = {
   date?: Prisma.SortOrder
   casualties?: Prisma.SortOrder
   displaced?: Prisma.SortOrder
-  description?: Prisma.SortOrder
   image?: Prisma.SortOrder
   lat?: Prisma.SortOrder
   lng?: Prisma.SortOrder
@@ -638,7 +632,7 @@ export type $MapDisasterPointPayload<ExtArgs extends runtime.Types.Extensions.In
     date: string
     casualties: number
     displaced: number
-    description: string
+    description: runtime.JsonValue
     image: string
     lat: number
     lng: number
@@ -1074,7 +1068,7 @@ export interface MapDisasterPointFieldRefs {
   readonly date: Prisma.FieldRef<"MapDisasterPoint", 'String'>
   readonly casualties: Prisma.FieldRef<"MapDisasterPoint", 'Int'>
   readonly displaced: Prisma.FieldRef<"MapDisasterPoint", 'Int'>
-  readonly description: Prisma.FieldRef<"MapDisasterPoint", 'String'>
+  readonly description: Prisma.FieldRef<"MapDisasterPoint", 'Json'>
   readonly image: Prisma.FieldRef<"MapDisasterPoint", 'String'>
   readonly lat: Prisma.FieldRef<"MapDisasterPoint", 'Float'>
   readonly lng: Prisma.FieldRef<"MapDisasterPoint", 'Float'>

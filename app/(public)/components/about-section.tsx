@@ -1,14 +1,32 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
 import { Phone, MessageSquare, FileText } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
-import { emergencyContacts } from "@/data/dummy-data";
 import Wrapper from "@/components/wrapper";
+import { useSuspenseQuery } from "@tanstack/react-query";
 
 const PROFILE_IMAGE =
   "https://picsum.photos/seed/bpbd-about-profile/800/1000";
 
+async function fetchPublicSiteSettings(): Promise<{
+  settings: { contactPhone?: string | null; aboutProfileUrl?: string | null };
+}> {
+  const res = await fetch("/api/public/site-settings", { cache: "no-store" });
+  if (!res.ok) throw new Error("Failed to fetch site settings");
+  return res.json();
+}
+
 export function AboutSection() {
+  const { data } = useSuspenseQuery({
+    queryKey: ["public-site-settings"],
+    queryFn: fetchPublicSiteSettings,
+  });
+
+  const emergencyNumber = data?.settings?.contactPhone ?? "-";
+  const profileImageUrl = data?.settings?.aboutProfileUrl ?? PROFILE_IMAGE;
+
   return (
     <section className="relative z-10 pb-16 sm:pb-20">
       <Wrapper>
@@ -50,7 +68,7 @@ export function AboutSection() {
                       Nomor Darurat
                     </p>
                     <p className="text-lg font-bold tracking-tight text-red-600">
-                      {emergencyContacts[0].number}
+                      {emergencyNumber}
                     </p>
                   </div>
                 </CardContent>
@@ -100,7 +118,7 @@ export function AboutSection() {
           <div className="lg:col-span-6 lg:order-1">
             <div className="relative mx-auto aspect-4/5 w-full max-w-md overflow-hidden rounded-2xl bg-muted shadow-lg ring-1 ring-border/60 sm:max-w-lg lg:mx-0 lg:max-w-none">
           <Image
-            src={PROFILE_IMAGE}
+            src={profileImageUrl}
             alt="Profil pimpinan BPBD Kota Baubau"
             fill
             className="object-cover"

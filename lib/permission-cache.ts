@@ -1,14 +1,11 @@
 import { LRUCache } from "lru-cache";
 import db from "@/lib/db";
-import { navigationResources } from "./navigation-data";
-
-type RoleId = "admin" | "staff" | "lecturer" | "student";
 
 /**
  * In-memory cache for role permissions
  * TTL: 5 minutes
  */
-const navCache = new LRUCache<RoleId, Record<string, string[]>>({
+const navCache = new LRUCache<string, Record<string, string[]>>({
   max: 10,
   ttl: 5 * 60 * 1000, // 5 minutes
 });
@@ -17,19 +14,19 @@ const navCache = new LRUCache<RoleId, Record<string, string[]>>({
  * Get only navigation-related permissions
  */
 export async function getCachedPermissions(
-  role: RoleId,
+  role: string,
 ): Promise<Record<string, string[]>> {
-  const cached = navCache.get(role);
+  const normalizedRole = role.toLowerCase();
+  const cached = navCache.get(normalizedRole);
 
   if (cached) {
     return cached;
   }
 
-  // Fetch only navigation-related resources from database
+  // Fetch permissions from database
   const dbPermissions = await db.rolePermission.findMany({
     where: {
-      role,
-      resource: { in: [...navigationResources] },
+      role: normalizedRole,
     },
     select: {
       resource: true,
@@ -43,7 +40,7 @@ export async function getCachedPermissions(
   }
 
   // Update nav cache
-  navCache.set(role, permissions);
+  navCache.set(normalizedRole, permissions);
 
   return permissions;
 }
@@ -51,9 +48,9 @@ export async function getCachedPermissions(
 /**
  * Invalidate cache for a specific role
  */
-export function invalidatePermissionCache(role?: RoleId): void {
+export function invalidatePermissionCache(role?: string): void {
   if (role) {
-    navCache.delete(role);
+    navCache.delete(role.toLowerCase());
   } else {
     navCache.clear();
   }
@@ -69,13 +66,8 @@ export async function checkPermission(
 ): Promise<boolean> {
   if (!role) return false;
 
-  const normalizedRole = role.toLowerCase() as RoleId;
-  if (!["admin", "staff", "lecturer", "student"].includes(normalizedRole)) {
-    return false;
-  }
-
   try {
-    const permissions = await getCachedPermissions(normalizedRole);
+    const permissions = await getCachedPermissions(role);
     const resourcePermissions = permissions[resource];
 
     if (!resourcePermissions) return false;

@@ -2,6 +2,10 @@ import { NewsSection } from "@/app/(public)/components/news-section";
 import { AboutSection } from "./components/about-section";
 import { CtaSection } from "./components/cta-section";
 import { Jumbotron } from "./components/hero-section";
+import { SectionBoundary } from "./components/section-boundary";
+import { HomeHeroSkeleton } from "./components/skeletons/home-hero-skeleton";
+import { HomeAboutSkeleton } from "./components/skeletons/home-about-skeleton";
+import { HomeNewsSkeleton } from "./components/skeletons/home-news-skeleton";
 
 const jsonLd = {
   "@context": "https://schema.org",
@@ -34,9 +38,27 @@ export default function Home() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
-      <Jumbotron />
-      <AboutSection />
-      <NewsSection />
+      <SectionBoundary
+        loadingFallback={<HomeHeroSkeleton />}
+        errorTitle="Hero"
+      >
+        <Jumbotron />
+      </SectionBoundary>
+
+      <SectionBoundary
+        loadingFallback={<HomeAboutSkeleton />}
+        errorTitle="Tentang Kami"
+      >
+        <AboutSection />
+      </SectionBoundary>
+
+      <SectionBoundary
+        loadingFallback={<HomeNewsSkeleton />}
+        errorTitle="Berita & Kegiatan"
+      >
+        <NewsSection />
+      </SectionBoundary>
+
       <CtaSection />
     </>
   );

@@ -1,96 +1,160 @@
 "use client";
 
-import type { ColumnDef } from "@tanstack/react-table";
+import { ColumnDef } from "@tanstack/react-table";
+import Image from "next/image";
+
 import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
 import { DataTableColumnHeader } from "@/components/datatable/table-header";
-import { type Aspiration, aspirationStatusLabels } from "@/data/dummy-data";
-import { cn } from "@/lib/utils";
+import { formatDateTime } from "@/helpers/date";
 import { CellAction } from "./cell-action";
+import type { Aspiration } from "./aspirations-table";
+import { cn } from "@/lib/utils";
+
+export type { Aspiration };
+
+const aspirationStatusLabels: Record<Aspiration["status"], string> = {
+  pending: "Pending",
+  in_progress: "Diproses",
+  completed: "Selesai",
+  rejected: "Ditolak",
+};
 
 const statusStyle: Record<
   Aspiration["status"],
-  { className: string }
+  { variant: "default" | "secondary" | "destructive" | "outline"; className: string }
 > = {
   pending: {
+    variant: "outline",
     className: "bg-amber-50 text-amber-800 border-amber-200/60",
   },
   in_progress: {
+    variant: "outline",
     className: "bg-blue-50 text-blue-800 border-blue-200/60",
   },
   completed: {
+    variant: "outline",
     className: "bg-emerald-50 text-emerald-800 border-emerald-200/60",
   },
   rejected: {
+    variant: "outline",
     className: "bg-red-50 text-red-800 border-red-200/60",
   },
 };
 
-function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString("id-ID", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  });
+function getDescriptionPreview(description: unknown): string {
+  if (typeof description === "string") {
+    const s = description.trim();
+    if (s.startsWith("{") && s.endsWith("}")) {
+      try {
+        const parsed = JSON.parse(s) as { text?: unknown };
+        if (typeof parsed?.text === "string") return parsed.text.trim();
+      } catch {
+        // ignore
+      }
+    }
+    return s;
+  }
+  return "";
 }
 
-export const columns: ColumnDef<Aspiration, unknown>[] = [
-  {
-    accessorKey: "id",
-    header: "ID",
-    cell: ({ row }) => (
-      <span className="font-mono text-xs text-muted-foreground">
-        {row.original.id}
-      </span>
-    ),
-    enableSorting: false,
-  },
-  {
-    accessorKey: "submitterName",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Nama" />
-    ),
-    cell: ({ row }) => (
-      <span className="font-medium">{row.original.submitterName}</span>
-    ),
-  },
-  {
-    accessorKey: "description",
-    header: "Deskripsi",
-    cell: ({ row }) => (
-      <span className="text-sm text-muted-foreground max-w-[300px] line-clamp-2">
-        {row.original.description.text}
-      </span>
-    ),
-    enableSorting: false,
-  },
-  {
-    accessorKey: "createdAt",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Tanggal" />
-    ),
-    cell: ({ row }) => formatDate(row.original.createdAt),
-  },
-  {
-    accessorKey: "status",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Status" />
-    ),
-    cell: ({ row }) => {
-      const st = statusStyle[row.original.status];
-      return (
-        <Badge
-          variant="outline"
-          className={cn("text-[10px] font-semibold border", st.className)}
-        >
-          {aspirationStatusLabels[row.original.status]}
-        </Badge>
-      );
+export function useColumns(): ColumnDef<Aspiration>[] {
+  return [
+    {
+      id: "select",
+      header: ({ table }) => (
+        <Checkbox
+          checked={
+            table.getIsAllPageRowsSelected() ||
+            (table.getIsSomePageRowsSelected() && "indeterminate")
+          }
+          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+          aria-label="Pilih semua"
+        />
+      ),
+      cell: ({ row }) => (
+        <Checkbox
+          checked={row.getIsSelected()}
+          onCheckedChange={(value) => row.toggleSelected(!!value)}
+          aria-label="Pilih baris"
+        />
+      ),
+      enableSorting: false,
+      enableHiding: false,
     },
-  },
-  {
-    id: "actions",
-    cell: ({ row }) => <CellAction data={row.original} />,
-    enableSorting: false,
-    enableHiding: false,
-  },
-];
+    {
+      accessorKey: "submitterName",
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Nama & ringkasan" />
+      ),
+      cell: ({ row }) => {
+        const aspiration = row.original;
+        const preview = getDescriptionPreview(aspiration.description);
+        return (
+          <div className="flex items-center gap-3 max-w-md">
+            <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-md border bg-muted">
+              <Image
+                src={`https://ui-avatars.com/api/?name=${encodeURIComponent(aspiration.submitterName)}&background=random&color=fff&bold=true&length=1`}
+                alt={aspiration.submitterName}
+                fill
+                className="object-cover"
+                loading="lazy"
+              />
+            </div>
+            <div className="flex flex-col min-w-0">
+              <span className="font-medium text-sm truncate">
+                {aspiration.submitterName}
+              </span>
+              {preview ? (
+                <span className="text-xs text-muted-foreground line-clamp-2">
+                  {preview}
+                </span>
+              ) : null}
+            </div>
+          </div>
+        );
+      },
+    },
+    {
+      accessorKey: "status",
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Status" />
+      ),
+      cell: ({ row }) => {
+        const st = row.original.status;
+        const style = statusStyle[st];
+        return (
+          <Badge
+            variant={style?.variant || "outline"}
+            className={cn(
+              "capitalize shadow-sm rounded-full px-2.5 py-0.5 text-xs font-medium",
+              style?.className,
+            )}
+          >
+            {aspirationStatusLabels[st]}
+          </Badge>
+        );
+      },
+    },
+    {
+      accessorKey: "createdAt",
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Dibuat pada" />
+      ),
+      cell: ({ row }) => {
+        const createdAt = row.getValue("createdAt") as string;
+        return (
+          <div className="text-sm text-muted-foreground">
+            {createdAt ? formatDateTime(createdAt) : "-"}
+          </div>
+        );
+      },
+    },
+    {
+      id: "actions",
+      enableHiding: false,
+      enableSorting: false,
+      cell: ({ row }) => <CellAction data={row.original} />,
+    },
+  ];
+}

@@ -1,145 +1,208 @@
 "use client";
 
-import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { toast } from "sonner";
+import { Loader2, Save } from "lucide-react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
+
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from "@/components/ui/card";
-import type { ArchiveDocument } from "@/data/dummy-data";
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 
-interface ArchiveFormProps {
-  initialData?: ArchiveDocument;
-}
+import {
+  createArchiveSchema,
+  type CreateArchiveInput,
+} from "@/modules/archives";
 
-export function ArchiveForm({ initialData }: ArchiveFormProps) {
+type Mode = "create" | "edit";
+
+export function ArchiveForm(props: {
+  mode?: Mode;
+  archiveId?: string;
+  initialData?: Partial<CreateArchiveInput>;
+}) {
+  const mode: Mode = props.mode ?? "create";
   const router = useRouter();
-  const isEdit = !!initialData;
+  const queryClient = useQueryClient();
 
-  const [form, setForm] = useState({
-    name: initialData?.name ?? "",
-    description: initialData?.description.text ?? "",
-    year: initialData?.year ?? "",
-    dateLabel: initialData?.dateLabel ?? "",
-    fileSize: initialData?.fileSize ?? "",
-    downloadUrl: initialData?.downloadUrl ?? "",
+  const form = useForm<CreateArchiveInput>({
+    resolver: zodResolver(createArchiveSchema),
+    defaultValues: {
+      name: props.initialData?.name ?? "",
+      description: (props.initialData?.description as string) ?? "",
+      year: props.initialData?.year ?? "",
+      dateLabel: props.initialData?.dateLabel ?? "",
+      fileSize: props.initialData?.fileSize ?? "",
+      downloadUrl: props.initialData?.downloadUrl ?? "",
+    },
   });
 
-  function handleChange(
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
-  ) {
-    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
-  }
+  const mutation = useMutation({
+    mutationFn: async (values: CreateArchiveInput) => {
+      const isEdit = mode === "edit" && props.archiveId;
+      const url = isEdit
+        ? `/api/dashboard/archives/${props.archiveId}`
+        : "/api/dashboard/archives";
+      const method = isEdit ? "PATCH" : "POST";
 
-  function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    console.log(isEdit ? "Updating archive:" : "Creating archive:", form);
-    router.push("/dashboard/archives");
-  }
+      const res = await fetch(url, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(values),
+      });
+      const json = await res.json().catch(() => null);
+      if (!res.ok || json?.status !== "success") {
+        throw new Error(json?.message || "Gagal menyimpan arsip.");
+      }
+      return json.data;
+    },
+    onSuccess: async () => {
+      toast.success(mode === "edit" ? "Arsip berhasil diperbarui." : "Arsip berhasil dibuat.");
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["archives"] }),
+        queryClient.invalidateQueries({ queryKey: ["archives", "stats"] }),
+      ]);
+      router.push("/dashboard/archives");
+      router.refresh();
+    },
+    onError: (e: Error) => {
+      toast.error(e.message);
+    },
+  });
+
+  const isPending = mutation.isPending;
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>{isEdit ? "Edit Arsip" : "Tambah Arsip Baru"}</CardTitle>
-        <CardDescription>
-          {isEdit
-            ? "Perbarui informasi dokumen arsip."
-            : "Isi form di bawah untuk menambahkan arsip baru."}
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-5">
-          <div className="space-y-2">
-            <Label htmlFor="name">Judul</Label>
-            <Input
-              id="name"
+    <Form {...form}>
+      <form
+        onSubmit={form.handleSubmit((v) => mutation.mutate(v), () => {
+          toast.error("Periksa kembali isian formulir.");
+        })}
+        className="space-y-8"
+      >
+        <div className="grid gap-8 md:grid-cols-3">
+          <div className="md:col-span-2 space-y-6">
+            <FormField
+              control={form.control}
               name="name"
-              value={form.name}
-              onChange={handleChange}
-              placeholder="Judul laporan arsip"
-              required
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Judul laporan</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Judul dokumen arsip" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-          </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="description">Deskripsi</Label>
-            <Textarea
-              id="description"
+            <FormField
+              control={form.control}
               name="description"
-              value={form.description}
-              onChange={handleChange}
-              placeholder="Deskripsi singkat dokumen"
-              rows={3}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Deskripsi</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder="Deskripsi singkat dokumen"
+                      className="min-h-[160px]"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
           </div>
 
-          <div className="grid gap-5 sm:grid-cols-2">
-            <div className="space-y-2">
-              <Label htmlFor="year">Tahun</Label>
-              <Input
-                id="year"
+          <div className="space-y-6">
+            <div className="rounded-lg border bg-card text-card-foreground shadow-sm p-6 space-y-4">
+              <h3 className="font-semibold leading-none tracking-tight">Detail dokumen</h3>
+
+              <FormField
+                control={form.control}
                 name="year"
-                value={form.year}
-                onChange={handleChange}
-                placeholder="2026"
-                required
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Tahun</FormLabel>
+                    <FormControl>
+                      <Input placeholder="2026" {...field} inputMode="numeric" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
-            </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="dateLabel">Tanggal Dokumen</Label>
-              <Input
-                id="dateLabel"
+              <FormField
+                control={form.control}
                 name="dateLabel"
-                value={form.dateLabel}
-                onChange={handleChange}
-                placeholder="1 Januari 2026"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Tanggal dokumen</FormLabel>
+                    <FormControl>
+                      <Input placeholder="1 Januari 2026" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
-            </div>
-          </div>
 
-          <div className="grid gap-5 sm:grid-cols-2">
-            <div className="space-y-2">
-              <Label htmlFor="fileSize">Ukuran File</Label>
-              <Input
-                id="fileSize"
+              <FormField
+                control={form.control}
                 name="fileSize"
-                value={form.fileSize}
-                onChange={handleChange}
-                placeholder="2.4 MB"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Ukuran file</FormLabel>
+                    <FormControl>
+                      <Input placeholder="2.4 MB" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
-            </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="downloadUrl">URL Download</Label>
-              <Input
-                id="downloadUrl"
+              <FormField
+                control={form.control}
                 name="downloadUrl"
-                value={form.downloadUrl}
-                onChange={handleChange}
-                placeholder="https://..."
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>URL download</FormLabel>
+                    <FormControl>
+                      <Input placeholder="https://..." {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
+
+              <Button type="submit" className="w-full" disabled={isPending}>
+                {isPending ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Menyimpan...
+                  </>
+                ) : (
+                  <>
+                    <Save className="mr-2 h-4 w-4" />
+                    {mode === "edit" ? "Simpan perubahan" : "Simpan"}
+                  </>
+                )}
+              </Button>
             </div>
           </div>
-
-          <div className="flex items-center gap-3 pt-2">
-            <Button type="submit">
-              {isEdit ? "Simpan" : "Tambah Arsip"}
-            </Button>
-            <Button variant="outline" asChild>
-              <Link href="/dashboard/archives">Batal</Link>
-            </Button>
-          </div>
-        </form>
-      </CardContent>
-    </Card>
+        </div>
+      </form>
+    </Form>
   );
 }

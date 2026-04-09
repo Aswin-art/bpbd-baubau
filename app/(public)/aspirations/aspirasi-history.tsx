@@ -90,7 +90,7 @@ export function AspirasiHistory() {
                 </div>
 
                 <p className="text-sm text-foreground leading-relaxed mb-2">
-                  {item.description.text}
+                  {item.description}
                 </p>
 
                 <div className="flex items-center gap-3 text-[11px] text-muted-foreground">

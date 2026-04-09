@@ -7,11 +7,11 @@ export const statement = {
   dashboard: ["view"],
   profile: ["view", "update"],
 
-  news: ["create", "read", "update", "delete", "publish"],
+  articles: ["create", "read", "update", "delete", "publish"],
   aspirations: ["create", "read", "update", "delete", "change_status"],
   documents: ["create", "read", "update", "delete"],
   archives: ["create", "read", "update", "delete"],
-  map: ["create", "read", "update", "delete"],
+  maps: ["create", "read", "update", "delete"],
 
   users: ["create", "read", "update", "delete", "ban"],
   settings: ["read", "update"],
@@ -24,11 +24,11 @@ export const adminRole = ac.newRole({
   ...adminAc.statements,
   dashboard: ["view"],
   profile: ["view", "update"],
-  news: ["create", "read", "update", "delete", "publish"],
+  articles: ["create", "read", "update", "delete", "publish"],
   aspirations: ["create", "read", "update", "delete", "change_status"],
   documents: ["create", "read", "update", "delete"],
   archives: ["create", "read", "update", "delete"],
-  map: ["create", "read", "update", "delete"],
+  maps: ["create", "read", "update", "delete"],
   users: ["create", "read", "update", "delete", "ban"],
   settings: ["read", "update"],
 });
@@ -37,11 +37,11 @@ export const adminRole = ac.newRole({
 export const kepalaBpbdRole = ac.newRole({
   dashboard: ["view"],
   profile: ["view", "update"],
-  news: ["read", "publish"],
+  articles: ["read", "publish"],
   aspirations: ["read", "change_status"],
   documents: ["read"],
   archives: ["read"],
-  map: ["read"],
+  maps: ["read"],
   users: ["read"],
   settings: ["read"],
 });
@@ -50,11 +50,11 @@ export const kepalaBpbdRole = ac.newRole({
 export const operatorRole = ac.newRole({
   dashboard: ["view"],
   profile: ["view", "update"],
-  news: ["create", "read", "update", "delete", "publish"],
+  articles: ["create", "read", "update", "delete", "publish"],
   aspirations: ["read", "update", "change_status"],
   documents: ["create", "read", "update", "delete"],
   archives: ["create", "read", "update", "delete"],
-  map: ["create", "read", "update", "delete"],
+  maps: ["create", "read", "update", "delete"],
   users: [],
   settings: [],
 });
@@ -63,11 +63,11 @@ export const operatorRole = ac.newRole({
 export const masyarakatRole = ac.newRole({
   dashboard: [],
   profile: ["view", "update"],
-  news: ["read"],
+  articles: ["read"],
   aspirations: ["create", "read"],
   documents: ["read"],
   archives: ["read"],
-  map: ["read"],
+  maps: ["read"],
   users: [],
   settings: [],
 });

@@ -37,4 +37,3 @@ if (process.env.NODE_ENV !== "production") {
 }
 
 export default db;
-export const prisma = db;

@@ -8,10 +8,12 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import type { DocumentItem } from "@/data/dummy-data";
 import { DeleteDialog } from "../dialogs/delete-dialog";
+import type { DocumentItem } from "./documents-table";
 
 interface CellActionProps {
   data: DocumentItem;
@@ -24,12 +26,13 @@ export function CellAction({ data }: CellActionProps) {
     <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="icon" className="h-8 w-8">
+          <Button variant="ghost" className="h-8 w-8 p-0">
             <MoreHorizontal className="h-4 w-4" />
             <span className="sr-only">Buka menu</span>
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
+          <DropdownMenuLabel>Aksi</DropdownMenuLabel>
           <DropdownMenuItem asChild>
             <Link href={`/dashboard/documents/${data.id}/edit`}>
               <Edit className="h-4 w-4" />
@@ -42,9 +45,10 @@ export function CellAction({ data }: CellActionProps) {
               Download
             </a>
           </DropdownMenuItem>
+          <DropdownMenuSeparator />
           <DropdownMenuItem
-            variant="destructive"
             onClick={() => setDeleteDialogOpen(true)}
+            className="text-destructive focus:text-destructive cursor-pointer"
           >
             <Trash2 className="h-4 w-4" />
             Hapus
@@ -55,11 +59,8 @@ export function CellAction({ data }: CellActionProps) {
       <DeleteDialog
         open={deleteDialogOpen}
         onOpenChange={setDeleteDialogOpen}
-        documentName={data.name}
-        onConfirm={() => {
-          console.log("Delete document:", data.id);
-          setDeleteDialogOpen(false);
-        }}
+        ids={[data.id]}
+        itemName={data.name}
       />
     </>
   );

@@ -10,43 +10,89 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
+import { Loader2 } from "lucide-react";
 
 interface DeleteDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  submitterName: string;
-  onConfirm: () => void;
+  ids: string[];
+  itemName?: string;
+  onSuccess?: () => void;
 }
 
 export function DeleteDialog({
   open,
   onOpenChange,
-  submitterName,
-  onConfirm,
+  ids,
+  itemName,
+  onSuccess,
 }: DeleteDialogProps) {
+  const queryClient = useQueryClient();
+
+  const mutation = useMutation({
+    mutationFn: async () => {
+      if (ids.length === 1) {
+        const res = await fetch(`/api/dashboard/aspirations/${ids[0]}`, {
+          method: "DELETE",
+        });
+        const json = await res.json().catch(() => null);
+        if (!res.ok || json?.status !== "success") {
+          throw new Error(json?.message || "Gagal menghapus aspirasi.");
+        }
+        return json.data;
+      }
+
+      const res = await fetch("/api/dashboard/aspirations", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ids }),
+      });
+      const json = await res.json().catch(() => null);
+      if (!res.ok || json?.status !== "success") {
+        throw new Error(json?.message || "Gagal menghapus aspirasi.");
+      }
+      return json.data;
+    },
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["dashboard", "aspirations"] }),
+        queryClient.invalidateQueries({ queryKey: ["aspirations", "stats"] }),
+      ]);
+      toast.success("Aspirasi berhasil dihapus.");
+      onOpenChange(false);
+      onSuccess?.();
+    },
+    onError: (e: Error) => {
+      toast.error(e.message);
+    },
+  });
+
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>Hapus Aspirasi</AlertDialogTitle>
           <AlertDialogDescription>
-            Apakah Anda yakin ingin menghapus aspirasi dari{" "}
-            <span className="font-semibold text-foreground">
-              {submitterName}
-            </span>
-            ? Tindakan ini tidak dapat dibatalkan.
+            {ids.length > 1
+              ? `Anda yakin ingin menghapus ${ids.length} aspirasi yang dipilih? Tindakan ini tidak dapat dibatalkan.`
+              : `Anda yakin ingin menghapus aspirasi "${itemName || ""}"? Tindakan ini tidak dapat dibatalkan.`}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Batal</AlertDialogCancel>
+          <AlertDialogCancel disabled={mutation.isPending}>Batal</AlertDialogCancel>
           <AlertDialogAction
             className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             onClick={() => {
-              console.log("Delete aspiration from:", submitterName);
-              onConfirm();
+              mutation.mutate();
             }}
+            disabled={mutation.isPending || ids.length === 0}
           >
-            Hapus
+            {mutation.isPending && (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            )}
+            {mutation.isPending ? "Menghapus..." : "Hapus"}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

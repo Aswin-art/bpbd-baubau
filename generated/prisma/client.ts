@@ -43,7 +43,6 @@ export { Prisma }
 
 /**
  * Model User
- * Better Auth plus application roles:
  * - admin | kepala_bpbd | operator: staff (dashboard)
  * - masyarakat: portal users (aspirations, news comments)
  */
@@ -64,15 +63,15 @@ export type Account = Prisma.AccountModel
  */
 export type Verification = Prisma.VerificationModel
 /**
- * Model NewsArticle
- * News posts; `content` is JSON (e.g. rich text / blocks). `category` is a free-form string slug or label.
+ * Model Article
+ * 
  */
-export type NewsArticle = Prisma.NewsArticleModel
+export type Article = Prisma.ArticleModel
 /**
- * Model NewsComment
+ * Model ArticleComment
  * Comments on news articles; `body` is JSON (e.g. plain text wrapper or structured payload).
  */
-export type NewsComment = Prisma.NewsCommentModel
+export type ArticleComment = Prisma.ArticleCommentModel
 /**
  * Model Aspiration
  * Citizen aspiration / suggestion; `description` is JSON (e.g. long-form or structured text).
@@ -89,6 +88,11 @@ export type MapDisasterPoint = Prisma.MapDisasterPointModel
  */
 export type ArsipDocument = Prisma.ArsipDocumentModel
 /**
+ * Model Document
+ * 
+ */
+export type Document = Prisma.DocumentModel
+/**
  * Model HeroSlide
  * Hero carousel slide (ordered list for the landing hero section).
  */
@@ -99,3 +103,8 @@ export type HeroSlide = Prisma.HeroSlideModel
  * Use a single row with `id = "default"` (create via upsert in application code).
  */
 export type SiteSettings = Prisma.SiteSettingsModel
+/**
+ * Model RolePermission
+ * 
+ */
+export type RolePermission = Prisma.RolePermissionModel

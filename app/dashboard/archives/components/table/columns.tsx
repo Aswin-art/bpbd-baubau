@@ -1,11 +1,59 @@
 "use client";
 
 import type { ColumnDef } from "@tanstack/react-table";
+import Image from "next/image";
 import { DataTableColumnHeader } from "@/components/datatable/table-header";
-import type { ArchiveDocument } from "@/data/dummy-data";
+import type { ArchiveDocument } from "./archives-table";
 import { CellAction } from "./cell-action";
+import { Checkbox } from "@/components/ui/checkbox";
 
-export const columns: ColumnDef<ArchiveDocument, unknown>[] = [
+function getDescriptionPreview(description: unknown): string {
+  if (typeof description === "string") {
+    const s = description.trim();
+    // DB stores TEXT; some records are JSON-stringified objects like {"text":"..."}.
+    if (
+      (s.startsWith("{") && s.endsWith("}")) ||
+      (s.startsWith("[") && s.endsWith("]"))
+    ) {
+      try {
+        return getDescriptionPreview(JSON.parse(s));
+      } catch {
+        return s;
+      }
+    }
+    return s;
+  }
+  if (description && typeof description === "object") {
+    const maybeText = (description as any)?.text;
+    if (typeof maybeText === "string") return maybeText;
+  }
+  return "";
+}
+
+export function useColumns(): ColumnDef<ArchiveDocument>[] {
+  return [
+    {
+      id: "select",
+      header: ({ table }) => (
+        <Checkbox
+          checked={
+            table.getIsAllPageRowsSelected() ||
+            (table.getIsSomePageRowsSelected() && "indeterminate")
+          }
+          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+          aria-label="Pilih semua"
+        />
+      ),
+      cell: ({ row }) => (
+        <Checkbox
+          checked={row.getIsSelected()}
+          onCheckedChange={(value) => row.toggleSelected(!!value)}
+          aria-label="Pilih baris"
+        />
+      ),
+      enableSorting: false,
+      enableHiding: false,
+    },
   {
     accessorKey: "year",
     header: ({ column }) => (
@@ -20,18 +68,33 @@ export const columns: ColumnDef<ArchiveDocument, unknown>[] = [
   {
     accessorKey: "name",
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Judul laporan" />
+      <DataTableColumnHeader column={column} title="Judul & ringkasan" />
     ),
-    cell: ({ row }) => (
-      <div>
-        <p className="font-medium max-w-[320px] line-clamp-2">
-          {row.original.name}
-        </p>
-        <p className="text-xs text-muted-foreground line-clamp-2 mt-1">
-          {row.original.description.text}
-        </p>
-      </div>
-    ),
+    cell: ({ row }) => {
+      const doc = row.original;
+      const preview = getDescriptionPreview(doc.description);
+      return (
+        <div className="flex items-center gap-3 max-w-md">
+          <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-md border bg-muted">
+            <Image
+              src={`https://ui-avatars.com/api/?name=${encodeURIComponent(doc.name)}&background=random&color=fff&bold=true&length=1`}
+              alt={doc.name}
+              fill
+              className="object-cover"
+              loading="lazy"
+            />
+          </div>
+          <div className="flex flex-col min-w-0">
+            <span className="font-medium text-sm truncate">{doc.name}</span>
+            {preview ? (
+              <span className="text-xs text-muted-foreground line-clamp-2">
+                {preview}
+              </span>
+            ) : null}
+          </div>
+        </div>
+      );
+    },
   },
   {
     accessorKey: "dateLabel",
@@ -48,5 +111,8 @@ export const columns: ColumnDef<ArchiveDocument, unknown>[] = [
   {
     id: "actions",
     cell: ({ row }) => <CellAction data={row.original} />,
+    enableSorting: false,
+    enableHiding: false,
   },
-];
+  ];
+}

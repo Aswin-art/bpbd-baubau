@@ -27,7 +27,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { DashboardHeader } from "./dashboard-header";
+import { DashboardHeader } from "./components/dashboard-header";
+import { PermissionGuard } from "./components/permission-guard";
 import {
   newsArticles,
   aspirations,
@@ -177,11 +178,12 @@ export default function DashboardPage() {
   );
 
   return (
-    <>
-      <DashboardHeader
-        title="Overview"
-        description="Ringkasan data kebencanaan dan layanan BPBD Kota Baubau."
-      />
+    <PermissionGuard resource="dashboard" action="view">
+      <>
+        <DashboardHeader
+          title="Overview"
+          description="Ringkasan data kebencanaan dan layanan BPBD Kota Baubau."
+        />
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-8">
@@ -437,7 +439,7 @@ export default function DashboardPage() {
                 <CardTitle className="text-[15px] font-bold">
                   Berita Terbaru
                 </CardTitle>
-                <Link href="/dashboard/news">
+                <Link href="/dashboard/articles">
                   <Button variant="ghost" size="sm" className="text-xs gap-1.5">
                     Semua
                     <ArrowUpRight className="h-3 w-3" />
@@ -522,7 +524,7 @@ export default function DashboardPage() {
                         </Badge>
                       </div>
                       <p className="text-[12px] text-muted-foreground line-clamp-1">
-                        {item.description.text}
+                        {item.description}
                       </p>
                       <p className="text-[10px] text-muted-foreground/70 mt-1">
                         {new Date(item.createdAt).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" })}
@@ -535,6 +537,7 @@ export default function DashboardPage() {
           </Card>
         </div>
       </div>
-    </>
+      </>
+    </PermissionGuard>
   );
 }

@@ -10,29 +10,41 @@ import { useState } from "react";
 import type { Swiper as SwiperType } from "swiper";
 
 import { Button } from "@/components/ui/button";
-import type { HeroSlide } from "@/data/dummy-data";
-import { heroSlides } from "@/data/dummy-data";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import type { PublicHeroSlide } from "@/modules/public/hero-slides";
 
 import "swiper/css";
 import "swiper/css/effect-fade";
 
-export interface JumbotronProps {
-  slides?: HeroSlide[];
+type UiHeroSlide = {
+  id: string;
+  imageUrl: string;
+  heading: string;
+  description?: string | null;
+  cta?: { href?: string | null };
+};
+
+async function fetchHeroSlides(): Promise<{ slides: PublicHeroSlide[] }> {
+  const res = await fetch("/api/public/hero-slides", { cache: "no-store" });
+  if (!res.ok) {
+    throw new Error("Failed to fetch hero slides");
+  }
+  return res.json();
 }
 
-export function Jumbotron({ slides: slidesProp }: JumbotronProps = {}) {
-  const slides =
-    slidesProp ??
-    heroSlides.map((s, i) => ({
-      ...s,
-      imageUrl:
-        s.imageUrl ??
-        (i === 0
-          ? "/images/hero-1.avif"
-          : i === 1
-            ? "/images/hero-2.avif"
-            : "/images/hero-3.avif"),
-    }));
+export function Jumbotron() {
+  const { data } = useSuspenseQuery({
+    queryKey: ["public-hero-slides"],
+    queryFn: fetchHeroSlides,
+  });
+
+  const slides: UiHeroSlide[] = (data?.slides ?? []).map((s) => ({
+    id: s.id,
+    imageUrl: s.imageUrl,
+    heading: s.title ?? "BPBD Kota Baubau",
+    description: s.subtitle,
+    cta: { href: s.linkUrl },
+  }));
   const [activeIndex, setActiveIndex] = useState(0);
   const [swiper, setSwiper] = useState<SwiperType | null>(null);
 

@@ -138,7 +138,7 @@ export function DataTable<TData, TValue>({
             <div className="relative w-full lg:w-auto">
               <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder={`Filter ${searchKey}...`}
+                placeholder={`Cari ${searchKey}...`}
                 value={inputValue}
                 onChange={(event) => setInputValue(event.target.value)}
                 className="pl-8 w-full lg:w-96"
@@ -152,7 +152,7 @@ export function DataTable<TData, TValue>({
           {withPagination && (
             <div className="flex items-center gap-2">
               <p className="hidden text-sm font-medium lg:block">
-                Rows per page
+                Baris per halaman
               </p>
               <Select
                 value={`${limit}`}

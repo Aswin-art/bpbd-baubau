@@ -244,7 +244,7 @@ function ArchivesClientInner() {
                         {doc.name}
                       </h3>
                       <p className="text-sm leading-relaxed text-muted-foreground">
-                        {doc.description.text}
+                        {doc.description}
                       </p>
                     </div>
 

@@ -8,6 +8,7 @@ import {
   operatorRole,
   masyarakatRole,
 } from "./permissions";
+import { getBaseUrl } from "./url";
 
 export const authClient = createAuthClient({
   plugins: [
@@ -23,5 +24,5 @@ export const authClient = createAuthClient({
       },
     }),
   ],
-  baseURL: process.env.NEXT_PUBLIC_BASE_URL,
+  baseURL: getBaseUrl(),
 });

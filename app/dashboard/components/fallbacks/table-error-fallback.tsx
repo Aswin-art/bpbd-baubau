@@ -10,6 +10,7 @@ interface TableErrorFallbackProps {
 }
 
 export function TableErrorFallback({
+  error,
   resetErrorBoundary,
 }: TableErrorFallbackProps) {
   return (
@@ -21,6 +22,11 @@ export function TableErrorFallback({
           <p className="text-sm text-muted-foreground mt-1">
             Please check your connection and try again.
           </p>
+          {error instanceof Error && (
+            <p className="mt-2 text-xs text-destructive/80 wrap-break-word max-w-[520px]">
+              {error.message}
+            </p>
+          )}
         </div>
         <Button variant="outline" onClick={resetErrorBoundary}>
           <RefreshCw className="mr-2 h-4 w-4" />

@@ -1,11 +1,14 @@
 "use client";
 
-import { useState } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import { Loader2, Save } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
@@ -15,119 +18,208 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import type { DocumentItem } from "@/data/dummy-data";
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { createDocumentSchema, type CreateDocumentInput } from "@/modules/documents";
 
-interface DocumentFormProps {
-  initialData?: DocumentItem;
-}
+type Mode = "create" | "edit";
 
-export function DocumentForm({ initialData }: DocumentFormProps) {
+export function DocumentForm(props: {
+  mode?: Mode;
+  documentId?: string;
+  initialData?: Partial<CreateDocumentInput>;
+}) {
   const router = useRouter();
-  const isEdit = !!initialData;
+  const queryClient = useQueryClient();
+  const mode: Mode = props.mode ?? "create";
 
-  const [name, setName] = useState(initialData?.name ?? "");
-  const [description, setDescription] = useState(
-    initialData?.description ?? "",
-  );
-  const [category, setCategory] = useState<DocumentItem["category"] | "">(
-    initialData?.category ?? "",
-  );
-  const [fileSize, setFileSize] = useState(initialData?.fileSize ?? "");
-  const [downloadUrl, setDownloadUrl] = useState(
-    initialData?.downloadUrl ?? "",
-  );
+  const form = useForm<CreateDocumentInput>({
+    resolver: zodResolver(createDocumentSchema),
+    defaultValues: {
+      name: props.initialData?.name ?? "",
+      description: props.initialData?.description ?? "",
+      category: (props.initialData?.category as any) ?? "sop",
+      dateLabel: props.initialData?.dateLabel ?? "",
+      fileSize: props.initialData?.fileSize ?? "",
+      downloadUrl: props.initialData?.downloadUrl ?? "",
+    },
+  });
 
-  function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    console.log("Submit:", { name, description, category, fileSize, downloadUrl });
-    router.push("/dashboard/documents");
-  }
+  const mutation = useMutation({
+    mutationFn: async (values: CreateDocumentInput) => {
+      const isEdit = mode === "edit" && props.documentId;
+      const url = isEdit
+        ? `/api/dashboard/documents/${props.documentId}`
+        : "/api/dashboard/documents";
+      const method = isEdit ? "PATCH" : "POST";
+
+      const res = await fetch(url, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(values),
+      });
+      const json = await res.json().catch(() => null);
+      if (!res.ok || json?.status !== "success") {
+        throw new Error(json?.message || "Gagal menyimpan dokumen.");
+      }
+      return json.data;
+    },
+    onSuccess: async () => {
+      toast.success(mode === "edit" ? "Dokumen berhasil diperbarui." : "Dokumen berhasil dibuat.");
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["documents"] }),
+        queryClient.invalidateQueries({ queryKey: ["documents", "stats"] }),
+      ]);
+      router.push("/dashboard/documents");
+      router.refresh();
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>{isEdit ? "Edit Dokumen" : "Dokumen Baru"}</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-5">
-          <div className="space-y-2">
-            <Label htmlFor="name">Nama dokumen</Label>
-            <Input
-              id="name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Masukkan nama dokumen"
-              required
+    <Form {...form}>
+      <form
+        onSubmit={form.handleSubmit((v) => mutation.mutate(v), () => {
+          toast.error("Periksa kembali isian formulir.");
+        })}
+        className="space-y-8"
+      >
+        <div className="grid gap-8 md:grid-cols-3">
+          <div className="md:col-span-2 space-y-6">
+            <FormField
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Nama dokumen</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Masukkan nama dokumen" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="description"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Deskripsi</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder="Deskripsi singkat dokumen"
+                      className="min-h-[160px]"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="description">Deskripsi</Label>
-            <Textarea
-              id="description"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="Deskripsi singkat dokumen"
-              rows={3}
-            />
-          </div>
+          <div className="space-y-6">
+            <div className="rounded-lg border bg-card text-card-foreground shadow-sm p-6 space-y-4">
+              <h3 className="font-semibold leading-none tracking-tight">
+                Detail dokumen
+              </h3>
 
-          <div className="space-y-2">
-            <Label htmlFor="category">Kategori</Label>
-            <Select
-              value={category}
-              onValueChange={(v) =>
-                setCategory(v as DocumentItem["category"])
-              }
-              required
-            >
-              <SelectTrigger id="category" className="w-full">
-                <SelectValue placeholder="Pilih kategori" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="sop">SOP</SelectItem>
-                <SelectItem value="regulasi">Regulasi</SelectItem>
-                <SelectItem value="pedoman">Pedoman</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+              <FormField
+                control={form.control}
+                name="category"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Kategori</FormLabel>
+                    <Select value={field.value} onValueChange={field.onChange}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Pilih kategori" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="sop">SOP</SelectItem>
+                        <SelectItem value="regulasi">Regulasi</SelectItem>
+                        <SelectItem value="pedoman">Pedoman</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-          <div className="space-y-2">
-            <Label htmlFor="fileSize">Ukuran file</Label>
-            <Input
-              id="fileSize"
-              value={fileSize}
-              onChange={(e) => setFileSize(e.target.value)}
-              placeholder="contoh: 2.4 MB"
-              readOnly={!isEdit}
-            />
-          </div>
+              <FormField
+                control={form.control}
+                name="dateLabel"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Tanggal dokumen</FormLabel>
+                    <FormControl>
+                      <Input placeholder="1 Januari 2026" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-          <div className="space-y-2">
-            <Label htmlFor="downloadUrl">URL file</Label>
-            <Input
-              id="downloadUrl"
-              value={downloadUrl}
-              onChange={(e) => setDownloadUrl(e.target.value)}
-              placeholder="https://..."
-            />
-          </div>
+              <FormField
+                control={form.control}
+                name="fileSize"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Ukuran file</FormLabel>
+                    <FormControl>
+                      <Input placeholder="contoh: 2.4 MB" {...field} />
+                    </FormControl>
+                    <FormDescription>
+                      Isi manual sesuai ukuran file yang ditampilkan di publik.
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-          <div className="flex items-center gap-3 pt-2">
-            <Button type="submit">
-              {isEdit ? "Simpan" : "Tambah Dokumen"}
-            </Button>
-            <Button variant="outline" asChild>
-              <Link href="/dashboard/documents">Batal</Link>
-            </Button>
+              <FormField
+                control={form.control}
+                name="downloadUrl"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>URL file</FormLabel>
+                    <FormControl>
+                      <Input placeholder="https://..." {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <Button
+                type="submit"
+                className="w-full"
+                disabled={mutation.isPending}
+              >
+                {mutation.isPending ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Menyimpan...
+                  </>
+                ) : (
+                  <>
+                    <Save className="mr-2 h-4 w-4" />
+                    {mode === "edit" ? "Simpan perubahan" : "Simpan"}
+                  </>
+                )}
+              </Button>
+            </div>
           </div>
-        </form>
-      </CardContent>
-    </Card>
+        </div>
+      </form>
+    </Form>
   );
 }

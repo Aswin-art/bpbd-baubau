@@ -267,7 +267,7 @@ export default async function ArsipDetailPage({ params }: PageProps) {
                         {doc.name}
                       </p>
                       <p className="text-[11px] text-muted-foreground mt-1">
-                        {doc.description.text}
+                        {doc.description}
                       </p>
                       <div className="flex items-center gap-3 mt-2">
                         <span className="text-[10px] text-muted-foreground">{doc.dateLabel}</span>

@@ -282,7 +282,7 @@ function AspirationsClientInner() {
                   const idx = (current - 1) * (data?.perPage ?? 6) + i + 1;
                   const statusLabel =
                     aspirationStatusLabels[item.status] ?? item.status;
-                  const imageUrl = item.description.imageUrl;
+                  const imageUrl = undefined;
                   return (
                     <li key={item.id} className="border-b border-border/70 px-6 py-6">
                       <div className="grid gap-4">
@@ -304,19 +304,9 @@ function AspirationsClientInner() {
                             <span className="text-xs text-muted-foreground">{item.submitterName}</span>
                           </div>
                           <p className="text-sm leading-relaxed text-foreground/90">
-                            {item.description.text}
+                            {item.description}
                           </p>
                         </div>
-                        {imageUrl ? (
-                          <div className="relative aspect-4/3 overflow-hidden rounded-2xl bg-muted">
-                            <img
-                              src={imageUrl}
-                              alt=""
-                              className="h-full w-full object-cover"
-                              loading="lazy"
-                            />
-                          </div>
-                        ) : null}
                       </div>
                     </li>
                   );

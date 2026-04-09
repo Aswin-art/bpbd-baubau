@@ -55,13 +55,15 @@ export const ModelName = {
   Session: 'Session',
   Account: 'Account',
   Verification: 'Verification',
-  NewsArticle: 'NewsArticle',
-  NewsComment: 'NewsComment',
+  Article: 'Article',
+  ArticleComment: 'ArticleComment',
   Aspiration: 'Aspiration',
   MapDisasterPoint: 'MapDisasterPoint',
   ArsipDocument: 'ArsipDocument',
+  Document: 'Document',
   HeroSlide: 'HeroSlide',
-  SiteSettings: 'SiteSettings'
+  SiteSettings: 'SiteSettings',
+  RolePermission: 'RolePermission'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -86,11 +88,17 @@ export const UserScalarFieldEnum = {
   email: 'email',
   emailVerified: 'emailVerified',
   image: 'image',
+  password: 'password',
   username: 'username',
   displayUsername: 'displayUsername',
   photoUrl: 'photoUrl',
   isActive: 'isActive',
+  banned: 'banned',
   lastLoginAt: 'lastLoginAt',
+  bio: 'bio',
+  phoneNumber: 'phoneNumber',
+  homeAddress: 'homeAddress',
+  dateOfBirth: 'dateOfBirth',
   role: 'role',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
@@ -144,26 +152,25 @@ export const VerificationScalarFieldEnum = {
 export type VerificationScalarFieldEnum = (typeof VerificationScalarFieldEnum)[keyof typeof VerificationScalarFieldEnum]
 
 
-export const NewsArticleScalarFieldEnum = {
+export const ArticleScalarFieldEnum = {
   id: 'id',
-  slug: 'slug',
   title: 'title',
-  excerpt: 'excerpt',
-  category: 'category',
+  slug: 'slug',
   content: 'content',
-  imageUrl: 'imageUrl',
-  dateLabel: 'dateLabel',
+  excerpt: 'excerpt',
+  thumbnailUrl: 'thumbnailUrl',
+  category: 'category',
+  status: 'status',
   publishedAt: 'publishedAt',
-  isPublished: 'isPublished',
   authorId: 'authorId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
-export type NewsArticleScalarFieldEnum = (typeof NewsArticleScalarFieldEnum)[keyof typeof NewsArticleScalarFieldEnum]
+export type ArticleScalarFieldEnum = (typeof ArticleScalarFieldEnum)[keyof typeof ArticleScalarFieldEnum]
 
 
-export const NewsCommentScalarFieldEnum = {
+export const ArticleCommentScalarFieldEnum = {
   id: 'id',
   articleId: 'articleId',
   userId: 'userId',
@@ -175,7 +182,7 @@ export const NewsCommentScalarFieldEnum = {
   updatedAt: 'updatedAt'
 } as const
 
-export type NewsCommentScalarFieldEnum = (typeof NewsCommentScalarFieldEnum)[keyof typeof NewsCommentScalarFieldEnum]
+export type ArticleCommentScalarFieldEnum = (typeof ArticleCommentScalarFieldEnum)[keyof typeof ArticleCommentScalarFieldEnum]
 
 
 export const AspirationScalarFieldEnum = {
@@ -225,6 +232,21 @@ export const ArsipDocumentScalarFieldEnum = {
 export type ArsipDocumentScalarFieldEnum = (typeof ArsipDocumentScalarFieldEnum)[keyof typeof ArsipDocumentScalarFieldEnum]
 
 
+export const DocumentScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  description: 'description',
+  category: 'category',
+  dateLabel: 'dateLabel',
+  fileSize: 'fileSize',
+  downloadUrl: 'downloadUrl',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type DocumentScalarFieldEnum = (typeof DocumentScalarFieldEnum)[keyof typeof DocumentScalarFieldEnum]
+
+
 export const HeroSlideScalarFieldEnum = {
   id: 'id',
   sortOrder: 'sortOrder',
@@ -244,6 +266,8 @@ export const SiteSettingsScalarFieldEnum = {
   id: 'id',
   aboutDescription: 'aboutDescription',
   aboutProfileUrl: 'aboutProfileUrl',
+  objectives: 'objectives',
+  goals: 'goals',
   contactEmail: 'contactEmail',
   contactPhone: 'contactPhone',
   socialInstagram: 'socialInstagram',
@@ -256,19 +280,24 @@ export const SiteSettingsScalarFieldEnum = {
 export type SiteSettingsScalarFieldEnum = (typeof SiteSettingsScalarFieldEnum)[keyof typeof SiteSettingsScalarFieldEnum]
 
 
+export const RolePermissionScalarFieldEnum = {
+  id: 'id',
+  role: 'role',
+  resource: 'resource',
+  actions: 'actions',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type RolePermissionScalarFieldEnum = (typeof RolePermissionScalarFieldEnum)[keyof typeof RolePermissionScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
 } as const
 
 export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
-
-
-export const JsonNullValueInput = {
-  JsonNull: JsonNull
-} as const
-
-export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
 
 
 export const NullableJsonNullValueInput = {
@@ -279,20 +308,19 @@ export const NullableJsonNullValueInput = {
 export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
 
 
+export const JsonNullValueInput = {
+  JsonNull: JsonNull
+} as const
+
+export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
+
+
 export const QueryMode = {
   default: 'default',
   insensitive: 'insensitive'
 } as const
 
 export type QueryMode = (typeof QueryMode)[keyof typeof QueryMode]
-
-
-export const NullsOrder = {
-  first: 'first',
-  last: 'last'
-} as const
-
-export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
 
 
 export const JsonNullValueFilter = {
@@ -302,4 +330,12 @@ export const JsonNullValueFilter = {
 } as const
 
 export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
+
+
+export const NullsOrder = {
+  first: 'first',
+  last: 'last'
+} as const
+
+export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
 

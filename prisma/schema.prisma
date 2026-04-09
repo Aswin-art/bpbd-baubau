@@ -16,9 +16,14 @@ enum AspirationStatus {
   rejected
 }
 
+enum ArticleStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
 // --- Auth & users
 
-/// Better Auth plus application roles:
 /// - admin | kepala_bpbd | operator: staff (dashboard)
 /// - masyarakat: portal users (aspirations, news comments)
 model User {
@@ -27,6 +32,7 @@ model User {
   email         String    @unique
   emailVerified Boolean   @default(false)
   image         String?
+  password      String?
 
   /// Username plugin (better-auth)
   username        String? @unique
@@ -35,7 +41,14 @@ model User {
   /// Extra fields from lib/auth.ts
   photoUrl    String?
   isActive    Boolean   @default(true)
+  banned      Boolean   @default(false)
   lastLoginAt DateTime?
+
+  /// Consolidated profile fields (all roles in one table)
+  bio            Json?
+  phoneNumber    String?
+  homeAddress    String?
+  dateOfBirth    DateTime?
 
   role      String   @default("masyarakat")
   createdAt DateTime @default(now())
@@ -44,8 +57,8 @@ model User {
   sessions Session[]
   accounts Account[]
 
-  authoredNewsArticles NewsArticle[] @relation("NewsArticleAuthor")
-  newsComments         NewsComment[]
+  articles        Article[]        @relation("ArticleAuthor")
+  articleComments ArticleComment[]
   aspirations          Aspiration[]
 
   @@map("user")
@@ -100,59 +113,51 @@ model Verification {
   @@map("verification")
 }
 
-// --- News (public /berita + dashboard CMS)
+// --- Articles (public /berita + dashboard CMS)
 
-/// News posts; `content` is JSON (e.g. rich text / blocks). `category` is a free-form string slug or label.
-model NewsArticle {
-  id       String @id @default(cuid())
-  slug     String @unique
-  title    String
-  excerpt  String
-  category String
+model Article {
+  id           String        @id @default(cuid())
+  title        String
+  slug         String        @unique
+  content      Json
+  excerpt      String?       @db.Text
+  thumbnailUrl String?       @map("thumbnail_url")
+  category     String
+  status       ArticleStatus @default(DRAFT)
+  publishedAt  DateTime?     @map("published_at")
+  authorId     String        @map("author_id")
 
-  content Json
+  author User @relation("ArticleAuthor", fields: [authorId], references: [id], onDelete: Cascade)
+  comments ArticleComment[]
 
-  /// Cover image URL
-  imageUrl String @map("image_url")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
-  /// Optional display date label for the UI (e.g. localized string)
-  dateLabel String? @map("date_label")
-
-  publishedAt DateTime? @map("published_at")
-  isPublished Boolean   @default(false) @map("is_published")
-
-  authorId String? @map("author_id")
-  author   User?   @relation("NewsArticleAuthor", fields: [authorId], references: [id], onDelete: SetNull)
-
-  comments NewsComment[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
+  @@index([authorId])
   @@index([category])
+  @@index([status])
   @@index([publishedAt])
-  @@index([slug])
-  @@map("news_article")
+  @@map("articles")
 }
 
 /// Comments on news articles; `body` is JSON (e.g. plain text wrapper or structured payload).
-model NewsComment {
+model ArticleComment {
   id String @id @default(cuid())
 
   articleId String      @map("article_id")
-  article   NewsArticle @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  article   Article @relation(fields: [articleId], references: [id], onDelete: Cascade)
 
   /// Optional author account (admin/staff or citizen). If deleted, keep the comment record.
   userId String? @map("user_id")
-  user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
+  user   User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   /// Display name to keep history even when account changes.
   authorName String @map("author_name")
 
   /// Threading: admin (or anyone) can reply to a parent comment.
   parentId String?      @map("parent_id")
-  parent   NewsComment? @relation("NewsCommentThread", fields: [parentId], references: [id], onDelete: Cascade)
-  replies  NewsComment[] @relation("NewsCommentThread")
+  parent   ArticleComment? @relation("ArticleCommentThread", fields: [parentId], references: [id], onDelete: Cascade)
+  replies  ArticleComment[] @relation("ArticleCommentThread")
 
   /// Sanitized HTML body (limited tags); store exactly what we render.
   bodyHtml String @map("body_html")
@@ -168,7 +173,7 @@ model NewsComment {
   @@index([parentId])
   @@index([isAdmin])
   @@index([createdAt])
-  @@map("news_comment")
+  @@map("article_comment")
 }
 
 // --- Aspirations (citizen feedback)
@@ -180,12 +185,12 @@ model Aspiration {
   /// Public display name (also used when not logged in)
   submitterName String @map("submitter_name")
 
-  description Json
+  description String @db.Text
   status      AspirationStatus @default(pending)
 
   /// Optional account link when the user is logged in
   userId String? @map("user_id")
-  user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
+  user   User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -206,7 +211,7 @@ model MapDisasterPoint {
   date        String
   casualties  Int    @default(0)
   displaced   Int    @default(0)
-  description String
+  description Json
   image       String
   lat         Float
   lng         Float
@@ -223,7 +228,7 @@ model MapDisasterPoint {
 model ArsipDocument {
   id          String @id @default(cuid())
   name        String
-  description Json
+  description String @db.Text
   dateLabel   String @map("date_label")
   fileSize    String @map("file_size")
   year        String @map("tahun")
@@ -234,6 +239,33 @@ model ArsipDocument {
 
   @@index([year])
   @@map("arsip_document")
+}
+
+// --- Public download documents (SOP / regulasi / pedoman)
+
+enum DocumentCategory {
+  sop
+  regulasi
+  pedoman
+}
+
+model Document {
+  id String @id @default(cuid())
+
+  name        String
+  description String
+  category    DocumentCategory
+
+  dateLabel   String @map("date_label")
+  fileSize    String @map("file_size")
+  downloadUrl String @map("download_url")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([category])
+  @@index([createdAt])
+  @@map("document")
 }
 
 // --- Site settings (public homepage / landing content)
@@ -266,11 +298,13 @@ model HeroSlide {
 model SiteSettings {
   id String @id @default("default")
 
-  /// About section copy (JSON: rich text, blocks, or structured content).
-  aboutDescription Json? @map("about_description")
+  /// About section copy.
+  aboutDescription String? @map("about_description")
 
   /// Profile / organization URL (e.g. YouTube embed or Image).
   aboutProfileUrl String? @map("about_profile_url")
+  objectives String? @map("objectives")
+  goals String? @map("goals")
 
   contactEmail String? @map("contact_email")
   contactPhone String? @map("contact_phone")
@@ -283,4 +317,18 @@ model SiteSettings {
   updatedAt DateTime @updatedAt
 
   @@map("site_settings")
+}
+
+model RolePermission {
+  id       String @id @default(cuid())
+  role     String // admin, operator, kepala_bpbd, masyarakat
+  resource String // article, project, user, etc.
+  actions  Json // ["create", "read", "update", "delete"]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@unique([role, resource])
+  @@index([role])
+  @@map("role_permissions")
 }

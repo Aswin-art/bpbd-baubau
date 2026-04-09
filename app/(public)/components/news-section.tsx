@@ -6,31 +6,73 @@ import { ArrowRight, ArrowUpRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import Wrapper from "@/components/wrapper";
 import {
-  newsArticles,
-  categoryLabels,
-  categoryColors,
-  type NewsArticle,
-} from "@/data/dummy-data";
+  useSuspenseQuery,
+} from "@tanstack/react-query";
 
-function FeaturedArticle({ news }: { news: NewsArticle }) {
+type NewsItem = {
+  id: string;
+  title: string;
+  slug: string;
+  excerpt: string | null;
+  thumbnailUrl: string | null;
+  category: string;
+  publishedAt: string | null;
+};
+
+const categoryColors: Record<string, string> = {
+  kebencanaan: "bg-red-500/15 text-red-300",
+  kegiatan: "bg-blue-500/15 text-blue-300",
+  pengumuman: "bg-amber-500/15 text-amber-300",
+};
+
+function getCategoryLabel(category: string) {
+  const c = category.trim().toLowerCase();
+  if (c === "kebencanaan") return "Kebencanaan";
+  if (c === "kegiatan") return "Kegiatan";
+  if (c === "pengumuman") return "Pengumuman";
+  return category || "Lainnya";
+}
+
+function formatDateLabel(iso: string | null) {
+  if (!iso) return "";
+  const dt = new Date(iso);
+  if (Number.isNaN(dt.getTime())) return "";
+  return new Intl.DateTimeFormat("id-ID", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  }).format(dt);
+}
+
+async function fetchLatestNews(): Promise<{ items: NewsItem[] }> {
+  const res = await fetch("/api/public/news?limit=5", { cache: "no-store" });
+  if (!res.ok) throw new Error("Failed to fetch news");
+  return res.json();
+}
+
+function FeaturedArticle({ news }: { news: NewsItem }) {
   return (
     <Link href={`/berita/${news.slug}`} className="group block">
       <article className="relative overflow-hidden rounded-2xl bg-secondary h-full min-h-[380px] sm:min-h-[440px] flex flex-col justify-end p-6 sm:p-8">
         {/* Background image */}
-        <Image
-          src={news.imageUrl}
-          alt={news.title}
-          fill
-          sizes="(max-width: 1024px) 100vw, 55vw"
-          className="object-cover transition-transform duration-700 group-hover:scale-105"
-        />
+        {news.thumbnailUrl ? (
+          <Image
+            src={news.thumbnailUrl}
+            alt={news.title}
+            fill
+            sizes="(max-width: 1024px) 100vw, 55vw"
+            className="object-cover transition-transform duration-700 group-hover:scale-105"
+          />
+        ) : null}
         <div className="absolute inset-0 bg-linear-to-t from-secondary via-secondary/80 to-secondary/30" />
 
         <div className="relative z-10 space-y-4">
           <Badge
-            className={`text-[10px] font-semibold uppercase tracking-wider border-0 ${categoryColors[news.category]}`}
+            className={`text-[10px] font-semibold uppercase tracking-wider border-0 ${
+              categoryColors[news.category] ?? "bg-slate-500/15 text-slate-300"
+            }`}
           >
-            {categoryLabels[news.category]}
+            {getCategoryLabel(news.category)}
           </Badge>
 
           <h3 className="text-xl sm:text-2xl font-bold text-white leading-snug tracking-tight group-hover:text-primary transition-colors duration-300">
@@ -38,11 +80,13 @@ function FeaturedArticle({ news }: { news: NewsArticle }) {
           </h3>
 
           <p className="text-sm text-slate-400 leading-relaxed line-clamp-2 max-w-lg">
-            {news.excerpt}
+            {news.excerpt ?? ""}
           </p>
 
           <div className="flex items-center justify-between pt-2">
-            <span className="text-xs text-slate-500">{news.dateLabel}</span>
+            <span className="text-xs text-slate-500">
+              {formatDateLabel(news.publishedAt)}
+            </span>
             <span className="flex items-center gap-1.5 text-xs font-semibold text-primary opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300">
               Baca
               <ArrowUpRight className="h-3 w-3" />
@@ -58,7 +102,7 @@ function ArticleRow({
   news,
   index,
 }: {
-  news: NewsArticle;
+  news: NewsItem;
   index: number;
 }) {
   return (
@@ -73,12 +117,14 @@ function ArticleRow({
           <div className="flex items-center gap-2">
             <Badge
               variant="outline"
-              className={`text-[9px] font-semibold uppercase tracking-wider border-0 shrink-0 ${categoryColors[news.category]}`}
+              className={`text-[9px] font-semibold uppercase tracking-wider border-0 shrink-0 ${
+                categoryColors[news.category] ?? "bg-slate-500/15 text-slate-300"
+              }`}
             >
-              {categoryLabels[news.category]}
+              {getCategoryLabel(news.category)}
             </Badge>
             <span className="text-[11px] text-muted-foreground">
-              {news.dateLabel}
+              {formatDateLabel(news.publishedAt)}
             </span>
           </div>
 
@@ -87,7 +133,7 @@ function ArticleRow({
           </h3>
 
           <p className="text-[13px] text-muted-foreground leading-relaxed line-clamp-1 hidden sm:block">
-            {news.excerpt}
+            {news.excerpt ?? ""}
           </p>
         </div>
 
@@ -100,8 +146,26 @@ function ArticleRow({
 }
 
 export function NewsSection() {
-  const featured = newsArticles[0];
-  const rest = newsArticles.slice(1, 5);
+  const { data } = useSuspenseQuery({
+    queryKey: ["public-news-latest"],
+    queryFn: fetchLatestNews,
+  });
+
+  const items = data?.items ?? [];
+  const featured = items[0];
+  const rest = items.slice(1, 5);
+
+  if (!featured) {
+    return (
+      <Wrapper className="py-16 sm:py-20">
+        <div className="rounded-xl border border-border bg-muted/30 p-6 sm:p-8">
+          <p className="text-sm font-semibold text-foreground">
+            Belum ada berita dipublikasikan.
+          </p>
+        </div>
+      </Wrapper>
+    );
+  }
 
   return (
     <Wrapper className="py-16 sm:py-20">

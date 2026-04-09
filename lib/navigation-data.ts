@@ -1,33 +1,25 @@
 import {
-  UserCircle,
-  LayoutDashboard,
-  BarChart3,
-  Newspaper,
-  Briefcase,
-  Download,
-  BookOpen,
-  FlaskConical,
-  ScrollText,
-  GraduationCap,
   Users,
-  BookCheck,
   MapPin,
-  FileSignature,
-  Mail,
   Archive,
   ShieldCheck,
-  Building2,
+  Settings,
+  LayoutDashboard,
+  UserCircle,
+  FileText,
+  MessageSquareText,
+  Newspaper,
   LucideIcon,
 } from "lucide-react";
 
 interface NavSubItem {
-  titleKey: string;
+  title: string;
   url: string;
   permission: string;
 }
 
 interface NavItem {
-  titleKey: string;
+  title: string;
   url: string;
   icon: LucideIcon;
   permission?: string;
@@ -35,251 +27,85 @@ interface NavItem {
 }
 
 interface NavGroup {
-  titleKey: string;
+  title: string;
   items: NavItem[];
 }
 
 export const navStructureData: NavGroup[] = [
-  // ==========================================
-  // 1. AREA PERSONAL & CORE (Polymorphic Area)
-  // ==========================================
   {
-    titleKey: "personal-area",
+    title: "Umum",
     items: [
       {
-        titleKey: "my-profile",
-        url: "/dashboard/profiles",
-        icon: UserCircle,
-        permission: "personal_profile",
-      },
-    ],
-  },
-
-  // ==========================================
-  // 2. PORTAL & INFORMASI
-  // ==========================================
-  {
-    titleKey: "portal-information",
-    items: [
-      {
-        titleKey: "dashboard-analytics",
+        title: "Dashboard",
         url: "/dashboard",
         icon: LayoutDashboard,
         permission: "dashboard",
       },
       {
-        titleKey: "news-publications",
-        url: "/dashboard/portal/articles",
+        title: "Profil",
+        url: "/dashboard/profiles",
+        icon: UserCircle,
+        permission: "profile",
+      },
+    ],
+  },
+
+  {
+    title: "Layanan Publik",
+    items: [
+      {
+        title: "Articles",
+        url: "/dashboard/articles",
         icon: Newspaper,
-        permission: "portal_content",
+        permission: "articles",
       },
       {
-        titleKey: "student-projects",
-        url: "/dashboard/portal/projects",
-        icon: Briefcase,
-        permission: "portal_content",
+        title: "Dokumen",
+        url: "/dashboard/documents",
+        icon: FileText,
+        permission: "documents",
       },
       {
-        titleKey: "download-center",
-        url: "/dashboard/portal/downloads",
-        icon: Download,
-        permission: "portal_content",
-      },
-    ],
-  },
-
-  // ==========================================
-  // 3 & 4. AKADEMIK, LAB & RISET
-  // ==========================================
-  {
-    titleKey: "academic-research",
-    items: [
-      {
-        titleKey: "academic-master",
-        url: "#",
-        icon: BookOpen,
-        items: [
-          {
-            titleKey: "curriculum-data",
-            url: "/dashboard/academics/curriculums",
-            permission: "academic_master",
-          },
-          {
-            titleKey: "subjects-data",
-            url: "/dashboard/academics/subjects",
-            permission: "academic_master",
-          },
-          {
-            titleKey: "lecturers-management",
-            url: "/dashboard/academics/lecturers",
-            permission: "academic_master",
-          },
-          {
-            titleKey: "accreditation-data",
-            url: "/dashboard/academics/accreditations",
-            permission: "academic_master",
-          },
-        ],
+        title: "Aspirasi",
+        url: "/dashboard/aspirations",
+        icon: MessageSquareText,
+        permission: "aspirations",
       },
       {
-        titleKey: "lab-and-research",
-        url: "#",
-        icon: FlaskConical,
-        items: [
-          {
-            titleKey: "lab-facilities",
-            url: "/dashboard/academics/laboratories",
-            permission: "academic_master",
-          },
-          {
-            titleKey: "research-publications",
-            url: "/dashboard/academics/publications",
-            permission: "academic_master",
-          },
-          {
-            titleKey: "laboratory-booking",
-            url: "/dashboard/academics/laboratories",
-            permission: "academic_master",
-          },
-        ],
-      },
-    ],
-  },
-
-  // ==========================================
-  // 5. KKN & MAGANG (Eksternal)
-  // ==========================================
-  {
-    titleKey: "external-programs",
-    items: [
-      {
-        titleKey: "dashboard-analytics",
-        url: "/dashboard/programs/analytics",
-        icon: BarChart3,
-        permission: "programs",
-      },
-      {
-        titleKey: "program-registration",
-        url: "/dashboard/programs/registration",
-        icon: GraduationCap,
-        permission: "programs",
-      },
-      {
-        titleKey: "supervisor-plotting",
-        url: "/dashboard/programs/plotting",
-        icon: Users,
-        permission: "programs",
-      },
-      {
-        titleKey: "daily-logbook",
-        url: "/dashboard/programs/logbooks",
-        icon: BookCheck,
-        permission: "programs",
-      },
-      {
-        titleKey: "partner-locations",
-        url: "/dashboard/programs/partners",
-        icon: MapPin,
-        permission: "programs",
-      },
-    ],
-  },
-
-  // ==========================================
-  // 6. TUGAS AKHIR
-  // ==========================================
-  {
-    titleKey: "thesis-management",
-    items: [
-      {
-        titleKey: "dashboard-analytics",
-        url: "/dashboard/thesis/analytics",
-        icon: BarChart3,
-        permission: "thesis",
-      },
-      {
-        titleKey: "thesis-proposals",
-        url: "/dashboard/thesis/proposals",
-        icon: ScrollText,
-        permission: "thesis",
-      },
-      {
-        titleKey: "supervisor-plotting",
-        url: "/dashboard/thesis/plotting",
-        icon: Users,
-        permission: "thesis",
-      },
-      {
-        titleKey: "thesis-approvals",
-        url: "/dashboard/thesis/approvals",
-        icon: FileSignature,
-        permission: "thesis",
-      },
-      {
-        titleKey: "defense-schedule",
-        url: "/dashboard/thesis/defense",
-        icon: Users,
-        permission: "thesis",
-      },
-    ],
-  },
-
-  // ==========================================
-  // 7. PERSURATAN & BIROKRASI
-  // ==========================================
-  {
-    titleKey: "bureaucracy-letters",
-    items: [
-      {
-        titleKey: "dashboard-analytics",
-        url: "/dashboard/letters/analytics",
-        icon: BarChart3,
-        permission: "letters",
-      },
-      {
-        titleKey: "request-letter",
-        url: "/dashboard/letters/request",
-        icon: Mail,
-        permission: "letters",
-      },
-      {
-        titleKey: "letter-approval",
-        url: "/dashboard/letters/processing",
-        icon: FileSignature,
-        permission: "letters",
-      },
-      {
-        titleKey: "letter-archive",
-        url: "/dashboard/letters/archive",
+        title: "Arsip",
+        url: "/dashboard/archives",
         icon: Archive,
-        permission: "letters",
+        permission: "archives",
+      },
+      {
+        title: "Map Bencana",
+        url: "/dashboard/maps",
+        icon: MapPin,
+        permission: "maps",
       },
     ],
   },
 
-  // ==========================================
-  // SUPERADMIN AREA
-  // ==========================================
   {
-    titleKey: "system-security",
+    title: "Administrasi",
     items: [
       {
-        titleKey: "user-directory",
-        url: "/dashboard/system/users",
+        title: "Users",
+        url: "/dashboard/users",
         icon: Users,
-        permission: "system_users",
+        permission: "users",
       },
       {
-        titleKey: "role-permissions",
-        url: "/dashboard/system/roles",
+        title: "Permissions",
+        url: "/dashboard/permissions",
         icon: ShieldCheck,
-        permission: "system_roles",
+        permission: "users",
       },
       {
-        titleKey: "web-configuration",
-        url: "/dashboard/system/settings",
-        icon: Building2,
-        permission: "system_settings",
+        title: "Settings",
+        url: "/dashboard/settings",
+        icon: Settings,
+        permission: "settings",
       },
     ],
   },
@@ -314,24 +140,4 @@ function extractNavigationResources(): string[] {
  */
 export const navigationResources = extractNavigationResources();
 
-/**
- * Get translated navigation structure for sidebar.
- * @param t - Translation function from next-intl
- */
-export const getNavStructure = (t: (key: string) => string) =>
-  navStructureData.map((group) => ({
-    title: t(group.titleKey),
-    items: group.items.map((item) => ({
-      title: t(item.titleKey),
-      url: item.url,
-      icon: item.icon,
-      permission: item.permission,
-      ...(item.items && {
-        items: item.items.map((subItem) => ({
-          title: t(subItem.titleKey),
-          url: subItem.url,
-          permission: subItem.permission,
-        })),
-      }),
-    })),
-  }));
+export const getNavStructure = () => navStructureData;

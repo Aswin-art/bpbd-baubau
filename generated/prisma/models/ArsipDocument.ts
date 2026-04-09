@@ -27,6 +27,7 @@ export type AggregateArsipDocument = {
 export type ArsipDocumentMinAggregateOutputType = {
   id: string | null
   name: string | null
+  description: string | null
   dateLabel: string | null
   fileSize: string | null
   year: string | null
@@ -38,6 +39,7 @@ export type ArsipDocumentMinAggregateOutputType = {
 export type ArsipDocumentMaxAggregateOutputType = {
   id: string | null
   name: string | null
+  description: string | null
   dateLabel: string | null
   fileSize: string | null
   year: string | null
@@ -63,6 +65,7 @@ export type ArsipDocumentCountAggregateOutputType = {
 export type ArsipDocumentMinAggregateInputType = {
   id?: true
   name?: true
+  description?: true
   dateLabel?: true
   fileSize?: true
   year?: true
@@ -74,6 +77,7 @@ export type ArsipDocumentMinAggregateInputType = {
 export type ArsipDocumentMaxAggregateInputType = {
   id?: true
   name?: true
+  description?: true
   dateLabel?: true
   fileSize?: true
   year?: true
@@ -170,7 +174,7 @@ export type ArsipDocumentGroupByArgs<ExtArgs extends runtime.Types.Extensions.In
 export type ArsipDocumentGroupByOutputType = {
   id: string
   name: string
-  description: runtime.JsonValue
+  description: string
   dateLabel: string
   fileSize: string
   year: string
@@ -203,7 +207,7 @@ export type ArsipDocumentWhereInput = {
   NOT?: Prisma.ArsipDocumentWhereInput | Prisma.ArsipDocumentWhereInput[]
   id?: Prisma.StringFilter<"ArsipDocument"> | string
   name?: Prisma.StringFilter<"ArsipDocument"> | string
-  description?: Prisma.JsonFilter<"ArsipDocument">
+  description?: Prisma.StringFilter<"ArsipDocument"> | string
   dateLabel?: Prisma.StringFilter<"ArsipDocument"> | string
   fileSize?: Prisma.StringFilter<"ArsipDocument"> | string
   year?: Prisma.StringFilter<"ArsipDocument"> | string
@@ -230,7 +234,7 @@ export type ArsipDocumentWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.ArsipDocumentWhereInput[]
   NOT?: Prisma.ArsipDocumentWhereInput | Prisma.ArsipDocumentWhereInput[]
   name?: Prisma.StringFilter<"ArsipDocument"> | string
-  description?: Prisma.JsonFilter<"ArsipDocument">
+  description?: Prisma.StringFilter<"ArsipDocument"> | string
   dateLabel?: Prisma.StringFilter<"ArsipDocument"> | string
   fileSize?: Prisma.StringFilter<"ArsipDocument"> | string
   year?: Prisma.StringFilter<"ArsipDocument"> | string
@@ -260,7 +264,7 @@ export type ArsipDocumentScalarWhereWithAggregatesInput = {
   NOT?: Prisma.ArsipDocumentScalarWhereWithAggregatesInput | Prisma.ArsipDocumentScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"ArsipDocument"> | string
   name?: Prisma.StringWithAggregatesFilter<"ArsipDocument"> | string
-  description?: Prisma.JsonWithAggregatesFilter<"ArsipDocument">
+  description?: Prisma.StringWithAggregatesFilter<"ArsipDocument"> | string
   dateLabel?: Prisma.StringWithAggregatesFilter<"ArsipDocument"> | string
   fileSize?: Prisma.StringWithAggregatesFilter<"ArsipDocument"> | string
   year?: Prisma.StringWithAggregatesFilter<"ArsipDocument"> | string
@@ -272,7 +276,7 @@ export type ArsipDocumentScalarWhereWithAggregatesInput = {
 export type ArsipDocumentCreateInput = {
   id?: string
   name: string
-  description: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  description: string
   dateLabel: string
   fileSize: string
   year: string
@@ -284,7 +288,7 @@ export type ArsipDocumentCreateInput = {
 export type ArsipDocumentUncheckedCreateInput = {
   id?: string
   name: string
-  description: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  description: string
   dateLabel: string
   fileSize: string
   year: string
@@ -296,7 +300,7 @@ export type ArsipDocumentUncheckedCreateInput = {
 export type ArsipDocumentUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  description?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  description?: Prisma.StringFieldUpdateOperationsInput | string
   dateLabel?: Prisma.StringFieldUpdateOperationsInput | string
   fileSize?: Prisma.StringFieldUpdateOperationsInput | string
   year?: Prisma.StringFieldUpdateOperationsInput | string
@@ -308,7 +312,7 @@ export type ArsipDocumentUpdateInput = {
 export type ArsipDocumentUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  description?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  description?: Prisma.StringFieldUpdateOperationsInput | string
   dateLabel?: Prisma.StringFieldUpdateOperationsInput | string
   fileSize?: Prisma.StringFieldUpdateOperationsInput | string
   year?: Prisma.StringFieldUpdateOperationsInput | string
@@ -320,7 +324,7 @@ export type ArsipDocumentUncheckedUpdateInput = {
 export type ArsipDocumentCreateManyInput = {
   id?: string
   name: string
-  description: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  description: string
   dateLabel: string
   fileSize: string
   year: string
@@ -332,7 +336,7 @@ export type ArsipDocumentCreateManyInput = {
 export type ArsipDocumentUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  description?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  description?: Prisma.StringFieldUpdateOperationsInput | string
   dateLabel?: Prisma.StringFieldUpdateOperationsInput | string
   fileSize?: Prisma.StringFieldUpdateOperationsInput | string
   year?: Prisma.StringFieldUpdateOperationsInput | string
@@ -344,7 +348,7 @@ export type ArsipDocumentUpdateManyMutationInput = {
 export type ArsipDocumentUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  description?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  description?: Prisma.StringFieldUpdateOperationsInput | string
   dateLabel?: Prisma.StringFieldUpdateOperationsInput | string
   fileSize?: Prisma.StringFieldUpdateOperationsInput | string
   year?: Prisma.StringFieldUpdateOperationsInput | string
@@ -368,6 +372,7 @@ export type ArsipDocumentCountOrderByAggregateInput = {
 export type ArsipDocumentMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  description?: Prisma.SortOrder
   dateLabel?: Prisma.SortOrder
   fileSize?: Prisma.SortOrder
   year?: Prisma.SortOrder
@@ -379,6 +384,7 @@ export type ArsipDocumentMaxOrderByAggregateInput = {
 export type ArsipDocumentMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  description?: Prisma.SortOrder
   dateLabel?: Prisma.SortOrder
   fileSize?: Prisma.SortOrder
   year?: Prisma.SortOrder
@@ -445,7 +451,7 @@ export type $ArsipDocumentPayload<ExtArgs extends runtime.Types.Extensions.Inter
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     name: string
-    description: runtime.JsonValue
+    description: string
     dateLabel: string
     fileSize: string
     year: string
@@ -877,7 +883,7 @@ export interface Prisma__ArsipDocumentClient<T, Null = never, ExtArgs extends ru
 export interface ArsipDocumentFieldRefs {
   readonly id: Prisma.FieldRef<"ArsipDocument", 'String'>
   readonly name: Prisma.FieldRef<"ArsipDocument", 'String'>
-  readonly description: Prisma.FieldRef<"ArsipDocument", 'Json'>
+  readonly description: Prisma.FieldRef<"ArsipDocument", 'String'>
   readonly dateLabel: Prisma.FieldRef<"ArsipDocument", 'String'>
   readonly fileSize: Prisma.FieldRef<"ArsipDocument", 'String'>
   readonly year: Prisma.FieldRef<"ArsipDocument", 'String'>
