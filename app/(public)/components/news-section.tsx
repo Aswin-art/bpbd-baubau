@@ -3,7 +3,6 @@
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight, ArrowUpRight } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
 import Wrapper from "@/components/wrapper";
 import {
   useSuspenseQuery,
@@ -18,12 +17,6 @@ type NewsItem = {
   thumbnailUrl: string | null;
   category: string;
   publishedAt: string | null;
-};
-
-const categoryColors: Record<string, string> = {
-  kebencanaan: "bg-red-500/15 text-red-300",
-  kegiatan: "bg-blue-500/15 text-blue-300",
-  pengumuman: "bg-amber-500/15 text-amber-300",
 };
 
 function getCategoryLabel(category: string) {
@@ -46,54 +39,53 @@ function formatDateLabel(iso: string | null) {
 }
 
 async function fetchLatestNews(): Promise<{ items: NewsItem[] }> {
-  const res = await fetch(`${getBaseUrl()}/api/public/news?limit=5`, {
+  const res = await fetch(`${getBaseUrl()}/api/public/news?limit=10`, {
     cache: "no-store",
   });
   if (!res.ok) throw new Error("Failed to fetch news");
   return res.json();
 }
 
-function FeaturedArticle({ news }: { news: NewsItem }) {
+function FeaturedStory({ news }: { news: NewsItem }) {
   return (
     <Link href={`/articles/${news.slug}`} className="group block">
-      <article className="relative overflow-hidden rounded-2xl bg-secondary h-full min-h-[380px] sm:min-h-[440px] flex flex-col justify-end p-6 sm:p-8">
-        {/* Background image */}
-        {news.thumbnailUrl ? (
-          <Image
-            src={news.thumbnailUrl}
-            alt={news.title}
-            fill
-            sizes="(max-width: 1024px) 100vw, 55vw"
-            className="object-cover transition-transform duration-700 group-hover:scale-105"
-          />
-        ) : null}
-        <div className="absolute inset-0 bg-linear-to-t from-secondary via-secondary/80 to-secondary/30" />
+      <article className="relative overflow-hidden rounded-2xl border border-border/60 bg-muted">
+        <div className="relative aspect-video w-full">
+          {news.thumbnailUrl ? (
+            <Image
+              src={news.thumbnailUrl}
+              alt={news.title}
+              fill
+              sizes="(max-width: 1024px) 100vw, 70vw"
+              className="object-cover transition-transform duration-700 group-hover:scale-[1.03]"
+              priority
+            />
+          ) : null}
+          <div className="pointer-events-none absolute inset-0 bg-linear-to-t from-black/70 via-black/20 to-transparent" />
+        </div>
 
-        <div className="relative z-10 space-y-4">
-          <Badge
-            className={`text-[10px] font-semibold uppercase tracking-wider border-0 ${
-              categoryColors[news.category] ?? "bg-slate-500/15 text-slate-300"
-            }`}
-          >
-            {getCategoryLabel(news.category)}
-          </Badge>
+        <div className="absolute inset-0 flex flex-col justify-end p-6 sm:p-8">
+          <div className="flex flex-wrap items-center gap-3 text-white/85">
+            <span className="inline-flex items-center gap-2 font-mono text-[11px] font-semibold uppercase tracking-[0.28em]">
+              <span className="h-2 w-2 rounded-full bg-primary shadow-[0_0_0_4px_rgba(255,255,255,0.08)]" />
+              {getCategoryLabel(news.category)}
+            </span>
+            <span className="text-[12px] text-white/70">
+              {formatDateLabel(news.publishedAt)}
+            </span>
+          </div>
 
-          <h3 className="text-xl sm:text-2xl font-bold text-white leading-snug tracking-tight group-hover:text-primary transition-colors duration-300">
+          <h3 className="mt-4 text-balance font-heading text-3xl font-semibold leading-[1.05] tracking-tight text-white sm:text-4xl">
             {news.title}
           </h3>
 
-          <p className="text-sm text-slate-400 leading-relaxed line-clamp-2 max-w-lg">
+          <p className="mt-4 max-w-3xl text-pretty text-[14px] leading-relaxed text-white/75 line-clamp-2 sm:text-[15px]">
             {news.excerpt ?? ""}
           </p>
 
-          <div className="flex items-center justify-between pt-2">
-            <span className="text-xs text-slate-500">
-              {formatDateLabel(news.publishedAt)}
-            </span>
-            <span className="flex items-center gap-1.5 text-xs font-semibold text-primary opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300">
-              Baca
-              <ArrowUpRight className="h-3 w-3" />
-            </span>
+          <div className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-white/90 transition-colors group-hover:text-white">
+            Baca selengkapnya
+            <ArrowUpRight className="h-4 w-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
           </div>
         </div>
       </article>
@@ -101,7 +93,7 @@ function FeaturedArticle({ news }: { news: NewsItem }) {
   );
 }
 
-function ArticleRow({
+function StoryListItem({
   news,
   index,
 }: {
@@ -110,38 +102,75 @@ function ArticleRow({
 }) {
   return (
     <Link href={`/articles/${news.slug}`} className="group block">
-      <article className="flex gap-4 sm:gap-5 py-5 border-b border-border/60 last:border-0 items-start">
-        {/* Index number */}
-        <span className="text-[32px] font-black leading-none text-muted-foreground/20 tabular-nums select-none shrink-0 w-8 text-right group-hover:text-primary/30 transition-colors duration-300">
-          {String(index).padStart(2, "0")}
-        </span>
+      <article className="grid grid-cols-[auto_1fr] gap-4 border-t border-border/60 py-5">
+        <div className="pt-0.5">
+          <span className="block w-10 text-right font-mono text-[12px] font-semibold tabular-nums text-muted-foreground/70">
+            {String(index).padStart(2, "0")}
+          </span>
+        </div>
 
-        <div className="flex-1 min-w-0 space-y-1.5">
-          <div className="flex items-center gap-2">
-            <Badge
-              variant="outline"
-              className={`text-[9px] font-semibold uppercase tracking-wider border-0 shrink-0 ${
-                categoryColors[news.category] ?? "bg-slate-500/15 text-slate-300"
-              }`}
-            >
+        <div className="min-w-0">
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+            <span className="font-mono text-[11px] font-semibold uppercase tracking-[0.22em] text-foreground/65">
               {getCategoryLabel(news.category)}
-            </Badge>
-            <span className="text-[11px] text-muted-foreground">
+            </span>
+            <span className="text-[12px] text-muted-foreground">
               {formatDateLabel(news.publishedAt)}
             </span>
           </div>
 
-          <h3 className="text-[15px] font-semibold leading-snug text-foreground group-hover:text-primary transition-colors duration-200 line-clamp-2">
-            {news.title}
-          </h3>
+          <div className="mt-2 flex items-start justify-between gap-4">
+            <h3 className="text-balance font-heading text-[18px] font-semibold leading-snug text-foreground transition-colors group-hover:text-primary line-clamp-2">
+              {news.title}
+            </h3>
+            <span className="mt-1 shrink-0 text-muted-foreground transition-colors group-hover:text-primary">
+              <ArrowUpRight className="h-4 w-4" />
+            </span>
+          </div>
 
-          <p className="text-[13px] text-muted-foreground leading-relaxed line-clamp-1 hidden sm:block">
+          <p className="mt-2 hidden text-[13px] leading-relaxed text-muted-foreground sm:block line-clamp-1">
             {news.excerpt ?? ""}
           </p>
         </div>
+      </article>
+    </Link>
+  );
+}
 
-        <div className="shrink-0 flex h-8 w-8 items-center justify-center rounded-full border border-border bg-background text-muted-foreground opacity-0 group-hover:opacity-100 group-hover:border-primary/40 group-hover:text-primary transition-all duration-200 mt-1">
-          <ArrowUpRight className="h-3.5 w-3.5" />
+function NewsCard({ news }: { news: NewsItem }) {
+  return (
+    <Link href={`/articles/${news.slug}`} className="group block">
+      <article className="overflow-hidden rounded-2xl border border-border/60 bg-background transition-colors hover:bg-muted/20">
+        <div className="relative aspect-16/10 w-full bg-muted">
+          {news.thumbnailUrl ? (
+            <Image
+              src={news.thumbnailUrl}
+              alt={news.title}
+              fill
+              sizes="(max-width: 1024px) 100vw, 33vw"
+              className="object-cover transition-transform duration-700 group-hover:scale-[1.03]"
+            />
+          ) : null}
+          <div className="pointer-events-none absolute inset-0 bg-linear-to-t from-black/25 via-black/0 to-black/0 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+        </div>
+
+        <div className="p-5">
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+            <span className="font-mono text-[11px] font-semibold uppercase tracking-[0.22em] text-foreground/65">
+              {getCategoryLabel(news.category)}
+            </span>
+            <span className="text-[12px] text-muted-foreground">
+              {formatDateLabel(news.publishedAt)}
+            </span>
+          </div>
+
+          <h3 className="mt-3 text-balance font-heading text-[18px] font-semibold leading-snug text-foreground transition-colors group-hover:text-primary line-clamp-2">
+            {news.title}
+          </h3>
+
+          <p className="mt-2 text-[13px] leading-relaxed text-muted-foreground line-clamp-2">
+            {news.excerpt ?? ""}
+          </p>
         </div>
       </article>
     </Link>
@@ -156,7 +185,9 @@ export function NewsSection() {
 
   const items = data?.items ?? [];
   const featured = items[0];
-  const rest = items.slice(1, 5);
+  const rest = items.slice(1);
+  const gridItems = rest.slice(0, 6);
+  const sideItems = rest.slice(6, 10);
 
   if (!featured) {
     return (
@@ -172,46 +203,73 @@ export function NewsSection() {
 
   return (
     <Wrapper className="py-16 sm:py-20">
-      {/* Header */}
-      <div className="flex items-end justify-between mb-10">
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-widest text-primary mb-2">
-            Informasi Terkini
+      <div className="mb-10 grid gap-4 sm:grid-cols-[1fr_auto] sm:items-end">
+        <div className="max-w-2xl">
+          <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.35em] text-foreground/70">
+            Informasi terkini
           </p>
-          <h2 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+          <h2 className="mt-3 text-balance font-heading text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
             Berita &amp; Kegiatan
           </h2>
+          <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+            Kegiatan, pengumuman, dan rilis terbaru—dirangkum ringkas untuk Anda.
+          </p>
         </div>
+
         <Link
           href="/articles"
-          className="hidden sm:inline-flex items-center gap-1.5 text-[13px] font-semibold text-foreground hover:text-primary transition-colors"
+          className="hidden sm:inline-flex items-center gap-2 text-sm font-semibold text-foreground hover:text-primary transition-colors"
         >
-          Semua berita
-          <ArrowRight className="h-3.5 w-3.5" />
+          Lihat semua
+          <ArrowRight className="h-4 w-4" />
         </Link>
       </div>
 
-      {/* Editorial layout */}
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1.15fr_1fr] lg:gap-8">
-        {/* Featured */}
-        <FeaturedArticle news={featured} />
+      <div className="grid gap-8 lg:gap-10">
+        <FeaturedStory news={featured} />
 
-        {/* List */}
-        <div>
-          {rest.map((news, i) => (
-            <ArticleRow key={news.slug} news={news} index={i + 2} />
-          ))}
-
-          {/* Mobile CTA */}
-          <div className="pt-6 sm:hidden">
-            <Link
-              href="/articles"
-              className="flex items-center justify-center gap-2 rounded-lg border border-border py-3 text-sm font-semibold text-foreground hover:bg-muted transition-colors"
-            >
-              Semua Berita
-              <ArrowRight className="h-3.5 w-3.5" />
-            </Link>
+        <div className="grid gap-6 lg:grid-cols-[1fr_360px] lg:gap-10">
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {gridItems.map((n) => (
+              <NewsCard key={n.slug} news={n} />
+            ))}
           </div>
+
+          <aside className="lg:pl-2">
+            <div className="rounded-2xl border border-border/60 bg-background p-5">
+              <div className="flex items-center justify-between gap-4">
+                <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.28em] text-foreground/60">
+                  Ringkasan
+                </p>
+                <div className="h-px flex-1 bg-border/60" />
+                <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.28em] text-foreground/60">
+                  Terbaru
+                </p>
+              </div>
+
+              <div className="mt-2">
+                {sideItems.length > 0 ? (
+                  sideItems.map((news, i) => (
+                    <StoryListItem key={news.slug} news={news} index={i + 8} />
+                  ))
+                ) : (
+                  <p className="mt-4 text-sm text-muted-foreground">
+                    Belum ada berita tambahan.
+                  </p>
+                )}
+              </div>
+
+              <div className="mt-5 sm:hidden">
+                <Link
+                  href="/articles"
+                  className="flex items-center justify-center gap-2 rounded-xl border border-border/60 bg-background py-3 text-sm font-semibold text-foreground hover:bg-muted/40 transition-colors"
+                >
+                  Lihat semua berita
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
+              </div>
+            </div>
+          </aside>
         </div>
       </div>
     </Wrapper>

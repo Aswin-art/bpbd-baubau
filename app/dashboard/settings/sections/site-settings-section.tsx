@@ -289,7 +289,7 @@ export function SiteSettingsSection() {
                 control={form.control}
                 name="mapEmbedUrl"
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem className="md:col-span-2">
                     <FormLabel>Map embed URL</FormLabel>
                     <FormControl>
                       <Input
@@ -301,17 +301,26 @@ export function SiteSettingsSection() {
                     <FormDescription>
                       Gunakan URL embed (bukan URL share).
                     </FormDescription>
-                    {field.value ? (
-                      <div className="mt-2 overflow-hidden rounded-lg border bg-muted">
-                        <iframe
-                          src={field.value}
-                          title="Preview peta"
-                          className="h-56 w-full"
-                          loading="lazy"
-                          referrerPolicy="no-referrer-when-downgrade"
-                        />
+                    {/* Reserve space to avoid CLS */}
+                    <div className="mt-2 overflow-hidden rounded-lg border bg-muted">
+                      <div className="relative aspect-video w-full">
+                        {field.value ? (
+                          <iframe
+                            src={field.value}
+                            title="Preview peta"
+                            className="absolute inset-0 h-full w-full"
+                            loading="lazy"
+                            referrerPolicy="no-referrer-when-downgrade"
+                          />
+                        ) : (
+                          <div className="absolute inset-0 flex items-center justify-center">
+                            <p className="px-4 text-center text-xs text-muted-foreground">
+                              Preview peta akan muncul di sini.
+                            </p>
+                          </div>
+                        )}
                       </div>
-                    ) : null}
+                    </div>
                     <FormMessage />
                   </FormItem>
                 )}

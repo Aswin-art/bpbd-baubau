@@ -53,93 +53,88 @@ const Navbar = () => {
 
   return (
     <>
-      {/* Floating pill navbar (mobile + desktop) */}
-      <nav className="fixed top-6 left-1/2 z-50 w-[85%] max-w-400 -translate-x-1/2 xl:w-[95%]">
-        <div
-          className={cn(
-            "relative flex items-center justify-between rounded-2xl border shadow-sm backdrop-blur-md transition-all duration-500",
-            "bg-background/80",
-            isScrolled ? "border-border/20" : "border-border/10",
-            "px-5 py-3 lg:px-6",
-          )}
-        >
-          {/* Mobile logo (left) */}
-          <Link href="/" className="flex xl:hidden items-center gap-4 group">
-            <Image
-              src="/logo-bpbd.avif"
-              alt="BPBD Kota Baubau"
-              width={160}
-              height={160}
-              className="h-12 w-auto object-contain"
-              priority={false}
-            />
-          </Link>
+      {/* Cinematic navbar (matches hero mood) */}
+      <nav className="fixed inset-x-0 top-0 z-50">
+        <div className="w-full">
+          <div
+            className={cn(
+              "relative w-full min-h-16 flex items-center justify-between border-b px-4 py-4 backdrop-blur-md transition-all duration-500 sm:min-h-[76px] sm:px-8 sm:py-5 lg:px-12",
+              "text-zinc-950",
+              isScrolled ? "border-black/10 bg-white/85" : "border-black/5 bg-white/70",
+            )}
+          >
+            {/* subtle grain */}
+            <div className="pointer-events-none absolute inset-0 opacity-[0.06] mix-blend-multiply">
+              <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
+            </div>
 
-          {/* Desktop logo (left) */}
-          <Link href="/" className="hidden xl:flex items-center justify-start group">
-            <Image
-              src="/logo-bpbd.avif"
-              alt="BPBD Kota Baubau"
-              width={200}
-              height={80}
-              className="h-14 w-auto object-contain object-left transition-transform duration-300 lg:h-16"
-              priority={false}
-            />
-          </Link>
+            {/* Brand */}
+            <Link href="/" className="relative flex items-center gap-3">
+              <Image
+                src="/logo-bpbd.avif"
+                alt="BPBD Kota Baubau"
+                width={160}
+                height={64}
+                className="h-11 w-auto object-contain"
+                priority={false}
+              />
+              <span className="hidden sm:block font-mono text-[10px] font-semibold uppercase tracking-[0.35em] text-zinc-950/70">
+                BPBD Kota Baubau
+              </span>
+            </Link>
 
-          {/* Desktop menu (center) */}
-          <div className="hidden xl:flex min-w-0 flex-1 flex-wrap items-center justify-center gap-x-0.5 gap-y-1 lg:gap-x-1">
-            {publicNavItems.map((item) => {
-              const active = navLinkActive(item.href);
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={cn(
-                    "relative z-50 flex items-center gap-1.5 px-2 py-2 text-xs font-bold uppercase tracking-widest whitespace-nowrap transition-colors duration-300 xl:px-3 2xl:px-5",
-                    active
-                      ? "text-primary"
-                      : "text-foreground/80 hover:text-primary",
-                  )}
-                >
-                  {item.name}
+            {/* Desktop links */}
+            <div className="relative hidden xl:flex items-center gap-7">
+              {publicNavItems.map((item) => {
+                const active = navLinkActive(item.href);
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={cn(
+                      "relative py-2 font-heading text-sm font-semibold tracking-wide transition-colors",
+                      "text-zinc-950/70 hover:text-zinc-950",
+                      "after:absolute after:-bottom-1 after:left-0 after:h-px after:w-full after:origin-left after:scale-x-0 after:bg-primary/60 after:transition-transform after:duration-300 after:content-['']",
+                      "hover:after:scale-x-100",
+                      active &&
+                        "text-zinc-950 after:scale-x-100 after:bg-primary",
+                    )}
+                  >
+                    {item.name}
+                  </Link>
+                );
+              })}
+            </div>
+
+            {/* Right controls */}
+            <div className="relative flex items-center gap-2">
+              <Button
+                asChild
+                size="sm"
+                className={cn(
+                  "hidden xl:inline-flex h-10 rounded-full px-6",
+                  "bg-zinc-950 text-white hover:bg-zinc-900",
+                  "font-mono text-[10px] font-semibold uppercase tracking-[0.28em]",
+                )}
+              >
+                <Link href={session?.user ? "/dashboard/profiles" : "/sign-in"}>
+                  {session?.user ? "Dashboard" : "Login"}
                 </Link>
-              );
-            })}
-          </div>
+              </Button>
 
-          {/* Desktop login (right) */}
-          <div className="hidden xl:flex shrink-0 items-center border-l border-border/10 pl-4 lg:pl-6">
-            <Button
-              asChild
-              variant="default"
-              size="sm"
-              className={cn(
-                "h-9 min-w-28 rounded-md px-4",
-                "font-mono text-[11px] uppercase tracking-[0.22em]",
-                "bg-primary text-primary-foreground",
-                "hover:bg-black",
-              )}
-            >
-              <Link href={session?.user ? "/dashboard/profiles" : "/sign-in"}>
-                {session?.user ? "Dashboard" : "Login"}
-              </Link>
-            </Button>
-          </div>
-
-          {/* Mobile menu trigger (right) */}
-          <div className="flex xl:hidden items-center">
-            <button
-              type="button"
-              onClick={toggleMenu}
-              aria-label="Menu"
-              className="group flex h-11 w-11 items-center justify-center rounded-full border border-border/30 bg-background/60 text-foreground shadow-sm backdrop-blur-md transition-all duration-500 hover:border-primary hover:bg-primary hover:text-primary-foreground"
-            >
-              <div className="flex w-5 flex-col items-end gap-1.5">
-                <span className="h-px w-full bg-current transition-all duration-300 ease-out" />
-                <span className="h-px w-2/3 bg-current transition-all duration-300 ease-out group-hover:w-full" />
-              </div>
-            </button>
+              {/* Mobile menu trigger */}
+              <button
+                type="button"
+                onClick={toggleMenu}
+                aria-label="Menu"
+                className="flex h-11 w-11 items-center justify-center rounded-full border border-black/10 bg-white/70 text-zinc-950 backdrop-blur-md transition-colors hover:bg-white xl:hidden"
+              >
+                <div className="flex w-5 flex-col items-end gap-1.5">
+                  <span className="h-px w-full bg-current" />
+                  <span className="h-px w-2/3 bg-current" />
+                </div>
+              </button>
+            </div>
           </div>
         </div>
       </nav>
@@ -154,58 +149,80 @@ const Navbar = () => {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.25 }}
-              className="fixed inset-0 z-60 flex flex-col justify-center overflow-hidden bg-black px-4 text-white md:px-12"
+              className="fixed inset-0 z-60 flex flex-col overflow-hidden bg-black text-white"
             >
-              <div className="absolute top-0 left-0 flex w-full items-center justify-between border-b border-white/10 px-4 py-5 md:px-8 xl:px-12">
+              {/* grain */}
+              <div className="pointer-events-none absolute inset-0 opacity-25 mix-blend-overlay">
+                <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-60 brightness-100 contrast-150" />
+              </div>
+
+              <div className="relative flex items-center justify-between border-b border-white/10 px-5 py-5">
                 <Link
                   href="/"
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="text-xl font-black tracking-tighter text-white uppercase leading-none md:text-xl"
+                  className="flex items-center gap-3"
                 >
-                  BPBD <br className="hidden sm:block" />
-                  Kota Baubau
+                  <Image
+                    src="/logo-bpbd.avif"
+                    alt="BPBD Kota Baubau"
+                    width={160}
+                    height={64}
+                    className="h-10 w-auto object-contain"
+                  />
                 </Link>
                 <button
                   type="button"
                   onClick={toggleMenu}
                   aria-label="Tutup menu"
-                  className="flex items-center gap-2 text-sm font-bold tracking-widest text-white uppercase transition-colors hover:text-primary"
+                  className="flex h-10 w-10 items-center justify-center rounded-full border border-white/15 bg-white/5 text-white transition-colors hover:bg-white/10"
                 >
-                  <X size={24} aria-hidden />
+                  <X size={20} aria-hidden />
                 </button>
               </div>
 
-              <nav className="mt-16 flex flex-col gap-4 sm:mt-20 sm:gap-6 md:gap-8">
-                {publicNavItems.map((item) => (
-                  <div key={item.href} className="overflow-hidden">
+              <div className="relative flex flex-1 flex-col justify-between px-5 pb-8 pt-10">
+                <nav className="grid gap-2">
+                  {publicNavItems.map((item) => {
+                    const active = navLinkActive(item.href);
+                    return (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        onClick={() => setIsMobileMenuOpen(false)}
+                        className={cn(
+                          "rounded-2xl border px-5 py-4 text-lg font-semibold tracking-tight transition-colors",
+                          active
+                            ? "border-white/20 bg-white/10 text-white"
+                            : "border-white/10 bg-transparent text-white/85 hover:bg-white/10 hover:text-white",
+                        )}
+                      >
+                        {item.name}
+                      </Link>
+                    );
+                  })}
+                </nav>
+
+                <div className="mt-10 grid gap-3">
+                  <Button asChild className="h-12 w-full rounded-full bg-white/95 text-black hover:bg-white">
                     <Link
-                      href={item.href}
+                      href={session?.user ? "/dashboard/profiles" : "/sign-in"}
                       onClick={() => setIsMobileMenuOpen(false)}
-                      className="block text-[clamp(2rem,10vw,2.75rem)] leading-[0.85] font-black tracking-tighter text-white uppercase transition-colors hover:text-primary sm:text-5xl md:text-8xl lg:text-[7vw]"
                     >
-                      {item.name}
+                      {session?.user ? "Buka dashboard" : "Login"}
+                      <ArrowRight className="ml-2 h-4 w-4" />
                     </Link>
-                  </div>
-                ))}
-              </nav>
+                  </Button>
 
-              <div className="absolute bottom-10 left-4 overflow-hidden md:left-12">
-                <div className="flex flex-col gap-4">
-                  <Link
-                    href={session?.user ? "/dashboard/profiles" : "/sign-in"}
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className="inline-flex items-center gap-3 text-xs font-bold tracking-widest text-primary uppercase transition-colors hover:text-white sm:text-base"
+                  <Button
+                    asChild
+                    variant="outline"
+                    className="h-12 w-full rounded-full border-white/20 bg-transparent text-white hover:bg-white/10 hover:text-white"
                   >
-                    {session?.user ? "Buka dashboard" : "Login"}{" "}
-                    <ArrowRight size={20} aria-hidden />
-                  </Link>
-
-                  <a
-                    href="tel:04022821110"
-                    className="inline-flex items-center gap-3 text-xs font-bold tracking-widest text-primary uppercase transition-colors hover:text-white sm:text-base"
-                  >
-                    Hubungi posko darurat <ArrowRight size={20} aria-hidden />
-                  </a>
+                    <a href="tel:04022821110">
+                      Hubungi posko darurat
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </a>
+                  </Button>
                 </div>
               </div>
             </motion.div>

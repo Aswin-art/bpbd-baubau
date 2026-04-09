@@ -15,7 +15,7 @@ export const GET = apiHandler(async (_req: NextRequest) => {
     throw AppError.unauthorized("Authentication required", "UNAUTHORIZED");
   }
 
-  if (!(await checkPermission(session.user.role, "users", "update"))) {
+  if (!(await checkPermission(session.user.role, "permissions", "read"))) {
     throw AppError.forbidden(
       "You don't have permission to manage role permissions",
       "FORBIDDEN",
@@ -32,7 +32,7 @@ export const PATCH = apiHandler(async (req: NextRequest) => {
     throw AppError.unauthorized("Authentication required", "UNAUTHORIZED");
   }
 
-  if (!(await checkPermission(session.user.role, "users", "update"))) {
+  if (!(await checkPermission(session.user.role, "permissions", "update"))) {
     throw AppError.forbidden(
       "You don't have permission to manage role permissions",
       "FORBIDDEN",
