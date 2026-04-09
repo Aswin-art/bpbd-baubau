@@ -9,8 +9,6 @@ import { TableErrorFallback } from "../components/fallbacks/table-error-fallback
 import { CardsSkeleton } from "../components/skeletons/cards-skeleton";
 import { TableSkeleton } from "../components/skeletons/table-skeleton";
 
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-
 import { HeroSlidesSettings } from "./sections/hero-slides-settings";
 import { SiteSettingsSection } from "./sections/site-settings-section";
 import { PermissionGuard } from "../components/permission-guard";
@@ -30,44 +28,35 @@ export default function DashboardSettingsPage() {
           </p>
         </div>
 
-        <Tabs defaultValue="hero" className="space-y-6">
-          <TabsList>
-            <TabsTrigger value="hero">Hero Slides</TabsTrigger>
-            <TabsTrigger value="site">Site Settings</TabsTrigger>
-          </TabsList>
+        <div className="space-y-6">
+          <ErrorBoundary
+            onReset={reset}
+            fallbackRender={({ error, resetErrorBoundary }) => (
+              <TableErrorFallback
+                error={error}
+                resetErrorBoundary={resetErrorBoundary}
+              />
+            )}
+          >
+            <Suspense fallback={<TableSkeleton />}>
+              <HeroSlidesSettings />
+            </Suspense>
+          </ErrorBoundary>
 
-          <TabsContent value="hero" className="space-y-4">
-            <ErrorBoundary
-              onReset={reset}
-              fallbackRender={({ error, resetErrorBoundary }) => (
-                <TableErrorFallback
-                  error={error}
-                  resetErrorBoundary={resetErrorBoundary}
-                />
-              )}
-            >
-              <Suspense fallback={<TableSkeleton />}>
-                <HeroSlidesSettings />
-              </Suspense>
-            </ErrorBoundary>
-          </TabsContent>
-
-          <TabsContent value="site" className="space-y-4">
-            <ErrorBoundary
-              onReset={reset}
-              fallbackRender={({ error, resetErrorBoundary }) => (
-                <CardsErrorFallback
-                  error={error}
-                  resetErrorBoundary={resetErrorBoundary}
-                />
-              )}
-            >
-              <Suspense fallback={<CardsSkeleton />}>
-                <SiteSettingsSection />
-              </Suspense>
-            </ErrorBoundary>
-          </TabsContent>
-        </Tabs>
+          <ErrorBoundary
+            onReset={reset}
+            fallbackRender={({ error, resetErrorBoundary }) => (
+              <CardsErrorFallback
+                error={error}
+                resetErrorBoundary={resetErrorBoundary}
+              />
+            )}
+          >
+            <Suspense fallback={<CardsSkeleton />}>
+              <SiteSettingsSection />
+            </Suspense>
+          </ErrorBoundary>
+        </div>
       </div>
     </PermissionGuard>
   );

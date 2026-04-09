@@ -6,10 +6,11 @@ import { AppError } from "@/lib/app-error";
 import { getServerSession } from "@/lib/server";
 import { checkPermission } from "@/lib/permission-cache";
 import {
-  aspirationService,
   aspirationStatusSchema,
+  replyAspirationSchema,
   updateAspirationSchema,
 } from "@/modules/aspirations";
+import { aspirationService } from "@/modules/aspirations/aspirations.service";
 
 export const GET = apiHandler(async (_req: NextRequest, context) => {
   const session = await getServerSession();
@@ -66,6 +67,21 @@ export const PATCH = apiHandler(async (req: NextRequest, context) => {
       );
     }
     const updated = await aspirationService.changeStatus(id, statusOnly.data.status);
+    return apiSuccess(updated);
+  }
+
+  const replyOnly = replyAspirationSchema.safeParse(body);
+  if (replyOnly.success) {
+    if (!canUpdate) {
+      throw AppError.forbidden(
+        "You don't have permission to reply aspirations",
+        "FORBIDDEN",
+      );
+    }
+    const updated = await aspirationService.reply(id, {
+      adminReply: replyOnly.data.adminReply,
+      repliedById: session.user.id,
+    });
     return apiSuccess(updated);
   }
 

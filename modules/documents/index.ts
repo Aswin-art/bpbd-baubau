@@ -1,7 +1,7 @@
 /**
- * Documents Module (Server)
+ * Documents module — types, schemas, and DTOs safe for client bundles.
+ * Import `documentService` from `@/modules/documents/documents.service` (server-only).
  */
 
-export { documentService } from "./documents.service";
 export * from "./documents.dto";
 

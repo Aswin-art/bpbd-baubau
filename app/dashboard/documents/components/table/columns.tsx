@@ -9,12 +9,6 @@ import { CellAction } from "./cell-action";
 import { Checkbox } from "@/components/ui/checkbox";
 import { formatDateTime } from "@/helpers/date";
 
-const catLabel: Record<DocumentItem["category"], string> = {
-  sop: "SOP",
-  regulasi: "Regulasi",
-  pedoman: "Pedoman",
-};
-
 export function useColumns(): ColumnDef<DocumentItem>[] {
   return [
   {
@@ -76,7 +70,7 @@ export function useColumns(): ColumnDef<DocumentItem>[] {
     ),
     cell: ({ row }) => (
       <Badge variant="outline" className="capitalize font-medium text-xs px-2.5 py-0.5">
-        {catLabel[row.original.category]}
+        {row.original.category || "-"}
       </Badge>
     ),
   },

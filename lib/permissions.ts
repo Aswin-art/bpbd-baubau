@@ -15,6 +15,7 @@ export const statement = {
 
   users: ["create", "read", "update", "delete", "ban"],
   settings: ["read", "update"],
+  permissions: ["read", "update"],
 } as const;
 
 export const ac = createAccessControl(statement);
@@ -31,6 +32,7 @@ export const adminRole = ac.newRole({
   maps: ["create", "read", "update", "delete"],
   users: ["create", "read", "update", "delete", "ban"],
   settings: ["read", "update"],
+  permissions: ["read", "update"],
 });
 
 /** kepala_bpbd – read-heavy, can publish and change aspiration status */
@@ -44,6 +46,7 @@ export const kepalaBpbdRole = ac.newRole({
   maps: ["read"],
   users: ["read"],
   settings: ["read"],
+  permissions: ["read"],
 });
 
 /** operator – day-to-day content management */
@@ -57,6 +60,7 @@ export const operatorRole = ac.newRole({
   maps: ["create", "read", "update", "delete"],
   users: [],
   settings: [],
+  permissions: [],
 });
 
 /** masyarakat – public portal user */
@@ -70,4 +74,5 @@ export const masyarakatRole = ac.newRole({
   maps: ["read"],
   users: [],
   settings: [],
+  permissions: [],
 });

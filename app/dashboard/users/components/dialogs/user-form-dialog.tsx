@@ -33,12 +33,14 @@ const createSchema = z.object({
   name: z.string().trim().min(2, "Nama minimal 2 karakter"),
   email: z.string().trim().email("Email tidak valid"),
   password: z.string().min(6, "Password minimal 6 karakter"),
+  photoUrl: z.string().trim().url("URL foto tidak valid").optional().or(z.literal("")),
   role: roleSchema,
   isActive: z.enum(["true", "false"]),
 });
 
 const editSchema = z.object({
   name: z.string().trim().min(2, "Nama minimal 2 karakter"),
+  photoUrl: z.string().trim().url("URL foto tidak valid").optional().or(z.literal("")),
   role: roleSchema,
   isActive: z.enum(["true", "false"]),
   newPassword: z.string().min(6, "Password minimal 6 karakter").optional().or(z.literal("")),
@@ -61,11 +63,13 @@ export function UserFormDialog(props: {
             name: "",
             email: "",
             password: "",
+            photoUrl: "",
             role: "masyarakat" as Role,
             isActive: "true",
           }
         : {
             name: initial?.name ?? "",
+            photoUrl: (initial as any)?.photoUrl ?? "",
             role: (initial?.role as Role) ?? ("masyarakat" as Role),
             isActive: initial?.isActive === false ? "false" : "true",
             newPassword: "",
@@ -79,18 +83,20 @@ export function UserFormDialog(props: {
         name: "",
         email: "",
         password: "",
+        photoUrl: "",
         role: "masyarakat",
         isActive: "true",
       });
     } else {
       form.reset({
         name: initial?.name ?? "",
+        photoUrl: (initial as any)?.photoUrl ?? "",
         role: (initial?.role as Role) ?? "masyarakat",
         isActive: initial?.isActive === false ? "false" : "true",
         newPassword: "",
       });
     }
-  }, [open, mode, initial?.id, initial?.name, initial?.role, initial?.isActive, form]);
+  }, [open, mode, initial?.id, initial?.name, (initial as any)?.photoUrl, initial?.role, initial?.isActive, form]);
 
   const mutation = useMutation({
     mutationFn: async (values: any) => {
@@ -102,6 +108,7 @@ export function UserFormDialog(props: {
             name: values.name,
             email: values.email,
             password: values.password,
+            photoUrl: values.photoUrl || undefined,
             role: values.role,
             isActive: values.isActive === "true",
           }),
@@ -119,6 +126,7 @@ export function UserFormDialog(props: {
       const payload: any = {
         name: values.name,
         role: values.role,
+        photoUrl: values.photoUrl || undefined,
         isActive: values.isActive === "true",
       };
       if (values.newPassword) payload.newPassword = values.newPassword;
@@ -208,6 +216,19 @@ export function UserFormDialog(props: {
               ) : null}
             </div>
           )}
+
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Photo URL</label>
+            <Input
+              {...form.register("photoUrl")}
+              placeholder="https://..."
+            />
+            {form.formState.errors?.photoUrl?.message ? (
+              <p className="text-xs text-destructive">
+                {String(form.formState.errors.photoUrl.message)}
+              </p>
+            ) : null}
+          </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-2">

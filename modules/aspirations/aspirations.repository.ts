@@ -15,6 +15,9 @@ export interface AspirationListResult {
       submitterName: true;
       description: true;
       status: true;
+      adminReply: true;
+      repliedAt: true;
+      repliedById: true;
       userId: true;
       createdAt: true;
       updatedAt: true;
@@ -31,6 +34,9 @@ const aspirationSelect = {
   submitterName: true,
   description: true,
   status: true,
+  adminReply: true,
+  repliedAt: true,
+  repliedById: true,
   userId: true,
   createdAt: true,
   updatedAt: true,

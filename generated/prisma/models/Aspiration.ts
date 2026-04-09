@@ -29,6 +29,9 @@ export type AspirationMinAggregateOutputType = {
   submitterName: string | null
   description: string | null
   status: $Enums.AspirationStatus | null
+  adminReply: string | null
+  repliedAt: Date | null
+  repliedById: string | null
   userId: string | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -39,6 +42,9 @@ export type AspirationMaxAggregateOutputType = {
   submitterName: string | null
   description: string | null
   status: $Enums.AspirationStatus | null
+  adminReply: string | null
+  repliedAt: Date | null
+  repliedById: string | null
   userId: string | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -49,6 +55,9 @@ export type AspirationCountAggregateOutputType = {
   submitterName: number
   description: number
   status: number
+  adminReply: number
+  repliedAt: number
+  repliedById: number
   userId: number
   createdAt: number
   updatedAt: number
@@ -61,6 +70,9 @@ export type AspirationMinAggregateInputType = {
   submitterName?: true
   description?: true
   status?: true
+  adminReply?: true
+  repliedAt?: true
+  repliedById?: true
   userId?: true
   createdAt?: true
   updatedAt?: true
@@ -71,6 +83,9 @@ export type AspirationMaxAggregateInputType = {
   submitterName?: true
   description?: true
   status?: true
+  adminReply?: true
+  repliedAt?: true
+  repliedById?: true
   userId?: true
   createdAt?: true
   updatedAt?: true
@@ -81,6 +96,9 @@ export type AspirationCountAggregateInputType = {
   submitterName?: true
   description?: true
   status?: true
+  adminReply?: true
+  repliedAt?: true
+  repliedById?: true
   userId?: true
   createdAt?: true
   updatedAt?: true
@@ -164,6 +182,9 @@ export type AspirationGroupByOutputType = {
   submitterName: string
   description: string
   status: $Enums.AspirationStatus
+  adminReply: string | null
+  repliedAt: Date | null
+  repliedById: string | null
   userId: string | null
   createdAt: Date
   updatedAt: Date
@@ -195,9 +216,13 @@ export type AspirationWhereInput = {
   submitterName?: Prisma.StringFilter<"Aspiration"> | string
   description?: Prisma.StringFilter<"Aspiration"> | string
   status?: Prisma.EnumAspirationStatusFilter<"Aspiration"> | $Enums.AspirationStatus
+  adminReply?: Prisma.StringNullableFilter<"Aspiration"> | string | null
+  repliedAt?: Prisma.DateTimeNullableFilter<"Aspiration"> | Date | string | null
+  repliedById?: Prisma.StringNullableFilter<"Aspiration"> | string | null
   userId?: Prisma.StringNullableFilter<"Aspiration"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Aspiration"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Aspiration"> | Date | string
+  repliedBy?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   user?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
 }
 
@@ -206,9 +231,13 @@ export type AspirationOrderByWithRelationInput = {
   submitterName?: Prisma.SortOrder
   description?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  adminReply?: Prisma.SortOrderInput | Prisma.SortOrder
+  repliedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  repliedById?: Prisma.SortOrderInput | Prisma.SortOrder
   userId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  repliedBy?: Prisma.UserOrderByWithRelationInput
   user?: Prisma.UserOrderByWithRelationInput
 }
 
@@ -220,9 +249,13 @@ export type AspirationWhereUniqueInput = Prisma.AtLeast<{
   submitterName?: Prisma.StringFilter<"Aspiration"> | string
   description?: Prisma.StringFilter<"Aspiration"> | string
   status?: Prisma.EnumAspirationStatusFilter<"Aspiration"> | $Enums.AspirationStatus
+  adminReply?: Prisma.StringNullableFilter<"Aspiration"> | string | null
+  repliedAt?: Prisma.DateTimeNullableFilter<"Aspiration"> | Date | string | null
+  repliedById?: Prisma.StringNullableFilter<"Aspiration"> | string | null
   userId?: Prisma.StringNullableFilter<"Aspiration"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Aspiration"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Aspiration"> | Date | string
+  repliedBy?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   user?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
 }, "id">
 
@@ -231,6 +264,9 @@ export type AspirationOrderByWithAggregationInput = {
   submitterName?: Prisma.SortOrder
   description?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  adminReply?: Prisma.SortOrderInput | Prisma.SortOrder
+  repliedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  repliedById?: Prisma.SortOrderInput | Prisma.SortOrder
   userId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -247,6 +283,9 @@ export type AspirationScalarWhereWithAggregatesInput = {
   submitterName?: Prisma.StringWithAggregatesFilter<"Aspiration"> | string
   description?: Prisma.StringWithAggregatesFilter<"Aspiration"> | string
   status?: Prisma.EnumAspirationStatusWithAggregatesFilter<"Aspiration"> | $Enums.AspirationStatus
+  adminReply?: Prisma.StringNullableWithAggregatesFilter<"Aspiration"> | string | null
+  repliedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Aspiration"> | Date | string | null
+  repliedById?: Prisma.StringNullableWithAggregatesFilter<"Aspiration"> | string | null
   userId?: Prisma.StringNullableWithAggregatesFilter<"Aspiration"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Aspiration"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Aspiration"> | Date | string
@@ -257,8 +296,11 @@ export type AspirationCreateInput = {
   submitterName: string
   description: string
   status?: $Enums.AspirationStatus
+  adminReply?: string | null
+  repliedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  repliedBy?: Prisma.UserCreateNestedOneWithoutRepliedAspirationsInput
   user?: Prisma.UserCreateNestedOneWithoutAspirationsInput
 }
 
@@ -267,6 +309,9 @@ export type AspirationUncheckedCreateInput = {
   submitterName: string
   description: string
   status?: $Enums.AspirationStatus
+  adminReply?: string | null
+  repliedAt?: Date | string | null
+  repliedById?: string | null
   userId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -277,8 +322,11 @@ export type AspirationUpdateInput = {
   submitterName?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumAspirationStatusFieldUpdateOperationsInput | $Enums.AspirationStatus
+  adminReply?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  repliedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  repliedBy?: Prisma.UserUpdateOneWithoutRepliedAspirationsNestedInput
   user?: Prisma.UserUpdateOneWithoutAspirationsNestedInput
 }
 
@@ -287,6 +335,9 @@ export type AspirationUncheckedUpdateInput = {
   submitterName?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumAspirationStatusFieldUpdateOperationsInput | $Enums.AspirationStatus
+  adminReply?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  repliedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  repliedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -297,6 +348,9 @@ export type AspirationCreateManyInput = {
   submitterName: string
   description: string
   status?: $Enums.AspirationStatus
+  adminReply?: string | null
+  repliedAt?: Date | string | null
+  repliedById?: string | null
   userId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -307,6 +361,8 @@ export type AspirationUpdateManyMutationInput = {
   submitterName?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumAspirationStatusFieldUpdateOperationsInput | $Enums.AspirationStatus
+  adminReply?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  repliedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -316,6 +372,9 @@ export type AspirationUncheckedUpdateManyInput = {
   submitterName?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumAspirationStatusFieldUpdateOperationsInput | $Enums.AspirationStatus
+  adminReply?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  repliedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  repliedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -336,6 +395,9 @@ export type AspirationCountOrderByAggregateInput = {
   submitterName?: Prisma.SortOrder
   description?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  adminReply?: Prisma.SortOrder
+  repliedAt?: Prisma.SortOrder
+  repliedById?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -346,6 +408,9 @@ export type AspirationMaxOrderByAggregateInput = {
   submitterName?: Prisma.SortOrder
   description?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  adminReply?: Prisma.SortOrder
+  repliedAt?: Prisma.SortOrder
+  repliedById?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -356,6 +421,9 @@ export type AspirationMinOrderByAggregateInput = {
   submitterName?: Prisma.SortOrder
   description?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  adminReply?: Prisma.SortOrder
+  repliedAt?: Prisma.SortOrder
+  repliedById?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -368,10 +436,24 @@ export type AspirationCreateNestedManyWithoutUserInput = {
   connect?: Prisma.AspirationWhereUniqueInput | Prisma.AspirationWhereUniqueInput[]
 }
 
+export type AspirationCreateNestedManyWithoutRepliedByInput = {
+  create?: Prisma.XOR<Prisma.AspirationCreateWithoutRepliedByInput, Prisma.AspirationUncheckedCreateWithoutRepliedByInput> | Prisma.AspirationCreateWithoutRepliedByInput[] | Prisma.AspirationUncheckedCreateWithoutRepliedByInput[]
+  connectOrCreate?: Prisma.AspirationCreateOrConnectWithoutRepliedByInput | Prisma.AspirationCreateOrConnectWithoutRepliedByInput[]
+  createMany?: Prisma.AspirationCreateManyRepliedByInputEnvelope
+  connect?: Prisma.AspirationWhereUniqueInput | Prisma.AspirationWhereUniqueInput[]
+}
+
 export type AspirationUncheckedCreateNestedManyWithoutUserInput = {
   create?: Prisma.XOR<Prisma.AspirationCreateWithoutUserInput, Prisma.AspirationUncheckedCreateWithoutUserInput> | Prisma.AspirationCreateWithoutUserInput[] | Prisma.AspirationUncheckedCreateWithoutUserInput[]
   connectOrCreate?: Prisma.AspirationCreateOrConnectWithoutUserInput | Prisma.AspirationCreateOrConnectWithoutUserInput[]
   createMany?: Prisma.AspirationCreateManyUserInputEnvelope
+  connect?: Prisma.AspirationWhereUniqueInput | Prisma.AspirationWhereUniqueInput[]
+}
+
+export type AspirationUncheckedCreateNestedManyWithoutRepliedByInput = {
+  create?: Prisma.XOR<Prisma.AspirationCreateWithoutRepliedByInput, Prisma.AspirationUncheckedCreateWithoutRepliedByInput> | Prisma.AspirationCreateWithoutRepliedByInput[] | Prisma.AspirationUncheckedCreateWithoutRepliedByInput[]
+  connectOrCreate?: Prisma.AspirationCreateOrConnectWithoutRepliedByInput | Prisma.AspirationCreateOrConnectWithoutRepliedByInput[]
+  createMany?: Prisma.AspirationCreateManyRepliedByInputEnvelope
   connect?: Prisma.AspirationWhereUniqueInput | Prisma.AspirationWhereUniqueInput[]
 }
 
@@ -389,6 +471,20 @@ export type AspirationUpdateManyWithoutUserNestedInput = {
   deleteMany?: Prisma.AspirationScalarWhereInput | Prisma.AspirationScalarWhereInput[]
 }
 
+export type AspirationUpdateManyWithoutRepliedByNestedInput = {
+  create?: Prisma.XOR<Prisma.AspirationCreateWithoutRepliedByInput, Prisma.AspirationUncheckedCreateWithoutRepliedByInput> | Prisma.AspirationCreateWithoutRepliedByInput[] | Prisma.AspirationUncheckedCreateWithoutRepliedByInput[]
+  connectOrCreate?: Prisma.AspirationCreateOrConnectWithoutRepliedByInput | Prisma.AspirationCreateOrConnectWithoutRepliedByInput[]
+  upsert?: Prisma.AspirationUpsertWithWhereUniqueWithoutRepliedByInput | Prisma.AspirationUpsertWithWhereUniqueWithoutRepliedByInput[]
+  createMany?: Prisma.AspirationCreateManyRepliedByInputEnvelope
+  set?: Prisma.AspirationWhereUniqueInput | Prisma.AspirationWhereUniqueInput[]
+  disconnect?: Prisma.AspirationWhereUniqueInput | Prisma.AspirationWhereUniqueInput[]
+  delete?: Prisma.AspirationWhereUniqueInput | Prisma.AspirationWhereUniqueInput[]
+  connect?: Prisma.AspirationWhereUniqueInput | Prisma.AspirationWhereUniqueInput[]
+  update?: Prisma.AspirationUpdateWithWhereUniqueWithoutRepliedByInput | Prisma.AspirationUpdateWithWhereUniqueWithoutRepliedByInput[]
+  updateMany?: Prisma.AspirationUpdateManyWithWhereWithoutRepliedByInput | Prisma.AspirationUpdateManyWithWhereWithoutRepliedByInput[]
+  deleteMany?: Prisma.AspirationScalarWhereInput | Prisma.AspirationScalarWhereInput[]
+}
+
 export type AspirationUncheckedUpdateManyWithoutUserNestedInput = {
   create?: Prisma.XOR<Prisma.AspirationCreateWithoutUserInput, Prisma.AspirationUncheckedCreateWithoutUserInput> | Prisma.AspirationCreateWithoutUserInput[] | Prisma.AspirationUncheckedCreateWithoutUserInput[]
   connectOrCreate?: Prisma.AspirationCreateOrConnectWithoutUserInput | Prisma.AspirationCreateOrConnectWithoutUserInput[]
@@ -403,6 +499,20 @@ export type AspirationUncheckedUpdateManyWithoutUserNestedInput = {
   deleteMany?: Prisma.AspirationScalarWhereInput | Prisma.AspirationScalarWhereInput[]
 }
 
+export type AspirationUncheckedUpdateManyWithoutRepliedByNestedInput = {
+  create?: Prisma.XOR<Prisma.AspirationCreateWithoutRepliedByInput, Prisma.AspirationUncheckedCreateWithoutRepliedByInput> | Prisma.AspirationCreateWithoutRepliedByInput[] | Prisma.AspirationUncheckedCreateWithoutRepliedByInput[]
+  connectOrCreate?: Prisma.AspirationCreateOrConnectWithoutRepliedByInput | Prisma.AspirationCreateOrConnectWithoutRepliedByInput[]
+  upsert?: Prisma.AspirationUpsertWithWhereUniqueWithoutRepliedByInput | Prisma.AspirationUpsertWithWhereUniqueWithoutRepliedByInput[]
+  createMany?: Prisma.AspirationCreateManyRepliedByInputEnvelope
+  set?: Prisma.AspirationWhereUniqueInput | Prisma.AspirationWhereUniqueInput[]
+  disconnect?: Prisma.AspirationWhereUniqueInput | Prisma.AspirationWhereUniqueInput[]
+  delete?: Prisma.AspirationWhereUniqueInput | Prisma.AspirationWhereUniqueInput[]
+  connect?: Prisma.AspirationWhereUniqueInput | Prisma.AspirationWhereUniqueInput[]
+  update?: Prisma.AspirationUpdateWithWhereUniqueWithoutRepliedByInput | Prisma.AspirationUpdateWithWhereUniqueWithoutRepliedByInput[]
+  updateMany?: Prisma.AspirationUpdateManyWithWhereWithoutRepliedByInput | Prisma.AspirationUpdateManyWithWhereWithoutRepliedByInput[]
+  deleteMany?: Prisma.AspirationScalarWhereInput | Prisma.AspirationScalarWhereInput[]
+}
+
 export type EnumAspirationStatusFieldUpdateOperationsInput = {
   set?: $Enums.AspirationStatus
 }
@@ -412,8 +522,11 @@ export type AspirationCreateWithoutUserInput = {
   submitterName: string
   description: string
   status?: $Enums.AspirationStatus
+  adminReply?: string | null
+  repliedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  repliedBy?: Prisma.UserCreateNestedOneWithoutRepliedAspirationsInput
 }
 
 export type AspirationUncheckedCreateWithoutUserInput = {
@@ -421,6 +534,9 @@ export type AspirationUncheckedCreateWithoutUserInput = {
   submitterName: string
   description: string
   status?: $Enums.AspirationStatus
+  adminReply?: string | null
+  repliedAt?: Date | string | null
+  repliedById?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -432,6 +548,40 @@ export type AspirationCreateOrConnectWithoutUserInput = {
 
 export type AspirationCreateManyUserInputEnvelope = {
   data: Prisma.AspirationCreateManyUserInput | Prisma.AspirationCreateManyUserInput[]
+  skipDuplicates?: boolean
+}
+
+export type AspirationCreateWithoutRepliedByInput = {
+  id?: string
+  submitterName: string
+  description: string
+  status?: $Enums.AspirationStatus
+  adminReply?: string | null
+  repliedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  user?: Prisma.UserCreateNestedOneWithoutAspirationsInput
+}
+
+export type AspirationUncheckedCreateWithoutRepliedByInput = {
+  id?: string
+  submitterName: string
+  description: string
+  status?: $Enums.AspirationStatus
+  adminReply?: string | null
+  repliedAt?: Date | string | null
+  userId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type AspirationCreateOrConnectWithoutRepliedByInput = {
+  where: Prisma.AspirationWhereUniqueInput
+  create: Prisma.XOR<Prisma.AspirationCreateWithoutRepliedByInput, Prisma.AspirationUncheckedCreateWithoutRepliedByInput>
+}
+
+export type AspirationCreateManyRepliedByInputEnvelope = {
+  data: Prisma.AspirationCreateManyRepliedByInput | Prisma.AspirationCreateManyRepliedByInput[]
   skipDuplicates?: boolean
 }
 
@@ -459,9 +609,28 @@ export type AspirationScalarWhereInput = {
   submitterName?: Prisma.StringFilter<"Aspiration"> | string
   description?: Prisma.StringFilter<"Aspiration"> | string
   status?: Prisma.EnumAspirationStatusFilter<"Aspiration"> | $Enums.AspirationStatus
+  adminReply?: Prisma.StringNullableFilter<"Aspiration"> | string | null
+  repliedAt?: Prisma.DateTimeNullableFilter<"Aspiration"> | Date | string | null
+  repliedById?: Prisma.StringNullableFilter<"Aspiration"> | string | null
   userId?: Prisma.StringNullableFilter<"Aspiration"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Aspiration"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Aspiration"> | Date | string
+}
+
+export type AspirationUpsertWithWhereUniqueWithoutRepliedByInput = {
+  where: Prisma.AspirationWhereUniqueInput
+  update: Prisma.XOR<Prisma.AspirationUpdateWithoutRepliedByInput, Prisma.AspirationUncheckedUpdateWithoutRepliedByInput>
+  create: Prisma.XOR<Prisma.AspirationCreateWithoutRepliedByInput, Prisma.AspirationUncheckedCreateWithoutRepliedByInput>
+}
+
+export type AspirationUpdateWithWhereUniqueWithoutRepliedByInput = {
+  where: Prisma.AspirationWhereUniqueInput
+  data: Prisma.XOR<Prisma.AspirationUpdateWithoutRepliedByInput, Prisma.AspirationUncheckedUpdateWithoutRepliedByInput>
+}
+
+export type AspirationUpdateManyWithWhereWithoutRepliedByInput = {
+  where: Prisma.AspirationScalarWhereInput
+  data: Prisma.XOR<Prisma.AspirationUpdateManyMutationInput, Prisma.AspirationUncheckedUpdateManyWithoutRepliedByInput>
 }
 
 export type AspirationCreateManyUserInput = {
@@ -469,6 +638,21 @@ export type AspirationCreateManyUserInput = {
   submitterName: string
   description: string
   status?: $Enums.AspirationStatus
+  adminReply?: string | null
+  repliedAt?: Date | string | null
+  repliedById?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type AspirationCreateManyRepliedByInput = {
+  id?: string
+  submitterName: string
+  description: string
+  status?: $Enums.AspirationStatus
+  adminReply?: string | null
+  repliedAt?: Date | string | null
+  userId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -478,8 +662,11 @@ export type AspirationUpdateWithoutUserInput = {
   submitterName?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumAspirationStatusFieldUpdateOperationsInput | $Enums.AspirationStatus
+  adminReply?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  repliedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  repliedBy?: Prisma.UserUpdateOneWithoutRepliedAspirationsNestedInput
 }
 
 export type AspirationUncheckedUpdateWithoutUserInput = {
@@ -487,6 +674,9 @@ export type AspirationUncheckedUpdateWithoutUserInput = {
   submitterName?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumAspirationStatusFieldUpdateOperationsInput | $Enums.AspirationStatus
+  adminReply?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  repliedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  repliedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -496,6 +686,45 @@ export type AspirationUncheckedUpdateManyWithoutUserInput = {
   submitterName?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumAspirationStatusFieldUpdateOperationsInput | $Enums.AspirationStatus
+  adminReply?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  repliedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  repliedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type AspirationUpdateWithoutRepliedByInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  submitterName?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumAspirationStatusFieldUpdateOperationsInput | $Enums.AspirationStatus
+  adminReply?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  repliedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  user?: Prisma.UserUpdateOneWithoutAspirationsNestedInput
+}
+
+export type AspirationUncheckedUpdateWithoutRepliedByInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  submitterName?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumAspirationStatusFieldUpdateOperationsInput | $Enums.AspirationStatus
+  adminReply?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  repliedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type AspirationUncheckedUpdateManyWithoutRepliedByInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  submitterName?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumAspirationStatusFieldUpdateOperationsInput | $Enums.AspirationStatus
+  adminReply?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  repliedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -507,9 +736,13 @@ export type AspirationSelect<ExtArgs extends runtime.Types.Extensions.InternalAr
   submitterName?: boolean
   description?: boolean
   status?: boolean
+  adminReply?: boolean
+  repliedAt?: boolean
+  repliedById?: boolean
   userId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  repliedBy?: boolean | Prisma.Aspiration$repliedByArgs<ExtArgs>
   user?: boolean | Prisma.Aspiration$userArgs<ExtArgs>
 }, ExtArgs["result"]["aspiration"]>
 
@@ -518,9 +751,13 @@ export type AspirationSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ex
   submitterName?: boolean
   description?: boolean
   status?: boolean
+  adminReply?: boolean
+  repliedAt?: boolean
+  repliedById?: boolean
   userId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  repliedBy?: boolean | Prisma.Aspiration$repliedByArgs<ExtArgs>
   user?: boolean | Prisma.Aspiration$userArgs<ExtArgs>
 }, ExtArgs["result"]["aspiration"]>
 
@@ -529,9 +766,13 @@ export type AspirationSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ex
   submitterName?: boolean
   description?: boolean
   status?: boolean
+  adminReply?: boolean
+  repliedAt?: boolean
+  repliedById?: boolean
   userId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  repliedBy?: boolean | Prisma.Aspiration$repliedByArgs<ExtArgs>
   user?: boolean | Prisma.Aspiration$userArgs<ExtArgs>
 }, ExtArgs["result"]["aspiration"]>
 
@@ -540,25 +781,32 @@ export type AspirationSelectScalar = {
   submitterName?: boolean
   description?: boolean
   status?: boolean
+  adminReply?: boolean
+  repliedAt?: boolean
+  repliedById?: boolean
   userId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type AspirationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "submitterName" | "description" | "status" | "userId" | "createdAt" | "updatedAt", ExtArgs["result"]["aspiration"]>
+export type AspirationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "submitterName" | "description" | "status" | "adminReply" | "repliedAt" | "repliedById" | "userId" | "createdAt" | "updatedAt", ExtArgs["result"]["aspiration"]>
 export type AspirationInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  repliedBy?: boolean | Prisma.Aspiration$repliedByArgs<ExtArgs>
   user?: boolean | Prisma.Aspiration$userArgs<ExtArgs>
 }
 export type AspirationIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  repliedBy?: boolean | Prisma.Aspiration$repliedByArgs<ExtArgs>
   user?: boolean | Prisma.Aspiration$userArgs<ExtArgs>
 }
 export type AspirationIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  repliedBy?: boolean | Prisma.Aspiration$repliedByArgs<ExtArgs>
   user?: boolean | Prisma.Aspiration$userArgs<ExtArgs>
 }
 
 export type $AspirationPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Aspiration"
   objects: {
+    repliedBy: Prisma.$UserPayload<ExtArgs> | null
     user: Prisma.$UserPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
@@ -569,6 +817,12 @@ export type $AspirationPayload<ExtArgs extends runtime.Types.Extensions.Internal
     submitterName: string
     description: string
     status: $Enums.AspirationStatus
+    /**
+     * Balasan admin (dashboard). Jika ada, aspirasi dianggap sudah ditanggapi.
+     */
+    adminReply: string | null
+    repliedAt: Date | null
+    repliedById: string | null
     /**
      * Optional account link when the user is logged in
      */
@@ -969,6 +1223,7 @@ readonly fields: AspirationFieldRefs;
  */
 export interface Prisma__AspirationClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  repliedBy<T extends Prisma.Aspiration$repliedByArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Aspiration$repliedByArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   user<T extends Prisma.Aspiration$userArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Aspiration$userArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -1003,6 +1258,9 @@ export interface AspirationFieldRefs {
   readonly submitterName: Prisma.FieldRef<"Aspiration", 'String'>
   readonly description: Prisma.FieldRef<"Aspiration", 'String'>
   readonly status: Prisma.FieldRef<"Aspiration", 'AspirationStatus'>
+  readonly adminReply: Prisma.FieldRef<"Aspiration", 'String'>
+  readonly repliedAt: Prisma.FieldRef<"Aspiration", 'DateTime'>
+  readonly repliedById: Prisma.FieldRef<"Aspiration", 'String'>
   readonly userId: Prisma.FieldRef<"Aspiration", 'String'>
   readonly createdAt: Prisma.FieldRef<"Aspiration", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Aspiration", 'DateTime'>
@@ -1404,6 +1662,25 @@ export type AspirationDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.In
    * Limit how many Aspirations to delete.
    */
   limit?: number
+}
+
+/**
+ * Aspiration.repliedBy
+ */
+export type Aspiration$repliedByArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the User
+   */
+  select?: Prisma.UserSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the User
+   */
+  omit?: Prisma.UserOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserInclude<ExtArgs> | null
+  where?: Prisma.UserWhereInput
 }
 
 /**

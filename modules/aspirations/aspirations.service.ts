@@ -5,6 +5,7 @@ import type {
   BulkChangeStatusInput,
   BulkDeleteInput,
   CreateAspirationInput,
+  ReplyAspirationInput,
   UpdateAspirationInput,
 } from "./aspirations.dto";
 
@@ -46,6 +47,16 @@ export const aspirationService = {
         : {}),
       ...(input.status !== undefined ? { status: input.status } : {}),
     });
+    return updated;
+  },
+
+  async reply(id: string, input: ReplyAspirationInput & { repliedById?: string | null }) {
+    await this.getById(id);
+    const updated = await aspirationRepository.update(id, {
+      adminReply: input.adminReply,
+      repliedAt: new Date(),
+      repliedById: input.repliedById ?? null,
+    } as any);
     return updated;
   },
 

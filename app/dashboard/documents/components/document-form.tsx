@@ -6,17 +6,11 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { Loader2, Save } from "lucide-react";
+import { format } from "date-fns";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import {
   Form,
   FormControl,
@@ -27,6 +21,11 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { createDocumentSchema, type CreateDocumentInput } from "@/modules/documents";
+import FileUpload from "@/components/file-upload";
+import { useUpload } from "@/modules/upload";
+import { formatFileSize } from "@/helpers/compress";
+import { SearchSelect } from "@/components/ui/search-select";
+import { DatePicker } from "@/components/ui/date-picker";
 
 type Mode = "create" | "edit";
 
@@ -38,15 +37,16 @@ export function DocumentForm(props: {
   const router = useRouter();
   const queryClient = useQueryClient();
   const mode: Mode = props.mode ?? "create";
+  const uploadMutation = useUpload({ scope: "documents" });
 
   const form = useForm<CreateDocumentInput>({
     resolver: zodResolver(createDocumentSchema),
     defaultValues: {
       name: props.initialData?.name ?? "",
       description: props.initialData?.description ?? "",
-      category: (props.initialData?.category as any) ?? "sop",
+      category: (props.initialData?.category as any) ?? "",
       dateLabel: props.initialData?.dateLabel ?? "",
-      fileSize: props.initialData?.fileSize ?? "",
+      fileSize: props.initialData?.fileSize ?? undefined,
       downloadUrl: props.initialData?.downloadUrl ?? "",
     },
   });
@@ -137,18 +137,22 @@ export function DocumentForm(props: {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Kategori</FormLabel>
-                    <Select value={field.value} onValueChange={field.onChange}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Pilih kategori" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="sop">SOP</SelectItem>
-                        <SelectItem value="regulasi">Regulasi</SelectItem>
-                        <SelectItem value="pedoman">Pedoman</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <FormControl>
+                      <SearchSelect
+                        apiEndpoint="/api/dashboard/documents/categories"
+                        placeholder="Pilih / ketik kategori"
+                        value={field.value || null}
+                        onChange={(v) => field.onChange(v || "")}
+                        creatable
+                        responseMapper={(data) => {
+                          const arr = Array.isArray(data) ? data : [];
+                          return arr
+                            .map((c) => String(c))
+                            .filter(Boolean)
+                            .map((c) => ({ id: c, label: c }));
+                        }}
+                      />
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -161,25 +165,19 @@ export function DocumentForm(props: {
                   <FormItem>
                     <FormLabel>Tanggal dokumen</FormLabel>
                     <FormControl>
-                      <Input placeholder="1 Januari 2026" {...field} />
+                      <DatePicker
+                        date={
+                          field.value && !Number.isNaN(Date.parse(field.value))
+                            ? new Date(field.value)
+                            : undefined
+                        }
+                        setDate={(d) => {
+                          field.onChange(d ? format(d, "yyyy-MM-dd") : "");
+                        }}
+                        placeholder="Pilih tanggal"
+                        className="w-full"
+                      />
                     </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="fileSize"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Ukuran file</FormLabel>
-                    <FormControl>
-                      <Input placeholder="contoh: 2.4 MB" {...field} />
-                    </FormControl>
-                    <FormDescription>
-                      Isi manual sesuai ukuran file yang ditampilkan di publik.
-                    </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -190,10 +188,33 @@ export function DocumentForm(props: {
                 name="downloadUrl"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>URL file</FormLabel>
+                    <FormLabel>File PDF</FormLabel>
                     <FormControl>
-                      <Input placeholder="https://..." {...field} />
+                      <FileUpload
+                        value={field.value}
+                        onChange={(url) => {
+                          field.onChange(url);
+                        }}
+                        onUpload={async (file) => {
+                          const result = await uploadMutation.mutateAsync(file);
+                          // File size dihitung otomatis dari file yang diupload.
+                          form.setValue("fileSize", formatFileSize(result.size), {
+                            shouldDirty: true,
+                            shouldValidate: true,
+                          });
+                          form.setValue("downloadUrl", result.url, {
+                            shouldDirty: true,
+                            shouldValidate: true,
+                          });
+                          return result.url;
+                        }}
+                        accept={{ "application/pdf": [".pdf"] }}
+                        disabled={mutation.isPending}
+                      />
                     </FormControl>
+                    <FormDescription>
+                      Upload dokumen PDF. Ukuran file dihitung otomatis.
+                    </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}

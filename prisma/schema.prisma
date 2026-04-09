@@ -60,6 +60,7 @@ model User {
   articles        Article[]        @relation("ArticleAuthor")
   articleComments ArticleComment[]
   aspirations          Aspiration[]
+  repliedAspirations   Aspiration[] @relation("AspirationReplyAuthor")
 
   @@map("user")
 }
@@ -188,6 +189,12 @@ model Aspiration {
   description String @db.Text
   status      AspirationStatus @default(pending)
 
+  /// Balasan admin (dashboard). Jika ada, aspirasi dianggap sudah ditanggapi.
+  adminReply String?  @db.Text @map("admin_reply")
+  repliedAt  DateTime? @map("replied_at")
+  repliedById String? @map("replied_by_id")
+  repliedBy   User?   @relation("AspirationReplyAuthor", fields: [repliedById], references: [id], onDelete: SetNull)
+
   /// Optional account link when the user is logged in
   userId String? @map("user_id")
   user   User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -216,12 +223,33 @@ model MapDisasterPoint {
   lat         Float
   lng         Float
 
+  photos DisasterPhoto[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([kecamatan])
   @@index([updatedAt])
   @@map("map_disaster_point")
+}
+
+/// Many photos per disaster point.
+model DisasterPhoto {
+  id String @id @default(cuid())
+
+  disasterId String @map("disaster_id")
+  disaster   MapDisasterPoint @relation(fields: [disasterId], references: [id], onDelete: Cascade)
+
+  url     String
+  caption String? @db.Text
+  sortOrder Int @default(0) @map("sort_order")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([disasterId])
+  @@index([sortOrder])
+  @@map("disaster_photo")
 }
 
 /// Official disaster PDF archive; `description` is JSON (e.g. summary blocks or metadata).
@@ -241,20 +269,14 @@ model ArsipDocument {
   @@map("arsip_document")
 }
 
-// --- Public download documents (SOP / regulasi / pedoman)
-
-enum DocumentCategory {
-  sop
-  regulasi
-  pedoman
-}
+// --- Public download documents (kategori fleksibel)
 
 model Document {
   id String @id @default(cuid())
 
   name        String
   description String
-  category    DocumentCategory
+  category    String
 
   dateLabel   String @map("date_label")
   fileSize    String @map("file_size")
@@ -301,8 +323,15 @@ model SiteSettings {
   /// About section copy.
   aboutDescription String? @map("about_description")
 
-  /// Profile / organization URL (e.g. YouTube embed or Image).
-  aboutProfileUrl String? @map("about_profile_url")
+  /// Photo URL for organization structure image.
+  structurePhotoUrl String? @map("structure_photo_url")
+
+  /// Office photo URL (building/office front).
+  officePhotoUrl String? @map("office_photo_url")
+
+  /// Map embed URL (e.g. Google Maps embed link).
+  mapEmbedUrl String? @map("map_embed_url")
+
   objectives String? @map("objectives")
   goals String? @map("goals")
 

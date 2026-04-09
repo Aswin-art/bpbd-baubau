@@ -27,6 +27,7 @@ export const uploadScopeSchema = z.enum([
   "aspirations",
   "archives",
   "maps",
+  "settings",
 ]);
 export type UploadScope = z.infer<typeof uploadScopeSchema>;
 

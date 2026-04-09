@@ -5,12 +5,12 @@ import { AppError } from "@/lib/app-error";
 import { getServerSession } from "@/lib/server";
 import { checkPermission } from "@/lib/permission-cache";
 import {
-  aspirationService,
   aspirationListParamsSchema,
   createAspirationSchema,
   bulkChangeStatusSchema,
   bulkDeleteSchema,
 } from "@/modules/aspirations";
+import { aspirationService } from "@/modules/aspirations/aspirations.service";
 
 /**
  * GET /api/dashboard/aspirations

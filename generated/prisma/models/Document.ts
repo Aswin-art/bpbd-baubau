@@ -28,7 +28,7 @@ export type DocumentMinAggregateOutputType = {
   id: string | null
   name: string | null
   description: string | null
-  category: $Enums.DocumentCategory | null
+  category: string | null
   dateLabel: string | null
   fileSize: string | null
   downloadUrl: string | null
@@ -40,7 +40,7 @@ export type DocumentMaxAggregateOutputType = {
   id: string | null
   name: string | null
   description: string | null
-  category: $Enums.DocumentCategory | null
+  category: string | null
   dateLabel: string | null
   fileSize: string | null
   downloadUrl: string | null
@@ -175,7 +175,7 @@ export type DocumentGroupByOutputType = {
   id: string
   name: string
   description: string
-  category: $Enums.DocumentCategory
+  category: string
   dateLabel: string
   fileSize: string
   downloadUrl: string
@@ -208,7 +208,7 @@ export type DocumentWhereInput = {
   id?: Prisma.StringFilter<"Document"> | string
   name?: Prisma.StringFilter<"Document"> | string
   description?: Prisma.StringFilter<"Document"> | string
-  category?: Prisma.EnumDocumentCategoryFilter<"Document"> | $Enums.DocumentCategory
+  category?: Prisma.StringFilter<"Document"> | string
   dateLabel?: Prisma.StringFilter<"Document"> | string
   fileSize?: Prisma.StringFilter<"Document"> | string
   downloadUrl?: Prisma.StringFilter<"Document"> | string
@@ -235,7 +235,7 @@ export type DocumentWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.DocumentWhereInput | Prisma.DocumentWhereInput[]
   name?: Prisma.StringFilter<"Document"> | string
   description?: Prisma.StringFilter<"Document"> | string
-  category?: Prisma.EnumDocumentCategoryFilter<"Document"> | $Enums.DocumentCategory
+  category?: Prisma.StringFilter<"Document"> | string
   dateLabel?: Prisma.StringFilter<"Document"> | string
   fileSize?: Prisma.StringFilter<"Document"> | string
   downloadUrl?: Prisma.StringFilter<"Document"> | string
@@ -265,7 +265,7 @@ export type DocumentScalarWhereWithAggregatesInput = {
   id?: Prisma.StringWithAggregatesFilter<"Document"> | string
   name?: Prisma.StringWithAggregatesFilter<"Document"> | string
   description?: Prisma.StringWithAggregatesFilter<"Document"> | string
-  category?: Prisma.EnumDocumentCategoryWithAggregatesFilter<"Document"> | $Enums.DocumentCategory
+  category?: Prisma.StringWithAggregatesFilter<"Document"> | string
   dateLabel?: Prisma.StringWithAggregatesFilter<"Document"> | string
   fileSize?: Prisma.StringWithAggregatesFilter<"Document"> | string
   downloadUrl?: Prisma.StringWithAggregatesFilter<"Document"> | string
@@ -277,7 +277,7 @@ export type DocumentCreateInput = {
   id?: string
   name: string
   description: string
-  category: $Enums.DocumentCategory
+  category: string
   dateLabel: string
   fileSize: string
   downloadUrl: string
@@ -289,7 +289,7 @@ export type DocumentUncheckedCreateInput = {
   id?: string
   name: string
   description: string
-  category: $Enums.DocumentCategory
+  category: string
   dateLabel: string
   fileSize: string
   downloadUrl: string
@@ -301,7 +301,7 @@ export type DocumentUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
-  category?: Prisma.EnumDocumentCategoryFieldUpdateOperationsInput | $Enums.DocumentCategory
+  category?: Prisma.StringFieldUpdateOperationsInput | string
   dateLabel?: Prisma.StringFieldUpdateOperationsInput | string
   fileSize?: Prisma.StringFieldUpdateOperationsInput | string
   downloadUrl?: Prisma.StringFieldUpdateOperationsInput | string
@@ -313,7 +313,7 @@ export type DocumentUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
-  category?: Prisma.EnumDocumentCategoryFieldUpdateOperationsInput | $Enums.DocumentCategory
+  category?: Prisma.StringFieldUpdateOperationsInput | string
   dateLabel?: Prisma.StringFieldUpdateOperationsInput | string
   fileSize?: Prisma.StringFieldUpdateOperationsInput | string
   downloadUrl?: Prisma.StringFieldUpdateOperationsInput | string
@@ -325,7 +325,7 @@ export type DocumentCreateManyInput = {
   id?: string
   name: string
   description: string
-  category: $Enums.DocumentCategory
+  category: string
   dateLabel: string
   fileSize: string
   downloadUrl: string
@@ -337,7 +337,7 @@ export type DocumentUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
-  category?: Prisma.EnumDocumentCategoryFieldUpdateOperationsInput | $Enums.DocumentCategory
+  category?: Prisma.StringFieldUpdateOperationsInput | string
   dateLabel?: Prisma.StringFieldUpdateOperationsInput | string
   fileSize?: Prisma.StringFieldUpdateOperationsInput | string
   downloadUrl?: Prisma.StringFieldUpdateOperationsInput | string
@@ -349,7 +349,7 @@ export type DocumentUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
-  category?: Prisma.EnumDocumentCategoryFieldUpdateOperationsInput | $Enums.DocumentCategory
+  category?: Prisma.StringFieldUpdateOperationsInput | string
   dateLabel?: Prisma.StringFieldUpdateOperationsInput | string
   fileSize?: Prisma.StringFieldUpdateOperationsInput | string
   downloadUrl?: Prisma.StringFieldUpdateOperationsInput | string
@@ -391,10 +391,6 @@ export type DocumentMinOrderByAggregateInput = {
   downloadUrl?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
-}
-
-export type EnumDocumentCategoryFieldUpdateOperationsInput = {
-  set?: $Enums.DocumentCategory
 }
 
 
@@ -456,7 +452,7 @@ export type $DocumentPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     id: string
     name: string
     description: string
-    category: $Enums.DocumentCategory
+    category: string
     dateLabel: string
     fileSize: string
     downloadUrl: string
@@ -888,7 +884,7 @@ export interface DocumentFieldRefs {
   readonly id: Prisma.FieldRef<"Document", 'String'>
   readonly name: Prisma.FieldRef<"Document", 'String'>
   readonly description: Prisma.FieldRef<"Document", 'String'>
-  readonly category: Prisma.FieldRef<"Document", 'DocumentCategory'>
+  readonly category: Prisma.FieldRef<"Document", 'String'>
   readonly dateLabel: Prisma.FieldRef<"Document", 'String'>
   readonly fileSize: Prisma.FieldRef<"Document", 'String'>
   readonly downloadUrl: Prisma.FieldRef<"Document", 'String'>

@@ -20,6 +20,10 @@ export const documentService = {
     return doc;
   },
 
+  async listCategories() {
+    return documentRepository.listCategories();
+  },
+
   async getStats() {
     return documentRepository.getStats();
   },
@@ -30,7 +34,7 @@ export const documentService = {
       description: input.description,
       category: input.category,
       dateLabel: input.dateLabel,
-      fileSize: input.fileSize,
+      fileSize: input.fileSize || "-",
       downloadUrl: input.downloadUrl,
     } as any);
   },

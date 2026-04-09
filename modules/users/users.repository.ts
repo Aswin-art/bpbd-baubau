@@ -34,6 +34,7 @@ export const usersRepository = {
           name: true,
           email: true,
           role: true,
+          photoUrl: true,
           isActive: true,
           emailVerified: true,
           lastLoginAt: true,
@@ -65,7 +66,7 @@ export const usersRepository = {
 
   async updateFields(
     id: string,
-    data: { name?: string; role?: string; isActive?: boolean },
+    data: { name?: string; role?: string; isActive?: boolean; photoUrl?: string | null },
   ) {
     return db.user.update({
       where: { id },
