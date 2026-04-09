@@ -8,8 +8,8 @@ import {
   bulkDeleteDocumentsSchema,
   createDocumentSchema,
   documentListParamsSchema,
-  documentService,
 } from "@/modules/documents";
+import { documentService } from "@/modules/documents/documents.service";
 
 export const GET = apiHandler(async (req: NextRequest) => {
   const session = await getServerSession();

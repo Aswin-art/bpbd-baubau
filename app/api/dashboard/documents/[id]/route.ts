@@ -4,7 +4,8 @@ import { apiHandler, apiSuccess } from "@/lib/api-handler";
 import { AppError } from "@/lib/app-error";
 import { getServerSession } from "@/lib/server";
 import { checkPermission } from "@/lib/permission-cache";
-import { documentService, updateDocumentSchema } from "@/modules/documents";
+import { updateDocumentSchema } from "@/modules/documents";
+import { documentService } from "@/modules/documents/documents.service";
 
 export const GET = apiHandler(async (_req: NextRequest, context) => {
   const session = await getServerSession();

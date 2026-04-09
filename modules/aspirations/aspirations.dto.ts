@@ -21,6 +21,9 @@ export const aspirationSchema = z.object({
   submitterName: z.string(),
   description: z.string(),
   status: aspirationStatusSchema,
+  adminReply: z.string().nullable().optional(),
+  repliedAt: z.date().or(z.string()).nullable().optional(),
+  repliedById: z.string().nullable().optional(),
   userId: z.string().nullable(),
   createdAt: z.date().or(z.string()),
   updatedAt: z.date().or(z.string()),
@@ -95,4 +98,10 @@ export const updateAspirationSchema = createAspirationSchema.partial().extend({
 });
 
 export type UpdateAspirationInput = z.infer<typeof updateAspirationSchema>;
+
+export const replyAspirationSchema = z.object({
+  adminReply: z.string().trim().min(2, "Balasan minimal 2 karakter"),
+});
+
+export type ReplyAspirationInput = z.infer<typeof replyAspirationSchema>;
 

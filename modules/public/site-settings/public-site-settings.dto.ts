@@ -3,9 +3,11 @@ import { z } from "zod";
 export const publicSiteSettingsSchema = z.object({
   id: z.string(),
   aboutDescription: z.string().nullable().optional(),
-  aboutProfileUrl: z.string().nullable().optional(),
   objectives: z.string().nullable().optional(),
   goals: z.string().nullable().optional(),
+  structurePhotoUrl: z.string().nullable().optional(),
+  officePhotoUrl: z.string().nullable().optional(),
+  mapEmbedUrl: z.string().nullable().optional(),
   contactEmail: z.string().nullable().optional(),
   contactPhone: z.string().nullable().optional(),
   socialInstagram: z.string().nullable().optional(),

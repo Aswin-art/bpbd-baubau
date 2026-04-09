@@ -59,6 +59,7 @@ export const ModelName = {
   ArticleComment: 'ArticleComment',
   Aspiration: 'Aspiration',
   MapDisasterPoint: 'MapDisasterPoint',
+  DisasterPhoto: 'DisasterPhoto',
   ArsipDocument: 'ArsipDocument',
   Document: 'Document',
   HeroSlide: 'HeroSlide',
@@ -190,6 +191,9 @@ export const AspirationScalarFieldEnum = {
   submitterName: 'submitterName',
   description: 'description',
   status: 'status',
+  adminReply: 'adminReply',
+  repliedAt: 'repliedAt',
+  repliedById: 'repliedById',
   userId: 'userId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
@@ -215,6 +219,19 @@ export const MapDisasterPointScalarFieldEnum = {
 } as const
 
 export type MapDisasterPointScalarFieldEnum = (typeof MapDisasterPointScalarFieldEnum)[keyof typeof MapDisasterPointScalarFieldEnum]
+
+
+export const DisasterPhotoScalarFieldEnum = {
+  id: 'id',
+  disasterId: 'disasterId',
+  url: 'url',
+  caption: 'caption',
+  sortOrder: 'sortOrder',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type DisasterPhotoScalarFieldEnum = (typeof DisasterPhotoScalarFieldEnum)[keyof typeof DisasterPhotoScalarFieldEnum]
 
 
 export const ArsipDocumentScalarFieldEnum = {
@@ -265,7 +282,9 @@ export type HeroSlideScalarFieldEnum = (typeof HeroSlideScalarFieldEnum)[keyof t
 export const SiteSettingsScalarFieldEnum = {
   id: 'id',
   aboutDescription: 'aboutDescription',
-  aboutProfileUrl: 'aboutProfileUrl',
+  structurePhotoUrl: 'structurePhotoUrl',
+  officePhotoUrl: 'officePhotoUrl',
+  mapEmbedUrl: 'mapEmbedUrl',
   objectives: 'objectives',
   goals: 'goals',
   contactEmail: 'contactEmail',

@@ -9,20 +9,14 @@ import { TableSkeleton } from "@/app/dashboard/components/skeletons/table-skelet
 import { useColumns } from "./columns";
 import { useQueryState, parseAsInteger, parseAsString } from "nuqs";
 import { useState } from "react";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { DeleteDialog } from "../dialogs/delete-dialog";
+import { SearchSelect } from "@/components/ui/search-select";
 
 export type DocumentItem = {
   id: string;
   name: string;
   description: string;
-  category: "sop" | "regulasi" | "pedoman";
+  category: string;
   dateLabel: string;
   fileSize: string;
   downloadUrl: string;
@@ -80,7 +74,7 @@ export function DocumentsTable() {
   const [q] = useQueryState("q", parseAsString.withDefault(""));
   const [category, setCategory] = useQueryState(
     "category",
-    parseAsString.withDefault("all"),
+    parseAsString.withDefault(""),
   );
 
   const [rowSelection, setRowSelection] = useState<Record<string, boolean>>({});
@@ -93,7 +87,7 @@ export function DocumentsTable() {
         page,
         limit,
         q: q || undefined,
-        category: category && category !== "all" ? category : undefined,
+        category: category ? category : undefined,
       }),
     placeholderData: keepPreviousData,
     staleTime: 1000 * 60 * 5,
@@ -114,17 +108,20 @@ export function DocumentsTable() {
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-2">
-        <Select value={category || "all"} onValueChange={(v) => setCategory(v)}>
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Semua kategori" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Semua kategori</SelectItem>
-            <SelectItem value="sop">SOP</SelectItem>
-            <SelectItem value="regulasi">Regulasi</SelectItem>
-            <SelectItem value="pedoman">Pedoman</SelectItem>
-          </SelectContent>
-        </Select>
+        <SearchSelect
+          apiEndpoint="/api/dashboard/documents/categories"
+          placeholder="Semua kategori"
+          value={category || null}
+          onChange={(v) => setCategory(v || "")}
+          creatable
+          responseMapper={(data) => {
+            const arr = Array.isArray(data) ? data : [];
+            return arr
+              .map((c) => String(c))
+              .filter(Boolean)
+              .map((c) => ({ id: c, label: c }));
+          }}
+        />
       </div>
 
       {Object.keys(rowSelection).length > 0 && (

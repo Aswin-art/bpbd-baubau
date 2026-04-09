@@ -12,6 +12,7 @@ export type UserRow = {
   name: string;
   email: string;
   role: string;
+  photoUrl?: string | null;
   isActive: boolean;
   emailVerified: boolean;
   lastLoginAt: string | null;
@@ -62,7 +63,10 @@ export function useColumns(): ColumnDef<UserRow>[] {
           <div className="flex items-center gap-3 max-w-md">
             <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-md border bg-muted">
               <Image
-                src={`https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=random&color=fff&bold=true&length=1`}
+                src={
+                  user.photoUrl ||
+                  `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=random&color=fff&bold=true&length=1`
+                }
                 alt={user.name}
                 fill
                 className="object-cover"

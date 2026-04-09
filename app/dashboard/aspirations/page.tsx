@@ -3,8 +3,6 @@
 import { ErrorBoundary } from "react-error-boundary";
 import { Suspense } from "react";
 import { useQueryErrorResetBoundary } from "@tanstack/react-query";
-import Link from "next/link";
-import { Plus } from "lucide-react";
 
 import { AspirationsTable } from "./components/table/aspirations-table";
 import { AspirationCards } from "./components/aspiration-cards";
@@ -12,7 +10,6 @@ import { CardsErrorFallback } from "../components/fallbacks/cards-error-fallback
 import { CardsSkeleton } from "../components/skeletons/cards-skeleton";
 import { TableErrorFallback } from "../components/fallbacks/table-error-fallback";
 import { TableSkeleton } from "../components/skeletons/table-skeleton";
-import { Button } from "@/components/ui/button";
 import { PermissionGuard } from "../components/permission-guard";
 
 export default function DashboardAspirationsPage() {
@@ -31,12 +28,6 @@ export default function DashboardAspirationsPage() {
               Laporan dan masukan masyarakat terkait kebencanaan.
             </p>
           </div>
-          <Button asChild size="lg" className="shadow-sm">
-            <Link href="/dashboard/aspirations/create">
-              <Plus className="mr-2 h-4 w-4" />
-              Tambah aspirasi
-            </Link>
-          </Button>
         </div>
 
         {/* Stats Section */}

@@ -31,6 +31,7 @@ export const PATCH = apiHandler(async (req: NextRequest, context) => {
     .object({
       name: z.string().trim().min(2).optional(),
       role: z.string().trim().min(1).optional(),
+      photoUrl: z.string().trim().url().optional(),
       isActive: z.boolean().optional(),
       newPassword: z.string().min(6).optional(),
     })
@@ -38,6 +39,7 @@ export const PATCH = apiHandler(async (req: NextRequest, context) => {
       (v) =>
         v.name !== undefined ||
         v.role !== undefined ||
+        v.photoUrl !== undefined ||
         v.isActive !== undefined ||
         v.newPassword !== undefined,
       { message: "No fields to update" },

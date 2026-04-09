@@ -4,7 +4,6 @@ import { ColumnDef } from "@tanstack/react-table";
 import Image from "next/image";
 
 import { Badge } from "@/components/ui/badge";
-import { Checkbox } from "@/components/ui/checkbox";
 import { DataTableColumnHeader } from "@/components/datatable/table-header";
 import { formatDateTime } from "@/helpers/date";
 import { CellAction } from "./cell-action";
@@ -60,28 +59,6 @@ function getDescriptionPreview(description: unknown): string {
 
 export function useColumns(): ColumnDef<Aspiration>[] {
   return [
-    {
-      id: "select",
-      header: ({ table }) => (
-        <Checkbox
-          checked={
-            table.getIsAllPageRowsSelected() ||
-            (table.getIsSomePageRowsSelected() && "indeterminate")
-          }
-          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-          aria-label="Pilih semua"
-        />
-      ),
-      cell: ({ row }) => (
-        <Checkbox
-          checked={row.getIsSelected()}
-          onCheckedChange={(value) => row.toggleSelected(!!value)}
-          aria-label="Pilih baris"
-        />
-      ),
-      enableSorting: false,
-      enableHiding: false,
-    },
     {
       accessorKey: "submitterName",
       header: ({ column }) => (

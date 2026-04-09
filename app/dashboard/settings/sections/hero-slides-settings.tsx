@@ -33,6 +33,9 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
+import FileUpload from "@/components/file-upload";
+import { createUploadHandler, useUpload } from "@/modules/upload";
+import { Skeleton } from "@/components/ui/skeleton";
 
 type HeroSlide = {
   id: string;
@@ -188,6 +191,8 @@ function SlideEditorDialog({
 }) {
   const [open, setOpen] = useState(false);
   const [saving, setSaving] = useState(false);
+  const uploadMutation = useUpload({ scope: "settings" });
+  const onUpload = createUploadHandler(uploadMutation);
   const [form, setForm] = useState({
     imageUrl: initial?.imageUrl ?? "",
     title: initial?.title ?? "",
@@ -230,11 +235,12 @@ function SlideEditorDialog({
 
         <div className="space-y-4">
           <div className="space-y-2">
-            <Label>Image URL</Label>
-            <Input
+            <Label>Gambar slide</Label>
+            <FileUpload
               value={form.imageUrl}
-              onChange={(e) => setForm((p) => ({ ...p, imageUrl: e.target.value }))}
-              placeholder="https://..."
+              onChange={(url) => setForm((p) => ({ ...p, imageUrl: url }))}
+              onUpload={onUpload}
+              aspectRatio={16 / 9}
             />
           </div>
           <div className="grid gap-4 md:grid-cols-2">
@@ -323,7 +329,7 @@ export function HeroSlidesSettings() {
   const queryClient = useQueryClient();
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }));
 
-  const { data } = useQuery({
+  const { data, isFetching } = useQuery({
     queryKey: ["settings", "hero-slides"],
     queryFn: fetchHeroSlides,
     staleTime: 1000 * 60 * 5,
@@ -335,6 +341,7 @@ export function HeroSlidesSettings() {
     if (!data) return;
     setItems(data.slice().sort((a, b) => a.sortOrder - b.sortOrder));
   }, [data]);
+  const showSkeleton = !data && isFetching;
 
   const ids = useMemo(() => items.map((s) => s.id), [items]);
 
@@ -398,15 +405,40 @@ export function HeroSlidesSettings() {
             Drag untuk mengubah urutan. Urutan tersimpan ke kolom `sortOrder`.
           </p>
         </div>
-        <SlideEditorDialog
-          mode="create"
-          onSubmit={async (payload) => {
-            await createMutation.mutateAsync(payload);
-          }}
-        />
+        {showSkeleton ? (
+          <Skeleton className="h-9 w-[140px]" />
+        ) : (
+          <SlideEditorDialog
+            mode="create"
+            onSubmit={async (payload) => {
+              await createMutation.mutateAsync(payload);
+            }}
+          />
+        )}
       </CardHeader>
       <CardContent className="space-y-3">
-        {items.length === 0 ? (
+        {showSkeleton ? (
+          <div className="space-y-2">
+            {Array.from({ length: 4 }).map((_, idx) => (
+              <div
+                key={idx}
+                className="flex items-center gap-3 rounded-lg border bg-card px-3 py-3"
+              >
+                <Skeleton className="h-5 w-5 rounded" />
+                <Skeleton className="h-10 w-16 rounded-md" />
+                <div className="min-w-0 flex-1 space-y-2">
+                  <Skeleton className="h-4 w-40" />
+                  <Skeleton className="h-3 w-64" />
+                </div>
+                <div className="flex items-center gap-2">
+                  <Skeleton className="h-5 w-20" />
+                  <Skeleton className="h-8 w-8 rounded-md" />
+                  <Skeleton className="h-8 w-8 rounded-md" />
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : items.length === 0 ? (
           <div className="rounded-lg border bg-muted/30 p-6 text-sm text-muted-foreground">
             Belum ada slide. Klik “Tambah slide” untuk membuat.
           </div>

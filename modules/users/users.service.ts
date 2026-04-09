@@ -47,7 +47,11 @@ export const usersService = {
     // Ensure additionalFields are set (role + isActive).
     await db.user.update({
       where: { id: res.user.id },
-      data: { role: input.role, isActive: input.isActive },
+      data: {
+        role: input.role,
+        isActive: input.isActive,
+        photoUrl: input.photoUrl ?? null,
+      },
     });
 
     return { id: res.user.id };
@@ -65,6 +69,7 @@ export const usersService = {
         ...(input.name !== undefined ? { name: input.name } : {}),
         ...(input.role !== undefined ? { role: input.role } : {}),
         ...(input.isActive !== undefined ? { isActive: input.isActive } : {}),
+        ...(input.photoUrl !== undefined ? { photoUrl: input.photoUrl } : {}),
       });
     }
 

@@ -745,6 +745,7 @@ async function seedRolePermissions() {
     "maps",
     "users",
     "settings",
+    "permissions",
   ];
 
   const roles: Array<{
@@ -763,6 +764,7 @@ async function seedRolePermissions() {
         maps: ["create", "read", "update", "delete"],
         users: ["create", "read", "update", "delete", "ban"],
         settings: ["read", "update"],
+        permissions: ["read", "update"],
       },
     },
     {
@@ -777,6 +779,7 @@ async function seedRolePermissions() {
         maps: ["create", "read", "update", "delete"],
         users: [],
         settings: [],
+        permissions: [],
       },
     },
     {
@@ -791,6 +794,7 @@ async function seedRolePermissions() {
         maps: ["read"],
         users: ["read"],
         settings: ["read"],
+        permissions: ["read"],
       },
     },
     {
@@ -805,6 +809,7 @@ async function seedRolePermissions() {
         maps: ["read"],
         users: [],
         settings: [],
+        permissions: [],
       },
     },
   ];

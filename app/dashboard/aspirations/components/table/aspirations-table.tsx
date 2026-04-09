@@ -1,9 +1,7 @@
 "use client";
 
-import { useState } from "react";
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import { DataTable } from "@/components/datatable/table-data";
-import { Button } from "@/components/ui/button";
 import { TableSkeleton } from "@/app/dashboard/components/skeletons/table-skeleton";
 import { useQueryState, parseAsInteger, parseAsString } from "nuqs";
 import { useColumns } from "./columns";
@@ -14,8 +12,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { DeleteDialog } from "../dialogs/delete-dialog";
-import { StatusDialog } from "../dialogs/status-dialog";
 
 export type AspirationStatus = "pending" | "in_progress" | "completed" | "rejected";
 
@@ -72,10 +68,6 @@ export function AspirationsTable() {
     parseAsString.withDefault("all"),
   );
 
-  const [rowSelection, setRowSelection] = useState<Record<string, boolean>>({});
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [statusDialogOpen, setStatusDialogOpen] = useState(false);
-
   const { data, isFetching: isLoading } = useQuery({
     queryKey: ["dashboard", "aspirations", page, limit, q, status],
     queryFn: () =>
@@ -94,14 +86,6 @@ export function AspirationsTable() {
   }
 
   const rows = data.aspirations ?? [];
-  const selectedIds = Object.keys(rowSelection)
-    .map((index) => rows[parseInt(index)]?.id)
-    .filter(Boolean);
-
-  const selectedName =
-    selectedIds.length === 1
-      ? rows.find((a) => a.id === selectedIds[0])?.submitterName
-      : undefined;
 
   return (
     <div className="space-y-4">
@@ -123,55 +107,12 @@ export function AspirationsTable() {
         </Select>
       </div>
 
-      {Object.keys(rowSelection).length > 0 && (
-        <div className="flex items-center gap-2 bg-muted/50 p-2 rounded-md">
-          <span className="text-sm text-muted-foreground">
-            {Object.keys(rowSelection).length} aspirasi dipilih
-          </span>
-          <div className="flex items-center gap-2 ml-auto">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setStatusDialogOpen(true)}
-              className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 border-blue-200"
-            >
-              Ubah status
-            </Button>
-            <Button
-              variant="destructive"
-              size="sm"
-              onClick={() => setDeleteDialogOpen(true)}
-            >
-              Hapus
-            </Button>
-          </div>
-        </div>
-      )}
-
       <DataTable
         columns={columns}
         data={rows}
         searchKey="submitterName"
         isLoading={isLoading}
         pageCount={data.pageCount}
-        rowSelection={rowSelection}
-        onRowSelectionChange={setRowSelection}
-      />
-
-      <StatusDialog
-        open={statusDialogOpen}
-        onOpenChange={setStatusDialogOpen}
-        ids={selectedIds as string[]}
-        itemName={selectedName}
-        onSuccess={() => setRowSelection({})}
-      />
-
-      <DeleteDialog
-        open={deleteDialogOpen}
-        onOpenChange={setDeleteDialogOpen}
-        ids={selectedIds as string[]}
-        itemName={selectedName}
-        onSuccess={() => setRowSelection({})}
       />
     </div>
   );

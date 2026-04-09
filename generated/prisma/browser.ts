@@ -59,6 +59,11 @@ export type Aspiration = Prisma.AspirationModel
  */
 export type MapDisasterPoint = Prisma.MapDisasterPointModel
 /**
+ * Model DisasterPhoto
+ * Many photos per disaster point.
+ */
+export type DisasterPhoto = Prisma.DisasterPhotoModel
+/**
  * Model ArsipDocument
  * Official disaster PDF archive; `description` is JSON (e.g. summary blocks or metadata).
  */

@@ -11,7 +11,7 @@ const PROFILE_IMAGE =
   "https://picsum.photos/seed/bpbd-about-profile/800/1000";
 
 async function fetchPublicSiteSettings(): Promise<{
-  settings: { contactPhone?: string | null; aboutProfileUrl?: string | null };
+  settings: { contactPhone?: string | null; structurePhotoUrl?: string | null };
 }> {
   const res = await fetch("/api/public/site-settings", { cache: "no-store" });
   if (!res.ok) throw new Error("Failed to fetch site settings");
@@ -25,7 +25,7 @@ export function AboutSection() {
   });
 
   const emergencyNumber = data?.settings?.contactPhone ?? "-";
-  const profileImageUrl = data?.settings?.aboutProfileUrl ?? PROFILE_IMAGE;
+  const profileImageUrl = data?.settings?.structurePhotoUrl ?? PROFILE_IMAGE;
 
   return (
     <section className="relative z-10 pb-16 sm:pb-20">

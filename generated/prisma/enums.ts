@@ -26,12 +26,3 @@ export const ArticleStatus = {
 } as const
 
 export type ArticleStatus = (typeof ArticleStatus)[keyof typeof ArticleStatus]
-
-
-export const DocumentCategory = {
-  sop: 'sop',
-  regulasi: 'regulasi',
-  pedoman: 'pedoman'
-} as const
-
-export type DocumentCategory = (typeof DocumentCategory)[keyof typeof DocumentCategory]

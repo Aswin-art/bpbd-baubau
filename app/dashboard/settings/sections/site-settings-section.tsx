@@ -10,6 +10,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import FileUpload from "@/components/file-upload";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Form,
   FormControl,
@@ -23,11 +25,16 @@ import {
 import {
   type UpdateSiteSettingsInput,
 } from "@/modules/settings";
+import { createUploadHandler, useUpload } from "@/modules/upload";
 
 type SiteSettings = {
   id: string;
-  aboutDescription: unknown | null;
-  aboutProfileUrl: string | null;
+  aboutDescription: string | null;
+  objectives: string | null;
+  goals: string | null;
+  structurePhotoUrl: string | null;
+  officePhotoUrl: string | null;
+  mapEmbedUrl: string | null;
   contactEmail: string | null;
   contactPhone: string | null;
   socialInstagram: string | null;
@@ -44,7 +51,9 @@ async function fetchSiteSettings(): Promise<SiteSettings> {
   return json.data as SiteSettings;
 }
 
-async function patchSiteSettings(values: UpdateSiteSettingsInput): Promise<SiteSettings> {
+async function patchSiteSettings(
+  values: UpdateSiteSettingsInput,
+): Promise<SiteSettings> {
   const res = await fetch("/api/dashboard/settings/site", {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
@@ -57,14 +66,10 @@ async function patchSiteSettings(values: UpdateSiteSettingsInput): Promise<SiteS
   return json.data as SiteSettings;
 }
 
-function safeJsonParse(value: string): unknown | null {
-  const v = value.trim();
-  if (!v) return null;
-  return JSON.parse(v);
-}
-
 export function SiteSettingsSection() {
   const queryClient = useQueryClient();
+  const uploadMutation = useUpload({ scope: "settings" });
+  const onUpload = createUploadHandler(uploadMutation);
 
   const { data, isLoading } = useQuery({
     queryKey: ["settings", "site"],
@@ -72,10 +77,14 @@ export function SiteSettingsSection() {
     staleTime: 1000 * 60 * 5,
   });
 
-  const form = useForm<UpdateSiteSettingsInput & { aboutDescriptionText: string }>({
+  const form = useForm<UpdateSiteSettingsInput>({
     defaultValues: {
-      aboutDescriptionText: "",
-      aboutProfileUrl: null,
+      aboutDescription: null,
+      objectives: null,
+      goals: null,
+      structurePhotoUrl: null,
+      officePhotoUrl: null,
+      mapEmbedUrl: null,
       contactEmail: null,
       contactPhone: null,
       socialInstagram: null,
@@ -87,11 +96,12 @@ export function SiteSettingsSection() {
   useEffect(() => {
     if (!data) return;
     form.reset({
-      aboutDescriptionText:
-        data.aboutDescription != null
-          ? JSON.stringify(data.aboutDescription, null, 2)
-          : "",
-      aboutProfileUrl: data.aboutProfileUrl ?? null,
+      aboutDescription: data.aboutDescription ?? null,
+      objectives: data.objectives ?? null,
+      goals: data.goals ?? null,
+      structurePhotoUrl: data.structurePhotoUrl ?? null,
+      officePhotoUrl: data.officePhotoUrl ?? null,
+      mapEmbedUrl: data.mapEmbedUrl ?? null,
       contactEmail: data.contactEmail ?? null,
       contactPhone: data.contactPhone ?? null,
       socialInstagram: data.socialInstagram ?? null,
@@ -101,26 +111,7 @@ export function SiteSettingsSection() {
   }, [data, form]);
 
   const mutation = useMutation({
-    mutationFn: async (raw: UpdateSiteSettingsInput & { aboutDescriptionText: string }) => {
-      let aboutDescription: unknown | null | undefined = undefined;
-      if (raw.aboutDescriptionText !== undefined) {
-        try {
-          aboutDescription = safeJsonParse(raw.aboutDescriptionText);
-        } catch {
-          throw new Error("Format JSON About Description tidak valid.");
-        }
-      }
-
-      return patchSiteSettings({
-        aboutDescription,
-        aboutProfileUrl: raw.aboutProfileUrl ?? null,
-        contactEmail: raw.contactEmail ?? null,
-        contactPhone: raw.contactPhone ?? null,
-        socialInstagram: raw.socialInstagram ?? null,
-        socialX: raw.socialX ?? null,
-        socialTiktok: raw.socialTiktok ?? null,
-      });
-    },
+    mutationFn: async (raw: UpdateSiteSettingsInput) => patchSiteSettings(raw),
     onSuccess: async () => {
       toast.success("Site settings berhasil disimpan.");
       await queryClient.invalidateQueries({ queryKey: ["settings", "site"] });
@@ -131,32 +122,82 @@ export function SiteSettingsSection() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Site Settings</CardTitle>
+        <CardTitle>Pengaturan Situs</CardTitle>
       </CardHeader>
       <CardContent>
-        {isLoading ? (
-          <div className="text-sm text-muted-foreground">Memuat...</div>
-        ) : null}
-        <Form {...form}>
-          <form
-            onSubmit={form.handleSubmit((v) => mutation.mutate(v))}
-            className="space-y-6"
-          >
+        {isLoading && !data ? (
+          <div className="space-y-8">
+            <div className="space-y-2">
+              <Skeleton className="h-4 w-48" />
+              <Skeleton className="h-28 w-full" />
+              <Skeleton className="h-3 w-64" />
+            </div>
+
+            <div className="grid gap-6 md:grid-cols-2">
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-32" />
+                <Skeleton className="h-24 w-full" />
+              </div>
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-24" />
+                <Skeleton className="h-24 w-full" />
+              </div>
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-56" />
+                <Skeleton className="h-32 w-full" />
+              </div>
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-36" />
+                <Skeleton className="h-32 w-full" />
+              </div>
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-32" />
+                <Skeleton className="h-10 w-full" />
+              </div>
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-36" />
+                <Skeleton className="h-10 w-full" />
+              </div>
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-40" />
+                <Skeleton className="h-10 w-full" />
+              </div>
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-32" />
+                <Skeleton className="h-10 w-full" />
+              </div>
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-40" />
+                <Skeleton className="h-10 w-full" />
+              </div>
+            </div>
+
+            <Skeleton className="h-9 w-28" />
+          </div>
+        ) : (
+          <Form {...form}>
+            <form
+              onSubmit={form.handleSubmit((v) => mutation.mutate(v))}
+              className="space-y-8"
+            >
             <FormField
               control={form.control}
-              name="aboutDescriptionText"
+              name="aboutDescription"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>About description (JSON)</FormLabel>
+                  <FormLabel>Tentang (deskripsi)</FormLabel>
                   <FormControl>
                     <Textarea
-                      className="min-h-[200px] font-mono text-xs"
-                      placeholder='Contoh: { "title": "...", "blocks": [...] }'
-                      {...field}
+                      className="min-h-[140px]"
+                      placeholder="Tuliskan deskripsi singkat tentang instansi."
+                      value={field.value ?? ""}
+                      onChange={(e) =>
+                        field.onChange(e.target.value ? e.target.value : null)
+                      }
                     />
                   </FormControl>
                   <FormDescription>
-                    Disimpan ke kolom `site_settings.about_description` (tipe JSON).
+                    Ditampilkan pada bagian “Tentang Kami”.
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -166,17 +207,111 @@ export function SiteSettingsSection() {
             <div className="grid gap-6 md:grid-cols-2">
               <FormField
                 control={form.control}
-                name="aboutProfileUrl"
+                name="objectives"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>About profile URL</FormLabel>
+                    <FormLabel>Objective</FormLabel>
+                    <FormControl>
+                      <Textarea
+                        className="min-h-[120px]"
+                        placeholder="Tulis objective (ringkas, 1–3 paragraf)."
+                        value={field.value ?? ""}
+                        onChange={(e) =>
+                          field.onChange(e.target.value ? e.target.value : null)
+                        }
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="goals"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Goals</FormLabel>
+                    <FormControl>
+                      <Textarea
+                        className="min-h-[120px]"
+                        placeholder="Tulis goals (bisa bullet list)."
+                        value={field.value ?? ""}
+                        onChange={(e) =>
+                          field.onChange(e.target.value ? e.target.value : null)
+                        }
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="structurePhotoUrl"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Foto struktur organisasi (URL)</FormLabel>
+                    <FormControl>
+                      <FileUpload
+                        value={field.value ?? ""}
+                        onChange={(url) => field.onChange(url || null)}
+                        onUpload={onUpload}
+                        aspectRatio={4 / 3}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="officePhotoUrl"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Foto kantor (URL)</FormLabel>
+                    <FormControl>
+                      <FileUpload
+                        value={field.value ?? ""}
+                        onChange={(url) => field.onChange(url || null)}
+                        onUpload={onUpload}
+                        aspectRatio={4 / 3}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="mapEmbedUrl"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Map embed URL</FormLabel>
                     <FormControl>
                       <Input
-                        placeholder="https://..."
+                        placeholder="https://www.google.com/maps/embed?..."
                         value={field.value ?? ""}
                         onChange={(e) => field.onChange(e.target.value || null)}
                       />
                     </FormControl>
+                    <FormDescription>
+                      Gunakan URL embed (bukan URL share).
+                    </FormDescription>
+                    {field.value ? (
+                      <div className="mt-2 overflow-hidden rounded-lg border bg-muted">
+                        <iframe
+                          src={field.value}
+                          title="Preview peta"
+                          className="h-56 w-full"
+                          loading="lazy"
+                          referrerPolicy="no-referrer-when-downgrade"
+                        />
+                      </div>
+                    ) : null}
                     <FormMessage />
                   </FormItem>
                 )}
@@ -187,7 +322,7 @@ export function SiteSettingsSection() {
                 name="contactEmail"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Email</FormLabel>
+                    <FormLabel>Email kontak</FormLabel>
                     <FormControl>
                       <Input
                         placeholder="email@domain.com"
@@ -223,7 +358,7 @@ export function SiteSettingsSection() {
                 name="socialInstagram"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Instagram</FormLabel>
+                    <FormLabel>Instagram (URL)</FormLabel>
                     <FormControl>
                       <Input
                         placeholder="https://instagram.com/..."
@@ -241,7 +376,7 @@ export function SiteSettingsSection() {
                 name="socialX"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>X (Twitter)</FormLabel>
+                    <FormLabel>X (Twitter) (URL)</FormLabel>
                     <FormControl>
                       <Input
                         placeholder="https://x.com/..."
@@ -259,7 +394,7 @@ export function SiteSettingsSection() {
                 name="socialTiktok"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>TikTok</FormLabel>
+                    <FormLabel>TikTok (URL)</FormLabel>
                     <FormControl>
                       <Input
                         placeholder="https://tiktok.com/@..."
@@ -286,8 +421,9 @@ export function SiteSettingsSection() {
                 </>
               )}
             </Button>
-          </form>
-        </Form>
+            </form>
+          </Form>
+        )}
       </CardContent>
     </Card>
   );

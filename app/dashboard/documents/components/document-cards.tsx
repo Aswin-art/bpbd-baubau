@@ -7,9 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 type DocumentStats = {
   total: number;
-  sop: number;
-  regulasi: number;
-  pedoman: number;
+  byCategory: Record<string, number>;
 };
 
 async function fetchStats(): Promise<DocumentStats> {
@@ -29,6 +27,10 @@ export function DocumentCards() {
     staleTime: 1000 * 60 * 5,
   });
 
+  const topCategories = Object.entries(stats.byCategory || {})
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 3);
+
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
       <Card>
@@ -44,38 +46,27 @@ export function DocumentCards() {
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">SOP</CardTitle>
-          <ListChecks className="h-4 w-4 text-muted-foreground" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">{stats.sop}</div>
-          <p className="text-xs text-muted-foreground">Dokumen SOP.</p>
-        </CardContent>
-      </Card>
+      {[0, 1, 2].map((idx) => {
+        const entry = topCategories[idx];
+        const title = entry?.[0] ?? "-";
+        const count = entry?.[1] ?? 0;
+        const Icon = idx === 0 ? ListChecks : idx === 1 ? Gavel : NotebookPen;
 
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Regulasi</CardTitle>
-          <Gavel className="h-4 w-4 text-muted-foreground" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">{stats.regulasi}</div>
-          <p className="text-xs text-muted-foreground">Dokumen regulasi.</p>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Pedoman</CardTitle>
-          <NotebookPen className="h-4 w-4 text-muted-foreground" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">{stats.pedoman}</div>
-          <p className="text-xs text-muted-foreground">Dokumen pedoman.</p>
-        </CardContent>
-      </Card>
+        return (
+          <Card key={idx}>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium line-clamp-1">
+                {title}
+              </CardTitle>
+              <Icon className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{count}</div>
+              <p className="text-xs text-muted-foreground">Dokumen kategori.</p>
+            </CardContent>
+          </Card>
+        );
+      })}
     </div>
   );
 }

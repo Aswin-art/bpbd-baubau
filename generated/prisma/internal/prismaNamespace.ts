@@ -392,6 +392,7 @@ export const ModelName = {
   ArticleComment: 'ArticleComment',
   Aspiration: 'Aspiration',
   MapDisasterPoint: 'MapDisasterPoint',
+  DisasterPhoto: 'DisasterPhoto',
   ArsipDocument: 'ArsipDocument',
   Document: 'Document',
   HeroSlide: 'HeroSlide',
@@ -412,7 +413,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "session" | "account" | "verification" | "article" | "articleComment" | "aspiration" | "mapDisasterPoint" | "arsipDocument" | "document" | "heroSlide" | "siteSettings" | "rolePermission"
+    modelProps: "user" | "session" | "account" | "verification" | "article" | "articleComment" | "aspiration" | "mapDisasterPoint" | "disasterPhoto" | "arsipDocument" | "document" | "heroSlide" | "siteSettings" | "rolePermission"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1008,6 +1009,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    DisasterPhoto: {
+      payload: Prisma.$DisasterPhotoPayload<ExtArgs>
+      fields: Prisma.DisasterPhotoFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.DisasterPhotoFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DisasterPhotoPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.DisasterPhotoFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DisasterPhotoPayload>
+        }
+        findFirst: {
+          args: Prisma.DisasterPhotoFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DisasterPhotoPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.DisasterPhotoFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DisasterPhotoPayload>
+        }
+        findMany: {
+          args: Prisma.DisasterPhotoFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DisasterPhotoPayload>[]
+        }
+        create: {
+          args: Prisma.DisasterPhotoCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DisasterPhotoPayload>
+        }
+        createMany: {
+          args: Prisma.DisasterPhotoCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.DisasterPhotoCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DisasterPhotoPayload>[]
+        }
+        delete: {
+          args: Prisma.DisasterPhotoDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DisasterPhotoPayload>
+        }
+        update: {
+          args: Prisma.DisasterPhotoUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DisasterPhotoPayload>
+        }
+        deleteMany: {
+          args: Prisma.DisasterPhotoDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.DisasterPhotoUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.DisasterPhotoUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DisasterPhotoPayload>[]
+        }
+        upsert: {
+          args: Prisma.DisasterPhotoUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DisasterPhotoPayload>
+        }
+        aggregate: {
+          args: Prisma.DisasterPhotoAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateDisasterPhoto>
+        }
+        groupBy: {
+          args: Prisma.DisasterPhotoGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DisasterPhotoGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.DisasterPhotoCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DisasterPhotoCountAggregateOutputType> | number
+        }
+      }
+    }
     ArsipDocument: {
       payload: Prisma.$ArsipDocumentPayload<ExtArgs>
       fields: Prisma.ArsipDocumentFieldRefs
@@ -1525,6 +1600,9 @@ export const AspirationScalarFieldEnum = {
   submitterName: 'submitterName',
   description: 'description',
   status: 'status',
+  adminReply: 'adminReply',
+  repliedAt: 'repliedAt',
+  repliedById: 'repliedById',
   userId: 'userId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
@@ -1550,6 +1628,19 @@ export const MapDisasterPointScalarFieldEnum = {
 } as const
 
 export type MapDisasterPointScalarFieldEnum = (typeof MapDisasterPointScalarFieldEnum)[keyof typeof MapDisasterPointScalarFieldEnum]
+
+
+export const DisasterPhotoScalarFieldEnum = {
+  id: 'id',
+  disasterId: 'disasterId',
+  url: 'url',
+  caption: 'caption',
+  sortOrder: 'sortOrder',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type DisasterPhotoScalarFieldEnum = (typeof DisasterPhotoScalarFieldEnum)[keyof typeof DisasterPhotoScalarFieldEnum]
 
 
 export const ArsipDocumentScalarFieldEnum = {
@@ -1600,7 +1691,9 @@ export type HeroSlideScalarFieldEnum = (typeof HeroSlideScalarFieldEnum)[keyof t
 export const SiteSettingsScalarFieldEnum = {
   id: 'id',
   aboutDescription: 'aboutDescription',
-  aboutProfileUrl: 'aboutProfileUrl',
+  structurePhotoUrl: 'structurePhotoUrl',
+  officePhotoUrl: 'officePhotoUrl',
+  mapEmbedUrl: 'mapEmbedUrl',
   objectives: 'objectives',
   goals: 'goals',
   contactEmail: 'contactEmail',
@@ -1785,20 +1878,6 @@ export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, '
 export type ListFloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float[]'>
     
 
-
-/**
- * Reference to a field of type 'DocumentCategory'
- */
-export type EnumDocumentCategoryFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DocumentCategory'>
-    
-
-
-/**
- * Reference to a field of type 'DocumentCategory[]'
- */
-export type ListEnumDocumentCategoryFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DocumentCategory[]'>
-    
-
 /**
  * Batch Payload for updateMany & deleteMany & createMany
  */
@@ -1902,6 +1981,7 @@ export type GlobalOmitConfig = {
   articleComment?: Prisma.ArticleCommentOmit
   aspiration?: Prisma.AspirationOmit
   mapDisasterPoint?: Prisma.MapDisasterPointOmit
+  disasterPhoto?: Prisma.DisasterPhotoOmit
   arsipDocument?: Prisma.ArsipDocumentOmit
   document?: Prisma.DocumentOmit
   heroSlide?: Prisma.HeroSlideOmit

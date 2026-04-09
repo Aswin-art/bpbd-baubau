@@ -50,8 +50,12 @@ export type ReorderHeroSlidesInput = z.infer<typeof reorderHeroSlidesSchema>;
 
 export const siteSettingsSchema = z.object({
   id: z.string(),
-  aboutDescription: z.any().nullable().optional(),
-  aboutProfileUrl: z.string().nullable().optional(),
+  aboutDescription: z.string().nullable().optional(),
+  objectives: z.string().nullable().optional(),
+  goals: z.string().nullable().optional(),
+  structurePhotoUrl: z.string().nullable().optional(),
+  officePhotoUrl: z.string().nullable().optional(),
+  mapEmbedUrl: z.string().nullable().optional(),
   contactEmail: z.string().nullable().optional(),
   contactPhone: z.string().nullable().optional(),
   socialInstagram: z.string().nullable().optional(),
@@ -64,8 +68,12 @@ export const siteSettingsSchema = z.object({
 export type SiteSettings = z.infer<typeof siteSettingsSchema>;
 
 export const updateSiteSettingsSchema = z.object({
-  aboutDescription: z.any().nullable().optional(),
-  aboutProfileUrl: z.string().trim().nullable().optional(),
+  aboutDescription: z.string().trim().nullable().optional(),
+  objectives: z.string().trim().nullable().optional(),
+  goals: z.string().trim().nullable().optional(),
+  structurePhotoUrl: z.string().trim().nullable().optional(),
+  officePhotoUrl: z.string().trim().nullable().optional(),
+  mapEmbedUrl: z.string().trim().nullable().optional(),
   contactEmail: z.string().trim().nullable().optional(),
   contactPhone: z.string().trim().nullable().optional(),
   socialInstagram: z.string().trim().nullable().optional(),

@@ -1,28 +1,7 @@
 /**
- * Aspirations Module (Server)
+ * Aspirations module — types, schemas, and DTOs safe for client bundles.
+ * Import `aspirationService` from `@/modules/aspirations/aspirations.service` (server-only).
  */
 
-export { aspirationService } from "./aspirations.service";
-export {
-  aspirationStatusSchema,
-  aspirationSchema,
-  aspirationListParamsSchema,
-  aspirationListResponseSchema,
-  aspirationStatsSchema,
-  bulkChangeStatusSchema,
-  bulkDeleteSchema,
-  createAspirationSchema,
-  updateAspirationSchema,
-} from "./aspirations.dto";
-export type {
-  AspirationStatus,
-  Aspiration,
-  AspirationListParams,
-  AspirationListResponse,
-  AspirationStats,
-  BulkChangeStatusInput,
-  BulkDeleteInput,
-  CreateAspirationInput,
-  UpdateAspirationInput,
-} from "./aspirations.dto";
+export * from "./aspirations.dto";
 

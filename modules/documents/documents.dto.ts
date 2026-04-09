@@ -1,10 +1,10 @@
 import { z } from "zod";
 
 // ============================================
-// Enums / Constants
+// Constants
 // ============================================
 
-export const documentCategorySchema = z.enum(["sop", "regulasi", "pedoman"]);
+export const documentCategorySchema = z.string().trim().min(1);
 export type DocumentCategory = z.infer<typeof documentCategorySchema>;
 
 // ============================================
@@ -54,9 +54,7 @@ export type DocumentListResponse = z.infer<typeof documentListResponseSchema>;
 
 export const documentStatsSchema = z.object({
   total: z.number(),
-  sop: z.number(),
-  regulasi: z.number(),
-  pedoman: z.number(),
+  byCategory: z.record(z.string(), z.number()),
 });
 
 export type DocumentStats = z.infer<typeof documentStatsSchema>;
@@ -70,8 +68,12 @@ export const createDocumentSchema = z.object({
   description: z.string().trim().min(5, "Description must be at least 5 characters"),
   category: documentCategorySchema,
   dateLabel: z.string().trim().min(2, "Date label is required"),
-  fileSize: z.string().trim().min(1, "File size is required"),
   downloadUrl: z.string().trim().min(1, "Download URL is required"),
+  /**
+   * Dihitung otomatis (biasanya dari file upload).
+   * Tetap opsional untuk kompatibilitas, backend bisa mengisi jika kosong.
+   */
+  fileSize: z.string().trim().optional(),
 });
 
 export type CreateDocumentInput = z.infer<typeof createDocumentSchema>;

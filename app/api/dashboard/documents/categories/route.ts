@@ -4,7 +4,7 @@ import { apiHandler, apiSuccess } from "@/lib/api-handler";
 import { AppError } from "@/lib/app-error";
 import { getServerSession } from "@/lib/server";
 import { checkPermission } from "@/lib/permission-cache";
-import { documentCategorySchema } from "@/modules/documents";
+import { documentService } from "@/modules/documents/documents.service";
 
 export const GET = apiHandler(async (_req: NextRequest) => {
   const session = await getServerSession();
@@ -19,7 +19,7 @@ export const GET = apiHandler(async (_req: NextRequest) => {
     );
   }
 
-  const categories = documentCategorySchema.options;
+  const categories = await documentService.listCategories();
   return apiSuccess(categories);
 });
 

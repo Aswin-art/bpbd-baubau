@@ -5,6 +5,7 @@ export const userRowSchema = z.object({
   name: z.string(),
   email: z.string(),
   role: z.string(),
+  photoUrl: z.string().nullable().optional(),
   isActive: z.boolean(),
   emailVerified: z.boolean(),
   lastLoginAt: z.date().or(z.string()).nullable(),
@@ -50,6 +51,7 @@ export const createUserSchema = z.object({
   email: z.string().trim().email("Email tidak valid"),
   password: z.string().min(6, "Password minimal 6 karakter"),
   role: userRoleSchema.default("masyarakat"),
+  photoUrl: z.string().trim().url("URL foto tidak valid").optional(),
   isActive: z.boolean().default(true),
 });
 export type CreateUserInput = z.infer<typeof createUserSchema>;
@@ -57,6 +59,7 @@ export type CreateUserInput = z.infer<typeof createUserSchema>;
 export const updateUserSchema = z.object({
   name: z.string().trim().min(2, "Nama minimal 2 karakter").optional(),
   role: userRoleSchema.optional(),
+  photoUrl: z.string().trim().url("URL foto tidak valid").optional(),
   isActive: z.boolean().optional(),
   newPassword: z.string().min(6, "Password minimal 6 karakter").optional(),
 });

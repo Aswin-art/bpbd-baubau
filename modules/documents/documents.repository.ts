@@ -5,7 +5,7 @@ export interface DocumentListParams {
   page?: number;
   limit?: number;
   q?: string;
-  category?: "sop" | "regulasi" | "pedoman";
+  category?: string;
 }
 
 export interface DocumentListResult {
@@ -107,15 +107,32 @@ export const documentRepository = {
     return db.document.delete({ where: { id }, select: { id: true } });
   },
 
-  async getStats() {
-    const [total, sop, regulasi, pedoman] = await Promise.all([
-      db.document.count(),
-      db.document.count({ where: { category: "sop" } }),
-      db.document.count({ where: { category: "regulasi" } }),
-      db.document.count({ where: { category: "pedoman" } }),
-    ]);
+  async listCategories(): Promise<string[]> {
+    const rows = await db.document.findMany({
+      select: { category: true },
+      distinct: ["category"],
+      orderBy: [{ category: "asc" }],
+    });
+    return rows
+      .map((r) => (r.category || "").trim())
+      .filter(Boolean);
+  },
 
-    return { total, sop, regulasi, pedoman };
+  async getStats() {
+    const total = await db.document.count();
+    const grouped = await db.document.groupBy({
+      by: ["category"],
+      _count: { _all: true },
+    });
+
+    const byCategory: Record<string, number> = {};
+    for (const row of grouped) {
+      const key = (row.category || "").trim();
+      if (!key) continue;
+      byCategory[key] = row._count._all;
+    }
+
+    return { total, byCategory };
   },
 };
 

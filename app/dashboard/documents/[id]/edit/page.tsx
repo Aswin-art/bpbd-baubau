@@ -14,7 +14,7 @@ type Document = {
   id: string;
   name: string;
   description: string;
-  category: "sop" | "regulasi" | "pedoman";
+  category: string;
   dateLabel: string;
   fileSize: string;
   downloadUrl: string;

@@ -62,11 +62,17 @@ export const settingsService = {
   async updateSiteSettings(input: UpdateSiteSettingsInput) {
     return settingsRepository.updateSiteSettings({
       ...(input.aboutDescription !== undefined
-        ? { aboutDescription: input.aboutDescription as any }
+        ? { aboutDescription: input.aboutDescription }
         : {}),
-      ...(input.aboutProfileUrl !== undefined
-        ? { aboutProfileUrl: input.aboutProfileUrl }
+      ...(input.objectives !== undefined ? { objectives: input.objectives } : {}),
+      ...(input.goals !== undefined ? { goals: input.goals } : {}),
+      ...(input.structurePhotoUrl !== undefined
+        ? { structurePhotoUrl: input.structurePhotoUrl }
         : {}),
+      ...(input.officePhotoUrl !== undefined
+        ? { officePhotoUrl: input.officePhotoUrl }
+        : {}),
+      ...(input.mapEmbedUrl !== undefined ? { mapEmbedUrl: input.mapEmbedUrl } : {}),
       ...(input.contactEmail !== undefined
         ? { contactEmail: input.contactEmail }
         : {}),

@@ -288,6 +288,7 @@ export type MapDisasterPointWhereInput = {
   lng?: Prisma.FloatFilter<"MapDisasterPoint"> | number
   createdAt?: Prisma.DateTimeFilter<"MapDisasterPoint"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"MapDisasterPoint"> | Date | string
+  photos?: Prisma.DisasterPhotoListRelationFilter
 }
 
 export type MapDisasterPointOrderByWithRelationInput = {
@@ -304,6 +305,7 @@ export type MapDisasterPointOrderByWithRelationInput = {
   lng?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  photos?: Prisma.DisasterPhotoOrderByRelationAggregateInput
 }
 
 export type MapDisasterPointWhereUniqueInput = Prisma.AtLeast<{
@@ -323,6 +325,7 @@ export type MapDisasterPointWhereUniqueInput = Prisma.AtLeast<{
   lng?: Prisma.FloatFilter<"MapDisasterPoint"> | number
   createdAt?: Prisma.DateTimeFilter<"MapDisasterPoint"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"MapDisasterPoint"> | Date | string
+  photos?: Prisma.DisasterPhotoListRelationFilter
 }, "id">
 
 export type MapDisasterPointOrderByWithAggregationInput = {
@@ -379,6 +382,7 @@ export type MapDisasterPointCreateInput = {
   lng: number
   createdAt?: Date | string
   updatedAt?: Date | string
+  photos?: Prisma.DisasterPhotoCreateNestedManyWithoutDisasterInput
 }
 
 export type MapDisasterPointUncheckedCreateInput = {
@@ -395,6 +399,7 @@ export type MapDisasterPointUncheckedCreateInput = {
   lng: number
   createdAt?: Date | string
   updatedAt?: Date | string
+  photos?: Prisma.DisasterPhotoUncheckedCreateNestedManyWithoutDisasterInput
 }
 
 export type MapDisasterPointUpdateInput = {
@@ -411,6 +416,7 @@ export type MapDisasterPointUpdateInput = {
   lng?: Prisma.FloatFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  photos?: Prisma.DisasterPhotoUpdateManyWithoutDisasterNestedInput
 }
 
 export type MapDisasterPointUncheckedUpdateInput = {
@@ -427,6 +433,7 @@ export type MapDisasterPointUncheckedUpdateInput = {
   lng?: Prisma.FloatFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  photos?: Prisma.DisasterPhotoUncheckedUpdateManyWithoutDisasterNestedInput
 }
 
 export type MapDisasterPointCreateManyInput = {
@@ -537,6 +544,11 @@ export type MapDisasterPointSumOrderByAggregateInput = {
   lng?: Prisma.SortOrder
 }
 
+export type MapDisasterPointScalarRelationFilter = {
+  is?: Prisma.MapDisasterPointWhereInput
+  isNot?: Prisma.MapDisasterPointWhereInput
+}
+
 export type IntFieldUpdateOperationsInput = {
   set?: number
   increment?: number
@@ -553,6 +565,129 @@ export type FloatFieldUpdateOperationsInput = {
   divide?: number
 }
 
+export type MapDisasterPointCreateNestedOneWithoutPhotosInput = {
+  create?: Prisma.XOR<Prisma.MapDisasterPointCreateWithoutPhotosInput, Prisma.MapDisasterPointUncheckedCreateWithoutPhotosInput>
+  connectOrCreate?: Prisma.MapDisasterPointCreateOrConnectWithoutPhotosInput
+  connect?: Prisma.MapDisasterPointWhereUniqueInput
+}
+
+export type MapDisasterPointUpdateOneRequiredWithoutPhotosNestedInput = {
+  create?: Prisma.XOR<Prisma.MapDisasterPointCreateWithoutPhotosInput, Prisma.MapDisasterPointUncheckedCreateWithoutPhotosInput>
+  connectOrCreate?: Prisma.MapDisasterPointCreateOrConnectWithoutPhotosInput
+  upsert?: Prisma.MapDisasterPointUpsertWithoutPhotosInput
+  connect?: Prisma.MapDisasterPointWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.MapDisasterPointUpdateToOneWithWhereWithoutPhotosInput, Prisma.MapDisasterPointUpdateWithoutPhotosInput>, Prisma.MapDisasterPointUncheckedUpdateWithoutPhotosInput>
+}
+
+export type MapDisasterPointCreateWithoutPhotosInput = {
+  id?: string
+  type: string
+  location: string
+  kecamatan: string
+  date: string
+  casualties?: number
+  displaced?: number
+  description: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  image: string
+  lat: number
+  lng: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type MapDisasterPointUncheckedCreateWithoutPhotosInput = {
+  id?: string
+  type: string
+  location: string
+  kecamatan: string
+  date: string
+  casualties?: number
+  displaced?: number
+  description: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  image: string
+  lat: number
+  lng: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type MapDisasterPointCreateOrConnectWithoutPhotosInput = {
+  where: Prisma.MapDisasterPointWhereUniqueInput
+  create: Prisma.XOR<Prisma.MapDisasterPointCreateWithoutPhotosInput, Prisma.MapDisasterPointUncheckedCreateWithoutPhotosInput>
+}
+
+export type MapDisasterPointUpsertWithoutPhotosInput = {
+  update: Prisma.XOR<Prisma.MapDisasterPointUpdateWithoutPhotosInput, Prisma.MapDisasterPointUncheckedUpdateWithoutPhotosInput>
+  create: Prisma.XOR<Prisma.MapDisasterPointCreateWithoutPhotosInput, Prisma.MapDisasterPointUncheckedCreateWithoutPhotosInput>
+  where?: Prisma.MapDisasterPointWhereInput
+}
+
+export type MapDisasterPointUpdateToOneWithWhereWithoutPhotosInput = {
+  where?: Prisma.MapDisasterPointWhereInput
+  data: Prisma.XOR<Prisma.MapDisasterPointUpdateWithoutPhotosInput, Prisma.MapDisasterPointUncheckedUpdateWithoutPhotosInput>
+}
+
+export type MapDisasterPointUpdateWithoutPhotosInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.StringFieldUpdateOperationsInput | string
+  location?: Prisma.StringFieldUpdateOperationsInput | string
+  kecamatan?: Prisma.StringFieldUpdateOperationsInput | string
+  date?: Prisma.StringFieldUpdateOperationsInput | string
+  casualties?: Prisma.IntFieldUpdateOperationsInput | number
+  displaced?: Prisma.IntFieldUpdateOperationsInput | number
+  description?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  image?: Prisma.StringFieldUpdateOperationsInput | string
+  lat?: Prisma.FloatFieldUpdateOperationsInput | number
+  lng?: Prisma.FloatFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type MapDisasterPointUncheckedUpdateWithoutPhotosInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.StringFieldUpdateOperationsInput | string
+  location?: Prisma.StringFieldUpdateOperationsInput | string
+  kecamatan?: Prisma.StringFieldUpdateOperationsInput | string
+  date?: Prisma.StringFieldUpdateOperationsInput | string
+  casualties?: Prisma.IntFieldUpdateOperationsInput | number
+  displaced?: Prisma.IntFieldUpdateOperationsInput | number
+  description?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  image?: Prisma.StringFieldUpdateOperationsInput | string
+  lat?: Prisma.FloatFieldUpdateOperationsInput | number
+  lng?: Prisma.FloatFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+
+/**
+ * Count Type MapDisasterPointCountOutputType
+ */
+
+export type MapDisasterPointCountOutputType = {
+  photos: number
+}
+
+export type MapDisasterPointCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  photos?: boolean | MapDisasterPointCountOutputTypeCountPhotosArgs
+}
+
+/**
+ * MapDisasterPointCountOutputType without action
+ */
+export type MapDisasterPointCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the MapDisasterPointCountOutputType
+   */
+  select?: Prisma.MapDisasterPointCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * MapDisasterPointCountOutputType without action
+ */
+export type MapDisasterPointCountOutputTypeCountPhotosArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.DisasterPhotoWhereInput
+}
 
 
 export type MapDisasterPointSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -569,6 +704,8 @@ export type MapDisasterPointSelect<ExtArgs extends runtime.Types.Extensions.Inte
   lng?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  photos?: boolean | Prisma.MapDisasterPoint$photosArgs<ExtArgs>
+  _count?: boolean | Prisma.MapDisasterPointCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["mapDisasterPoint"]>
 
 export type MapDisasterPointSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -620,10 +757,18 @@ export type MapDisasterPointSelectScalar = {
 }
 
 export type MapDisasterPointOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "type" | "location" | "kecamatan" | "date" | "casualties" | "displaced" | "description" | "image" | "lat" | "lng" | "createdAt" | "updatedAt", ExtArgs["result"]["mapDisasterPoint"]>
+export type MapDisasterPointInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  photos?: boolean | Prisma.MapDisasterPoint$photosArgs<ExtArgs>
+  _count?: boolean | Prisma.MapDisasterPointCountOutputTypeDefaultArgs<ExtArgs>
+}
+export type MapDisasterPointIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
+export type MapDisasterPointIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
 
 export type $MapDisasterPointPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "MapDisasterPoint"
-  objects: {}
+  objects: {
+    photos: Prisma.$DisasterPhotoPayload<ExtArgs>[]
+  }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     type: string
@@ -1032,6 +1177,7 @@ readonly fields: MapDisasterPointFieldRefs;
  */
 export interface Prisma__MapDisasterPointClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  photos<T extends Prisma.MapDisasterPoint$photosArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.MapDisasterPoint$photosArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DisasterPhotoPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1091,6 +1237,10 @@ export type MapDisasterPointFindUniqueArgs<ExtArgs extends runtime.Types.Extensi
    */
   omit?: Prisma.MapDisasterPointOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.MapDisasterPointInclude<ExtArgs> | null
+  /**
    * Filter, which MapDisasterPoint to fetch.
    */
   where: Prisma.MapDisasterPointWhereUniqueInput
@@ -1109,6 +1259,10 @@ export type MapDisasterPointFindUniqueOrThrowArgs<ExtArgs extends runtime.Types.
    */
   omit?: Prisma.MapDisasterPointOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.MapDisasterPointInclude<ExtArgs> | null
+  /**
    * Filter, which MapDisasterPoint to fetch.
    */
   where: Prisma.MapDisasterPointWhereUniqueInput
@@ -1126,6 +1280,10 @@ export type MapDisasterPointFindFirstArgs<ExtArgs extends runtime.Types.Extensio
    * Omit specific fields from the MapDisasterPoint
    */
   omit?: Prisma.MapDisasterPointOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.MapDisasterPointInclude<ExtArgs> | null
   /**
    * Filter, which MapDisasterPoint to fetch.
    */
@@ -1175,6 +1333,10 @@ export type MapDisasterPointFindFirstOrThrowArgs<ExtArgs extends runtime.Types.E
    */
   omit?: Prisma.MapDisasterPointOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.MapDisasterPointInclude<ExtArgs> | null
+  /**
    * Filter, which MapDisasterPoint to fetch.
    */
   where?: Prisma.MapDisasterPointWhereInput
@@ -1222,6 +1384,10 @@ export type MapDisasterPointFindManyArgs<ExtArgs extends runtime.Types.Extension
    * Omit specific fields from the MapDisasterPoint
    */
   omit?: Prisma.MapDisasterPointOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.MapDisasterPointInclude<ExtArgs> | null
   /**
    * Filter, which MapDisasterPoints to fetch.
    */
@@ -1271,6 +1437,10 @@ export type MapDisasterPointCreateArgs<ExtArgs extends runtime.Types.Extensions.
    */
   omit?: Prisma.MapDisasterPointOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.MapDisasterPointInclude<ExtArgs> | null
+  /**
    * The data needed to create a MapDisasterPoint.
    */
   data: Prisma.XOR<Prisma.MapDisasterPointCreateInput, Prisma.MapDisasterPointUncheckedCreateInput>
@@ -1318,6 +1488,10 @@ export type MapDisasterPointUpdateArgs<ExtArgs extends runtime.Types.Extensions.
    * Omit specific fields from the MapDisasterPoint
    */
   omit?: Prisma.MapDisasterPointOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.MapDisasterPointInclude<ExtArgs> | null
   /**
    * The data needed to update a MapDisasterPoint.
    */
@@ -1385,6 +1559,10 @@ export type MapDisasterPointUpsertArgs<ExtArgs extends runtime.Types.Extensions.
    */
   omit?: Prisma.MapDisasterPointOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.MapDisasterPointInclude<ExtArgs> | null
+  /**
    * The filter to search for the MapDisasterPoint to update in case it exists.
    */
   where: Prisma.MapDisasterPointWhereUniqueInput
@@ -1411,6 +1589,10 @@ export type MapDisasterPointDeleteArgs<ExtArgs extends runtime.Types.Extensions.
    */
   omit?: Prisma.MapDisasterPointOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.MapDisasterPointInclude<ExtArgs> | null
+  /**
    * Filter which MapDisasterPoint to delete.
    */
   where: Prisma.MapDisasterPointWhereUniqueInput
@@ -1431,6 +1613,30 @@ export type MapDisasterPointDeleteManyArgs<ExtArgs extends runtime.Types.Extensi
 }
 
 /**
+ * MapDisasterPoint.photos
+ */
+export type MapDisasterPoint$photosArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the DisasterPhoto
+   */
+  select?: Prisma.DisasterPhotoSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the DisasterPhoto
+   */
+  omit?: Prisma.DisasterPhotoOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.DisasterPhotoInclude<ExtArgs> | null
+  where?: Prisma.DisasterPhotoWhereInput
+  orderBy?: Prisma.DisasterPhotoOrderByWithRelationInput | Prisma.DisasterPhotoOrderByWithRelationInput[]
+  cursor?: Prisma.DisasterPhotoWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.DisasterPhotoScalarFieldEnum | Prisma.DisasterPhotoScalarFieldEnum[]
+}
+
+/**
  * MapDisasterPoint without action
  */
 export type MapDisasterPointDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1442,4 +1648,8 @@ export type MapDisasterPointDefaultArgs<ExtArgs extends runtime.Types.Extensions
    * Omit specific fields from the MapDisasterPoint
    */
   omit?: Prisma.MapDisasterPointOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.MapDisasterPointInclude<ExtArgs> | null
 }
