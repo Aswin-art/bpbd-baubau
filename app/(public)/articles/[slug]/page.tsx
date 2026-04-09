@@ -10,11 +10,13 @@ import {
   MessageSquareText,
   Archive,
 } from "lucide-react";
-import { newsArticles, categoryLabels } from "@/data/dummy-data";
+import db from "@/lib/db";
+import { categoryLabels } from "@/data/dummy-data";
 import { shareUrlForPath } from "@/lib/site-url";
 import Wrapper from "@/components/wrapper";
 import { CommentWrapper } from "./comment-wrapper";
 import { NewsShareBar } from "./news-share-bar";
+import { ArticleContent } from "./article-content";
 
 type PageProps = {
   params: Promise<{ slug: string }>;
@@ -22,38 +24,73 @@ type PageProps = {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
-  const news = newsArticles.find((n) => n.slug === slug);
-  if (!news) return { title: "Berita Tidak Ditemukan" };
+  const news = await db.article.findUnique({
+    where: { slug },
+    select: { title: true, excerpt: true, status: true, publishedAt: true, createdAt: true },
+  });
+
+  if (!news || news.status !== "PUBLISHED") return { title: "Berita Tidak Ditemukan" };
 
   return {
     title: news.title,
-    description: news.excerpt,
+    description: news.excerpt ?? undefined,
     openGraph: {
       title: news.title,
-      description: news.excerpt,
+      description: news.excerpt ?? undefined,
       type: "article",
-      publishedTime: news.publishedAt ?? news.dateLabel,
+      publishedTime: (news.publishedAt ?? news.createdAt).toISOString(),
     },
   };
 }
 
-export function generateStaticParams() {
-  return newsArticles.map((news) => ({ slug: news.slug }));
+function formatDateLabel(date: Date) {
+  return date.toLocaleDateString("id-ID", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
 }
 
 export default async function NewsDetailPage({ params }: PageProps) {
   const { slug } = await params;
-  const news = newsArticles.find((n) => n.slug === slug);
+  const news = await db.article.findUnique({
+    where: { slug },
+    select: {
+      id: true,
+      title: true,
+      slug: true,
+      excerpt: true,
+      thumbnailUrl: true,
+      category: true,
+      status: true,
+      publishedAt: true,
+      createdAt: true,
+      content: true,
+    },
+  });
 
-  if (!news) {
+  if (!news || news.status !== "PUBLISHED") {
     notFound();
   }
 
-  const relatedNews = newsArticles
-    .filter((n) => n.slug !== slug && n.category === news.category)
-    .slice(0, 3);
+  const relatedNews = await db.article.findMany({
+    where: {
+      status: "PUBLISHED",
+      category: news.category,
+      slug: { not: slug },
+    },
+    select: {
+      slug: true,
+      title: true,
+      thumbnailUrl: true,
+      publishedAt: true,
+      createdAt: true,
+    },
+    orderBy: [{ publishedAt: "desc" }, { createdAt: "desc" }],
+    take: 3,
+  });
 
-  const shareUrl = shareUrlForPath(`/news/${slug}`, await headers());
+  const shareUrl = shareUrlForPath(`/articles/${slug}`, await headers());
 
   const quickActions = [
     {
@@ -80,7 +117,7 @@ export default async function NewsDetailPage({ params }: PageProps) {
     <div className="min-h-screen bg-background pt-24 pb-20 md:pt-28 xl:pt-32">
       <Wrapper className="max-w-6xl">
         <Link
-          href="/news"
+          href="/articles"
           className="inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-primary"
         >
           <ArrowLeft className="h-4 w-4 shrink-0" />
@@ -96,11 +133,9 @@ export default async function NewsDetailPage({ params }: PageProps) {
                 </span>
                 <span className="text-muted-foreground/60">·</span>
                 <time
-                  {...(news.publishedAt
-                    ? { dateTime: news.publishedAt }
-                    : {})}
+                  dateTime={(news.publishedAt ?? news.createdAt).toISOString()}
                 >
-                  {news.dateLabel}
+                  {formatDateLabel(news.publishedAt ?? news.createdAt)}
                 </time>
               </div>
 
@@ -117,7 +152,7 @@ export default async function NewsDetailPage({ params }: PageProps) {
 
             <div className="relative mt-10 aspect-video overflow-hidden rounded-2xl bg-muted shadow-sm">
               <Image
-                src={news.imageUrl}
+                src={news.thumbnailUrl ?? "/images/hero-2.avif"}
                 alt={news.title}
                 fill
                 sizes="(max-width: 1024px) 100vw, 720px"
@@ -126,10 +161,7 @@ export default async function NewsDetailPage({ params }: PageProps) {
               />
             </div>
 
-            <div
-              className="prose prose-slate mt-10 max-w-none prose-headings:font-bold prose-headings:tracking-tight prose-headings:text-secondary prose-p:leading-relaxed prose-p:text-foreground/90 prose-a:text-primary prose-a:no-underline hover:prose-a:underline prose-li:marker:text-primary/70"
-              dangerouslySetInnerHTML={{ __html: news.content.html }}
-            />
+            <ArticleContent value={news.content} />
 
             <CommentWrapper />
           </article>
@@ -147,12 +179,12 @@ export default async function NewsDetailPage({ params }: PageProps) {
                   {relatedNews.map((related) => (
                     <li key={related.slug}>
                       <Link
-                        href={`/news/${related.slug}`}
+                        href={`/articles/${related.slug}`}
                         className="group flex gap-4"
                       >
                         <div className="relative h-20 w-24 shrink-0 overflow-hidden rounded-xl bg-muted">
                           <Image
-                            src={related.imageUrl}
+                            src={related.thumbnailUrl ?? "/images/hero-2.avif"}
                             alt=""
                             fill
                             sizes="96px"
@@ -161,7 +193,7 @@ export default async function NewsDetailPage({ params }: PageProps) {
                         </div>
                         <div className="min-w-0 flex-1 space-y-1.5">
                           <p className="text-xs text-muted-foreground">
-                            {related.dateLabel}
+                            {formatDateLabel(related.publishedAt ?? related.createdAt)}
                           </p>
                           <p className="text-sm font-semibold leading-snug text-secondary transition-colors group-hover:text-primary line-clamp-3">
                             {related.title}
@@ -172,7 +204,7 @@ export default async function NewsDetailPage({ params }: PageProps) {
                   ))}
                 </ul>
                 <Link
-                  href="/news"
+                  href="/articles"
                   className="mt-6 inline-flex items-center gap-1.5 text-sm font-medium text-primary transition-colors hover:text-primary/80"
                 >
                   Lihat semua berita

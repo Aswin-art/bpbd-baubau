@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Edit, ExternalLink, MoreHorizontal, Trash2 } from "lucide-react";
+import { ExternalLink, MoreHorizontal, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -31,12 +31,6 @@ export function CellAction({ data }: CellActionProps) {
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          <DropdownMenuItem asChild>
-            <Link href={`/dashboard/map/${data.id}/edit`}>
-              <Edit className="h-4 w-4" />
-              Edit
-            </Link>
-          </DropdownMenuItem>
           <DropdownMenuItem asChild>
             <Link href="/arsip" target="_blank" rel="noopener noreferrer">
               <ExternalLink className="h-4 w-4" />

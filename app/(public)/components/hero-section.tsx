@@ -12,6 +12,7 @@ import type { Swiper as SwiperType } from "swiper";
 import { Button } from "@/components/ui/button";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import type { PublicHeroSlide } from "@/modules/public/hero-slides";
+import { getBaseUrl } from "@/lib/url";
 
 import "swiper/css";
 import "swiper/css/effect-fade";
@@ -25,7 +26,9 @@ type UiHeroSlide = {
 };
 
 async function fetchHeroSlides(): Promise<{ slides: PublicHeroSlide[] }> {
-  const res = await fetch("/api/public/hero-slides", { cache: "no-store" });
+  const res = await fetch(`${getBaseUrl()}/api/public/hero-slides`, {
+    cache: "no-store",
+  });
   if (!res.ok) {
     throw new Error("Failed to fetch hero slides");
   }

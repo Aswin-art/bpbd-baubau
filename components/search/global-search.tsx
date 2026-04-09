@@ -64,7 +64,7 @@ export function GlobalSearch({ open, onOpenChange }: GlobalSearchProps) {
             <Home className="mr-2 h-4 w-4" />
             Beranda
           </CommandItem>
-          <CommandItem onSelect={() => navigate("/berita")}>
+          <CommandItem onSelect={() => navigate("/articles")}>
             <Newspaper className="mr-2 h-4 w-4" />
             Berita
           </CommandItem>
@@ -88,7 +88,7 @@ export function GlobalSearch({ open, onOpenChange }: GlobalSearchProps) {
           {newsArticles.slice(0, 4).map((news) => (
             <CommandItem
               key={news.slug}
-              onSelect={() => navigate(`/berita/${news.slug}`)}
+              onSelect={() => navigate(`/articles/${news.slug}`)}
             >
               <Newspaper className="mr-2 h-4 w-4 text-muted-foreground" />
               <span className="truncate">{news.title}</span>

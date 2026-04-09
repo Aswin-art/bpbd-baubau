@@ -8,20 +8,28 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-const tahunList = ["semua", "2026", "2025", "2024", "2023"];
-
 export function ArsipFilter({
   activeTahun,
   onTahunChange,
+  years,
+  disabled,
 }: {
   activeTahun: string;
   onTahunChange: (value: string) => void;
+  years: string[];
+  disabled?: boolean;
 }) {
+  const tahunList = ["semua", ...years];
+
   return (
     <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-end sm:gap-3">
-      <Select value={activeTahun} onValueChange={(v) => onTahunChange(v)}>
-        <SelectTrigger className="w-full sm:w-40">
-          <SelectValue placeholder="Pilih Tahun" />
+      <Select
+        value={activeTahun}
+        onValueChange={(v) => onTahunChange(v)}
+        disabled={disabled}
+      >
+        <SelectTrigger className="w-full sm:w-40" disabled={disabled}>
+          <SelectValue placeholder={disabled ? "Memuat…" : "Pilih Tahun"} />
         </SelectTrigger>
         <SelectContent>
           {tahunList.map((tahun) => (

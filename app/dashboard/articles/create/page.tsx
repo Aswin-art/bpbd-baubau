@@ -41,7 +41,7 @@ export default function CreateArticlePage() {
   };
 
   return (
-    <PermissionGuard resource="news" action="create">
+    <PermissionGuard resource="articles" action="create">
       <div className="flex-1 space-y-4 p-4 pt-6 md:p-8">
         <div className="flex items-center justify-between">
           <div className="space-y-1">

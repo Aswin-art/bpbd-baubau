@@ -9,12 +9,14 @@ import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { publicNavItems } from "@/data/dummy-data";
+import { authClient } from "@/lib/auth-client";
 
 const Navbar = () => {
   const pathname = usePathname();
   const menuRef = useRef<HTMLDivElement>(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const { data: session } = authClient.useSession();
 
   const toggleMenu = useCallback(() => {
     setIsMobileMenuOpen((open) => !open);
@@ -119,7 +121,9 @@ const Navbar = () => {
                 "hover:bg-black",
               )}
             >
-              <Link href="/sign-in">Login</Link>
+              <Link href={session?.user ? "/dashboard/profiles" : "/sign-in"}>
+                {session?.user ? "Dashboard" : "Login"}
+              </Link>
             </Button>
           </div>
 
@@ -186,12 +190,23 @@ const Navbar = () => {
               </nav>
 
               <div className="absolute bottom-10 left-4 overflow-hidden md:left-12">
-                <a
-                  href="tel:04022821110"
-                  className="inline-flex items-center gap-3 text-xs font-bold tracking-widest text-primary uppercase transition-colors hover:text-white sm:text-base"
-                >
-                  Hubungi posko darurat <ArrowRight size={20} aria-hidden />
-                </a>
+                <div className="flex flex-col gap-4">
+                  <Link
+                    href={session?.user ? "/dashboard/profiles" : "/sign-in"}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="inline-flex items-center gap-3 text-xs font-bold tracking-widest text-primary uppercase transition-colors hover:text-white sm:text-base"
+                  >
+                    {session?.user ? "Buka dashboard" : "Login"}{" "}
+                    <ArrowRight size={20} aria-hidden />
+                  </Link>
+
+                  <a
+                    href="tel:04022821110"
+                    className="inline-flex items-center gap-3 text-xs font-bold tracking-widest text-primary uppercase transition-colors hover:text-white sm:text-base"
+                  >
+                    Hubungi posko darurat <ArrowRight size={20} aria-hidden />
+                  </a>
+                </div>
               </div>
             </motion.div>
           )}

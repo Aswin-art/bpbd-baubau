@@ -14,6 +14,13 @@ import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { formatDateTime } from "@/helpers/date";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 type AspirationStatus = "pending" | "in_progress" | "completed" | "rejected";
 
@@ -61,6 +68,7 @@ export default function AspirationDetailPage(props: {
   const { id } = use(props.params);
   const queryClient = useQueryClient();
   const [replyText, setReplyText] = useState("");
+  const [status, setStatus] = useState<AspirationStatus>("pending");
 
   const { data, isLoading, isError, error } = useQuery({
     queryKey: ["dashboard", "aspirations", id],
@@ -71,6 +79,10 @@ export default function AspirationDetailPage(props: {
   useEffect(() => {
     setReplyText((data?.adminReply || "").trim());
   }, [data?.adminReply]);
+
+  useEffect(() => {
+    if (data?.status) setStatus(data.status);
+  }, [data?.status]);
 
   const replyMutation = useMutation({
     mutationFn: async (adminReply: string) => {
@@ -87,6 +99,29 @@ export default function AspirationDetailPage(props: {
     },
     onSuccess: async () => {
       toast.success("Balasan berhasil dikirim.");
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["dashboard", "aspirations", id] }),
+        queryClient.invalidateQueries({ queryKey: ["dashboard", "aspirations"] }),
+      ]);
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const statusMutation = useMutation({
+    mutationFn: async (nextStatus: AspirationStatus) => {
+      const res = await fetch(`/api/dashboard/aspirations/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: nextStatus }),
+      });
+      const json = await res.json().catch(() => null);
+      if (!res.ok || json?.status !== "success") {
+        throw new Error(json?.message || "Gagal mengubah status.");
+      }
+      return json.data as AspirationDetail;
+    },
+    onSuccess: async () => {
+      toast.success("Status berhasil diperbarui.");
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ["dashboard", "aspirations", id] }),
         queryClient.invalidateQueries({ queryKey: ["dashboard", "aspirations"] }),
@@ -182,6 +217,45 @@ export default function AspirationDetailPage(props: {
 
                 <PermissionGuard resource="aspirations" action="update">
                   <div className="space-y-2">
+                    <PermissionGuard resource="aspirations" action="change_status">
+                      <div className="space-y-2 rounded-md border p-3">
+                        <div className="text-sm font-medium">Status</div>
+                        <div className="flex items-center gap-2">
+                          <Select
+                            value={status}
+                            onValueChange={(v) => setStatus(v as AspirationStatus)}
+                            disabled={statusMutation.isPending}
+                          >
+                            <SelectTrigger className="w-full">
+                              <SelectValue placeholder="Pilih status" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="pending">Pending</SelectItem>
+                              <SelectItem value="in_progress">Diproses</SelectItem>
+                              <SelectItem value="completed">Selesai</SelectItem>
+                              <SelectItem value="rejected">Ditolak</SelectItem>
+                            </SelectContent>
+                          </Select>
+
+                          <Button
+                            type="button"
+                            variant="outline"
+                            disabled={statusMutation.isPending || status === data.status}
+                            onClick={() => statusMutation.mutate(status)}
+                          >
+                            {statusMutation.isPending ? (
+                              <>
+                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                Menyimpan...
+                              </>
+                            ) : (
+                              "Simpan"
+                            )}
+                          </Button>
+                        </div>
+                      </div>
+                    </PermissionGuard>
+
                     <Textarea
                       placeholder="Tulis balasan untuk masyarakat..."
                       className="min-h-[140px]"

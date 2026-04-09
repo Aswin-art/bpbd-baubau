@@ -6,6 +6,7 @@ import { Phone, MessageSquare, FileText } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import Wrapper from "@/components/wrapper";
 import { useSuspenseQuery } from "@tanstack/react-query";
+import { getBaseUrl } from "@/lib/url";
 
 const PROFILE_IMAGE =
   "https://picsum.photos/seed/bpbd-about-profile/800/1000";
@@ -13,7 +14,9 @@ const PROFILE_IMAGE =
 async function fetchPublicSiteSettings(): Promise<{
   settings: { contactPhone?: string | null; structurePhotoUrl?: string | null };
 }> {
-  const res = await fetch("/api/public/site-settings", { cache: "no-store" });
+  const res = await fetch(`${getBaseUrl()}/api/public/site-settings`, {
+    cache: "no-store",
+  });
   if (!res.ok) throw new Error("Failed to fetch site settings");
   return res.json();
 }

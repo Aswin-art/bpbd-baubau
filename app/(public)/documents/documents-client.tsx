@@ -8,18 +8,31 @@ import { Download, ChevronLeft, ChevronRight, ArrowUpRight } from "lucide-react"
 import { Button } from "@/components/ui/button";
 import Wrapper from "@/components/wrapper";
 import { categoryLabels } from "@/data/dummy-data";
-import type { DocumentItem } from "@/data/dummy-data";
 import { DocumentsErrorFallback, DocumentsSkeleton } from "./documents-fallback";
 import { DocumentFilter } from "./document-filter";
 
+type PublicDocumentItem = {
+  id: string;
+  name: string;
+  description: string;
+  category: string;
+  date: string;
+  fileSize: string;
+  downloadUrl: string;
+};
+
 type DocumentsApiResponse = {
-  items: DocumentItem[];
+  items: PublicDocumentItem[];
   page: number;
   perPage: number;
   total: number;
   totalPages: number;
   kategori?: string;
   q?: string;
+};
+
+type DocumentCategoriesResponse = {
+  categories: string[];
 };
 
 async function fetchDocuments(params: {
@@ -31,8 +44,14 @@ async function fetchDocuments(params: {
   if (params.page > 1) qs.set("hal", String(params.page));
   if (params.kategori && params.kategori !== "semua") qs.set("kategori", params.kategori);
   if (params.q) qs.set("q", params.q);
-  const res = await fetch(`/api/documents?${qs.toString()}`, { cache: "no-store" });
+  const res = await fetch(`/api/public/documents?${qs.toString()}`, { cache: "no-store" });
   if (!res.ok) throw new Error("Gagal memuat dokumen.");
+  return res.json();
+}
+
+async function fetchDocumentCategories(): Promise<DocumentCategoriesResponse> {
+  const res = await fetch("/api/public/documents/categories", { cache: "no-store" });
+  if (!res.ok) throw new Error("Gagal memuat kategori dokumen.");
   return res.json();
 }
 
@@ -68,6 +87,11 @@ function DocumentsClientInner() {
   useEffect(() => {
     setQInput(q);
   }, [q]);
+
+  const categoriesQuery = useQuery({
+    queryKey: ["public-document-categories"],
+    queryFn: fetchDocumentCategories,
+  });
 
   const { data, isLoading, isFetching, isError } = useQuery({
     queryKey: ["public-documents", page, kategori, q],
@@ -113,6 +137,7 @@ function DocumentsClientInner() {
       <div className="mt-12 lg:mt-16">
         <DocumentFilter
           activeCategory={kategori || "semua"}
+          categories={categoriesQuery.data?.categories ?? []}
           searchQuery={qInput}
           onCategoryChange={onCategoryChange}
           onSearchChange={setQInput}
@@ -187,14 +212,22 @@ function DocumentsClientInner() {
                     </div>
 
                     <div className="mt-5 flex items-center justify-between gap-3 md:col-span-2 md:mt-0 md:justify-end">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-9 px-3 text-xs font-semibold text-primary hover:text-primary hover:bg-primary/10"
+                      <a
+                        href={doc.downloadUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={doc.downloadUrl ? "inline-flex" : "pointer-events-none opacity-50"}
+                        aria-label={`Unduh ${doc.name}`}
                       >
-                        <Download className="h-3.5 w-3.5 mr-1.5" />
-                        Unduh
-                      </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-9 px-3 text-xs font-semibold text-primary hover:text-primary hover:bg-primary/10"
+                        >
+                          <Download className="h-3.5 w-3.5 mr-1.5" />
+                          Unduh
+                        </Button>
+                      </a>
                       <span className="hidden md:flex h-10 w-10 items-center justify-center rounded-full bg-muted/70 text-secondary transition-colors group-hover:bg-primary/10 group-hover:text-primary">
                         <ArrowUpRight className="h-4 w-4" />
                       </span>

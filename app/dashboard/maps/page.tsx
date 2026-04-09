@@ -8,7 +8,7 @@ import { PermissionGuard } from "../components/permission-guard";
 
 export default function DashboardMapPage() {
   return (
-    <PermissionGuard resource="map" action="read">
+    <PermissionGuard resource="maps" action="read">
       <>
         <DashboardHeader
           title="Map Bencana"

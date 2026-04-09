@@ -5,11 +5,11 @@ import { AppError } from "@/lib/app-error";
 import { getServerSession } from "@/lib/server";
 import { checkPermission } from "@/lib/permission-cache";
 import {
-  archiveService,
   archiveListParamsSchema,
   createArchiveSchema,
   bulkDeleteArchivesSchema,
 } from "@/modules/archives";
+import { archiveService } from "@/modules/archives/archives.service";
 
 /**
  * GET /api/dashboard/archives

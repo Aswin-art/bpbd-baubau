@@ -4,7 +4,8 @@ import { apiHandler, apiSuccess } from "@/lib/api-handler";
 import { AppError } from "@/lib/app-error";
 import { getServerSession } from "@/lib/server";
 import { checkPermission } from "@/lib/permission-cache";
-import { archiveService, updateArchiveSchema } from "@/modules/archives";
+import { updateArchiveSchema } from "@/modules/archives";
+import { archiveService } from "@/modules/archives/archives.service";
 
 export const GET = apiHandler(async (_req: NextRequest, context) => {
   const session = await getServerSession();

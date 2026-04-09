@@ -36,7 +36,7 @@ export function Footer() {
             <ul className="space-y-2">
               {[
                 { name: "Beranda", href: "/" },
-                { name: "Berita", href: "/berita" },
+                { name: "Berita", href: "/articles" },
                 { name: "Dokumen & SOP", href: "/dokumen" },
                 { name: "Aspirasi", href: "/aspirasi" },
                 { name: "Arsip Bencana", href: "/arsip" },

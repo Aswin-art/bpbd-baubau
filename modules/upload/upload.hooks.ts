@@ -54,3 +54,16 @@ export function createUploadHandler(
     return result.url;
   };
 }
+
+/**
+ * Helper function to create upload handler for FileUpload component
+ * (multiple mode). Returns a function compatible with FileUpload's onUpload.
+ */
+export function createMultipleUploadHandler(
+  uploadMutation: ReturnType<typeof useMultipleUpload>,
+): (file: File) => Promise<string> {
+  return async (file: File) => {
+    const [result] = await uploadMutation.mutateAsync([file]);
+    return result?.url || "";
+  };
+}

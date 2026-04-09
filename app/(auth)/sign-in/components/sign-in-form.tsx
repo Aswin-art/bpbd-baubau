@@ -56,7 +56,7 @@ export function SignInForm() {
           onSuccess: () => {
             toast.success("Berhasil masuk!");
             router.refresh();
-            router.push("/dashboard");
+            router.push("/dashboard/profiles");
           },
           onError: (ctx) => {
             toast.error(ctx.error.message || "Email atau password salah.");

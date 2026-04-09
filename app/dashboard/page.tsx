@@ -451,7 +451,7 @@ export default function DashboardPage() {
               {recentNews.map((news) => (
                 <Link
                   key={news.slug}
-                  href={`/berita/${news.slug}`}
+                  href={`/articles/${news.slug}`}
                   className="flex gap-3 group"
                 >
                   <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-muted">

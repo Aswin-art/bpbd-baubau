@@ -1,19 +1,18 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Map, { Marker, NavigationControl } from "react-map-gl/maplibre";
+import "maplibre-gl/dist/maplibre-gl.css";
+import { format } from "date-fns";
+import { useMutation } from "@tanstack/react-query";
+import { toast } from "sonner";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import {
   Card,
   CardContent,
@@ -22,14 +21,12 @@ import {
   CardDescription,
 } from "@/components/ui/card";
 import type { MapDisasterPointDTO } from "@/lib/map-disaster-types";
+import { SearchSelect } from "@/components/ui/search-select";
+import { DatePicker } from "@/components/ui/date-picker";
+import FileUpload from "@/components/file-upload";
+import { createMultipleUploadHandler, useMultipleUpload } from "@/modules/upload";
 
-const TYPE_OPTIONS = [
-  "Banjir",
-  "Tanah Longsor",
-  "Angin Puting Beliung",
-  "Kebakaran",
-  "Gelombang Tinggi",
-];
+const BAUBAU_CENTER = { latitude: -5.48, longitude: 122.6, zoom: 12 };
 
 interface MapFormProps {
   initialData?: MapDisasterPointDTO;
@@ -40,7 +37,7 @@ export function MapForm({ initialData }: MapFormProps) {
   const isEdit = !!initialData;
 
   const [form, setForm] = useState({
-    type: initialData?.type ?? "Banjir",
+    type: initialData?.type ?? "",
     location: initialData?.location ?? "",
     kecamatan: initialData?.kecamatan ?? "",
     date: initialData?.date ?? "",
@@ -52,6 +49,13 @@ export function MapForm({ initialData }: MapFormProps) {
     displaced: initialData?.displaced ?? 0,
   });
 
+  const [images, setImages] = useState<string[]>(
+    initialData?.image ? [initialData.image] : [],
+  );
+
+  const uploadMutation = useMultipleUpload({ scope: "maps" });
+  const onUpload = createMultipleUploadHandler(uploadMutation);
+
   function handleChange(
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) {
@@ -62,11 +66,42 @@ export function MapForm({ initialData }: MapFormProps) {
     }));
   }
 
-  function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    console.log(isEdit ? "Updating point:" : "Creating point:", form);
-    router.push("/dashboard/map");
-  }
+  const selectedDate = useMemo(() => {
+    if (!form.date) return undefined;
+    if (Number.isNaN(Date.parse(form.date))) return undefined;
+    return new Date(form.date);
+  }, [form.date]);
+
+  const saveMutation = useMutation({
+    mutationFn: async () => {
+      const payload = {
+        ...form,
+        // keep legacy `image` field filled for existing UI
+        image: images[0] || form.image || "",
+        images,
+      };
+
+      const res = await fetch(
+        isEdit ? `/api/map-disasters/${initialData!.id}` : "/api/map-disasters",
+        {
+          method: isEdit ? "PATCH" : "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        },
+      );
+      const json = await res.json().catch(() => null);
+      if (!res.ok || json?.status !== "success") {
+        throw new Error(json?.message || "Gagal menyimpan titik bencana.");
+      }
+      return json.data;
+    },
+    onSuccess: () => {
+      toast.success(isEdit ? "Titik bencana berhasil diperbarui." : "Titik bencana berhasil dibuat.");
+      router.push("/dashboard/maps");
+      router.refresh();
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
 
   return (
     <Card>
@@ -81,24 +116,67 @@ export function MapForm({ initialData }: MapFormProps) {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-5">
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            saveMutation.mutate();
+          }}
+          className="space-y-6"
+        >
+          <div className="space-y-2">
+            <Label>Lokasi pin (drag untuk ubah)</Label>
+            <div className="rounded-xl border border-border shadow-sm overflow-hidden h-[320px] sm:h-[420px]">
+              <Map
+                initialViewState={{
+                  latitude: form.lat ?? BAUBAU_CENTER.latitude,
+                  longitude: form.lng ?? BAUBAU_CENTER.longitude,
+                  zoom: BAUBAU_CENTER.zoom,
+                }}
+                style={{ width: "100%", height: "100%" }}
+                mapStyle="https://basemaps.cartocdn.com/gl/positron-gl-style/style.json"
+                onClick={(e) => {
+                  setForm((f) => ({ ...f, lng: e.lngLat.lng, lat: e.lngLat.lat }));
+                }}
+              >
+                <NavigationControl position="top-right" />
+                <Marker
+                  longitude={form.lng}
+                  latitude={form.lat}
+                  anchor="center"
+                  draggable
+                  onDragEnd={(e) => {
+                    setForm((f) => ({
+                      ...f,
+                      lng: e.lngLat.lng,
+                      lat: e.lngLat.lat,
+                    }));
+                  }}
+                >
+                  <div className="h-4 w-4 rounded-full bg-red-500 border-2 border-white shadow-md" />
+                </Marker>
+              </Map>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Kamu bisa klik peta atau drag pin untuk menentukan koordinat.
+            </p>
+          </div>
+
           <div className="space-y-2">
             <Label htmlFor="type">Jenis Bencana</Label>
-            <Select
-              value={form.type}
-              onValueChange={(v) => setForm((f) => ({ ...f, type: v }))}
-            >
-              <SelectTrigger id="type">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {TYPE_OPTIONS.map((t) => (
-                  <SelectItem key={t} value={t}>
-                    {t}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <SearchSelect
+              apiEndpoint="/api/dashboard/maps/categories"
+              placeholder="Pilih / ketik kategori bencana"
+              value={form.type || null}
+              onChange={(v) => setForm((f) => ({ ...f, type: v || "" }))}
+              creatable
+              responseMapper={(data) => {
+                const arr = Array.isArray(data) ? data : [];
+                return arr
+                  .map((c) => String(c))
+                  .filter(Boolean)
+                  .map((c) => ({ id: c, label: c }));
+              }}
+            />
           </div>
 
           <div className="space-y-2">
@@ -126,14 +204,14 @@ export function MapForm({ initialData }: MapFormProps) {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="date">Tanggal (teks)</Label>
-              <Input
-                id="date"
-                name="date"
-                value={form.date}
-                onChange={handleChange}
-                placeholder="contoh: 1 April 2026"
-                required
+              <Label>Tanggal</Label>
+              <DatePicker
+                date={selectedDate}
+                setDate={(d) => {
+                  setForm((f) => ({ ...f, date: d ? format(d, "yyyy-MM-dd") : "" }));
+                }}
+                placeholder="Pilih tanggal"
+                className="w-full"
               />
             </div>
           </div>
@@ -164,14 +242,24 @@ export function MapForm({ initialData }: MapFormProps) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="image">URL Gambar</Label>
-            <Input
-              id="image"
-              name="image"
-              value={form.image}
-              onChange={handleChange}
-              placeholder="https://..."
+            <Label>Foto bencana</Label>
+            <FileUpload
+              multiple
+              value={images}
+              onChange={(v) => setImages(v)}
+              onUpload={async (file) => {
+                // single file handler for FileUpload's multiple mode
+                const url = await onUpload(file);
+                return url;
+              }}
+              accept={{
+                "image/*": [".jpg", ".jpeg", ".png", ".webp", ".gif", ".avif"],
+              }}
+              disabled={saveMutation.isPending}
             />
+            <p className="text-xs text-muted-foreground">
+              Upload banyak foto. Masing-masing akan tampil pratinjau.
+            </p>
           </div>
 
           <div className="space-y-2">
@@ -212,11 +300,17 @@ export function MapForm({ initialData }: MapFormProps) {
           </div>
 
           <div className="flex items-center gap-3 pt-2">
-            <Button type="submit">
-              {isEdit ? "Simpan" : "Tambah Titik"}
+            <Button type="submit" disabled={saveMutation.isPending}>
+              {saveMutation.isPending ? (
+                "Menyimpan..."
+              ) : isEdit ? (
+                "Simpan"
+              ) : (
+                "Tambah Titik"
+              )}
             </Button>
             <Button variant="outline" asChild>
-              <Link href="/dashboard/map">Batal</Link>
+              <Link href="/dashboard/maps">Batal</Link>
             </Button>
           </div>
         </form>

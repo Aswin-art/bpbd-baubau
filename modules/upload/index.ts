@@ -15,6 +15,7 @@ export {
   useUpload,
   useMultipleUpload,
   createUploadHandler,
+  createMultipleUploadHandler,
 } from "./upload.hooks";
 
 // DTOs and types

@@ -91,7 +91,7 @@ export interface HeroSlide {
 export const publicNavItems: PublicNavItem[] = [
   { name: "Beranda", href: "/" },
   { name: "Profil", href: "/profiles" },
-  { name: "Berita", href: "/news" },
+  { name: "Berita", href: "/articles" },
   { name: "Dokumen & SOP", href: "/documents" },
   { name: "Aspirasi", href: "/aspirations" },
   { name: "Arsip Bencana", href: "/archives" },

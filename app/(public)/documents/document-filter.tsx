@@ -2,43 +2,37 @@
 
 import { Search } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useMemo } from "react";
-
-const categories = [
-  { value: "semua", label: "Semua" },
-  { value: "sop", label: "SOP" },
-  { value: "regulasi", label: "Regulasi" },
-  { value: "pedoman", label: "Pedoman" },
-];
 
 export function DocumentFilter({
   activeCategory,
+  categories,
   searchQuery,
   onCategoryChange,
   onSearchChange,
 }: {
   activeCategory: string;
+  categories: string[];
   searchQuery: string;
   onCategoryChange: (category: string) => void;
   onSearchChange: (value: string) => void;
 }) {
-  const categoryItems = useMemo(() => categories, []);
+  const categoryItems = ["semua", ...categories];
 
   return (
     <div className="mb-10 grid gap-5 lg:grid-cols-[minmax(0,1fr)_340px] lg:items-end">
       <div className="flex flex-wrap items-center gap-2.5">
         {categoryItems.map((cat) => (
           <button
-            key={cat.value}
-            onClick={() => onCategoryChange(cat.value)}
+            key={cat}
+            onClick={() => onCategoryChange(cat)}
             className={cn(
               "rounded-full px-3.5 py-2 font-mono text-[11px] font-semibold uppercase tracking-[0.2em] transition-colors",
-              activeCategory === cat.value
+              activeCategory === cat
                 ? "bg-secondary text-secondary-foreground"
                 : "border border-border/60 bg-background text-muted-foreground hover:text-secondary"
             )}
           >
-            {cat.label}
+            {cat === "semua" ? "Semua" : cat}
           </button>
         ))}
       </div>

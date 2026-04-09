@@ -114,7 +114,7 @@ model Verification {
   @@map("verification")
 }
 
-// --- Articles (public /berita + dashboard CMS)
+// --- Articles (public /articles + dashboard CMS)
 
 model Article {
   id           String        @id @default(cuid())

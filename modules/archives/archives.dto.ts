@@ -9,7 +9,7 @@ export const archiveSchema = z.object({
   name: z.string(),
   description: z.string(),
   dateLabel: z.string(),
-  fileSize: z.string(),
+  fileSize: z.string().optional(),
   year: z.string(),
   downloadUrl: z.string(),
   createdAt: z.date().or(z.string()),
@@ -63,8 +63,12 @@ export const createArchiveSchema = z.object({
   description: z.string().trim().min(1, "Description is required"),
   year: z.string().trim().min(4, "Year is required"),
   dateLabel: z.string().trim().min(2, "Date label is required"),
-  fileSize: z.string().trim().min(1, "File size is required"),
   downloadUrl: z.string().trim().min(1, "Download URL is required"),
+  /**
+   * Dihitung otomatis (biasanya dari file upload).
+   * Tetap opsional untuk kompatibilitas data lama.
+   */
+  fileSize: z.string().trim().optional(),
 });
 
 export type CreateArchiveInput = z.infer<typeof createArchiveSchema>;

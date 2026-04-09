@@ -45,7 +45,7 @@ export function MapTable() {
             </Link>
           </Button>
           <Button size="sm" className="gap-1.5" asChild>
-            <Link href="/dashboard/map/create">
+            <Link href="/dashboard/maps/create">
               <Plus className="h-4 w-4" />
               Tambah titik
             </Link>

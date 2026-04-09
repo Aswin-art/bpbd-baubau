@@ -7,13 +7,23 @@ import { useQuery } from "@tanstack/react-query";
 import { parseAsInteger, parseAsString, useQueryState } from "nuqs";
 import { ArrowUpRight, ChevronLeft, ChevronRight } from "lucide-react";
 import { ErrorBoundary } from "react-error-boundary";
-import type { NewsArticle } from "@/data/dummy-data";
 import { categoryLabels } from "@/data/dummy-data";
 import { NewsErrorFallback, NewsSkeleton } from "./news-fallback";
 import Wrapper from "@/components/wrapper";
 
+type PublicArticleListItem = {
+  id: string;
+  title: string;
+  slug: string;
+  excerpt: string;
+  category: string;
+  imageUrl: string;
+  publishedAt: string | null;
+  dateLabel: string;
+};
+
 type NewsApiResponse = {
-  items: NewsArticle[];
+  items: PublicArticleListItem[];
   page: number;
   perPage: number;
   total: number;
@@ -31,7 +41,7 @@ async function fetchNews(params: {
   if (params.page > 1) qs.set("hal", String(params.page));
   if (params.tag && params.tag !== "semua") qs.set("tag", params.tag);
   if (params.q) qs.set("q", params.q);
-  const res = await fetch(`/api/news?${qs.toString()}`, { cache: "no-store" });
+  const res = await fetch(`/api/public/articles?${qs.toString()}`, { cache: "no-store" });
   if (!res.ok) throw new Error("Gagal memuat berita.");
   return res.json();
 }
@@ -209,7 +219,7 @@ function NewsClientInner() {
               return (
                 <li key={news.slug}>
                   <Link
-                    href={`/news/${news.slug}`}
+                    href={`/articles/${news.slug}`}
                     className="group block rounded-2xl outline-none transition-colors focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2"
                   >
                     <article className="flex flex-col gap-6 md:grid md:grid-cols-12 md:items-start md:gap-8 lg:gap-10">

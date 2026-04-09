@@ -48,7 +48,7 @@ export function AspirasiForm() {
 
   const mutation = useMutation({
     mutationFn: async (payload: AspirasiFormData) => {
-      const res = await fetch("/api/aspirations", {
+      const res = await fetch("/api/public/aspirations", {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify(payload),

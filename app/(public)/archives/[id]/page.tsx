@@ -13,8 +13,8 @@ import {
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { archiveDocuments, disasterPoints } from "@/data/dummy-data";
 import Wrapper from "@/components/wrapper";
+import db from "@/lib/db";
 
 export const dynamic = "force-dynamic";
 
@@ -42,29 +42,73 @@ export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
   const { id } = await params;
-  const fallback = disasterPoints.find((p) => p.id === id);
-  const r = fallback;
+  const r = await db.mapDisasterPoint.findUnique({
+    where: { id },
+    select: { type: true, location: true },
+  });
   if (!r) return { title: "Data Tidak Ditemukan" };
 
   return {
     title: `${r.type} — ${r.location}`,
-    description: r.description,
   };
 }
 
 export default async function ArsipDetailPage({ params }: PageProps) {
   const { id } = await params;
-  const fallback = disasterPoints.find((p) => p.id === id);
-  const r = fallback;
+  const r = await db.mapDisasterPoint.findUnique({
+    where: { id },
+    select: {
+      id: true,
+      type: true,
+      location: true,
+      kecamatan: true,
+      date: true,
+      casualties: true,
+      displaced: true,
+      description: true,
+      image: true,
+      lat: true,
+      lng: true,
+    },
+  });
 
   if (!r) {
     notFound();
   }
 
   const tahun = r.date.split(" ").pop() || "";
-  const relatedDocs = archiveDocuments.filter((d) => d.year === tahun);
+  const relatedDocs = await db.arsipDocument.findMany({
+    where: { year: tahun },
+    orderBy: { createdAt: "desc" },
+    take: 6,
+    select: {
+      id: true,
+      name: true,
+      dateLabel: true,
+      fileSize: true,
+      year: true,
+      downloadUrl: true,
+    },
+  });
 
-  const relatedMapPoints = disasterPoints.filter((p) => p.id !== r.id).slice(0, 3);
+  const relatedMapPoints = await db.mapDisasterPoint.findMany({
+    where: { id: { not: r.id } },
+    orderBy: { createdAt: "desc" },
+    take: 3,
+    select: {
+      id: true,
+      type: true,
+      location: true,
+      kecamatan: true,
+      date: true,
+      casualties: true,
+      displaced: true,
+      description: true,
+      image: true,
+      lat: true,
+      lng: true,
+    },
+  });
 
   const stats = [
     ...(r.casualties > 0
@@ -90,7 +134,7 @@ export default async function ArsipDetailPage({ params }: PageProps) {
       <div className="relative rounded-2xl overflow-hidden mb-10">
         <div className="aspect-21/9 sm:aspect-3/1 relative">
           <Image
-            src={r.image.replace("400/200", "1200/500")}
+            src={r.image}
             alt={r.type}
             fill
             sizes="100vw"

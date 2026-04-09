@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { Loader2, Save } from "lucide-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
+import { format } from "date-fns";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -19,6 +20,10 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { DatePicker } from "@/components/ui/date-picker";
+import FileUpload from "@/components/file-upload";
+import { useUpload } from "@/modules/upload";
+import { formatFileSize } from "@/helpers/compress";
 
 import {
   createArchiveSchema,
@@ -35,6 +40,7 @@ export function ArchiveForm(props: {
   const mode: Mode = props.mode ?? "create";
   const router = useRouter();
   const queryClient = useQueryClient();
+  const uploadMutation = useUpload({ scope: "archives" });
 
   const form = useForm<CreateArchiveInput>({
     resolver: zodResolver(createArchiveSchema),
@@ -43,7 +49,7 @@ export function ArchiveForm(props: {
       description: (props.initialData?.description as string) ?? "",
       year: props.initialData?.year ?? "",
       dateLabel: props.initialData?.dateLabel ?? "",
-      fileSize: props.initialData?.fileSize ?? "",
+      fileSize: props.initialData?.fileSize ?? undefined,
       downloadUrl: props.initialData?.downloadUrl ?? "",
     },
   });
@@ -151,21 +157,18 @@ export function ArchiveForm(props: {
                   <FormItem>
                     <FormLabel>Tanggal dokumen</FormLabel>
                     <FormControl>
-                      <Input placeholder="1 Januari 2026" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="fileSize"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Ukuran file</FormLabel>
-                    <FormControl>
-                      <Input placeholder="2.4 MB" {...field} />
+                      <DatePicker
+                        date={
+                          field.value && !Number.isNaN(Date.parse(field.value))
+                            ? new Date(field.value)
+                            : undefined
+                        }
+                        setDate={(d) => {
+                          field.onChange(d ? format(d, "yyyy-MM-dd") : "");
+                        }}
+                        placeholder="Pilih tanggal"
+                        className="w-full"
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -177,10 +180,30 @@ export function ArchiveForm(props: {
                 name="downloadUrl"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>URL download</FormLabel>
+                    <FormLabel>File PDF</FormLabel>
                     <FormControl>
-                      <Input placeholder="https://..." {...field} />
+                      <FileUpload
+                        value={field.value}
+                        onChange={(url) => field.onChange(url)}
+                        onUpload={async (file) => {
+                          const result = await uploadMutation.mutateAsync(file);
+                          form.setValue("fileSize", formatFileSize(result.size), {
+                            shouldDirty: true,
+                            shouldValidate: true,
+                          });
+                          form.setValue("downloadUrl", result.url, {
+                            shouldDirty: true,
+                            shouldValidate: true,
+                          });
+                          return result.url;
+                        }}
+                        accept={{ "application/pdf": [".pdf"] }}
+                        disabled={isPending}
+                      />
                     </FormControl>
+                    <FormDescription>
+                      Upload dokumen PDF. Ukuran file dihitung otomatis.
+                    </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}

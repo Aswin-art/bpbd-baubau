@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { parseAsInteger, parseAsString, useQueryState } from "nuqs";
 import { ErrorBoundary } from "react-error-boundary";
@@ -8,20 +8,34 @@ import { Download, FileText, BookMarked, MapPin } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import Wrapper from "@/components/wrapper";
-import type { ArchiveDocument } from "@/data/dummy-data";
-import { archiveDocuments, disasterPoints } from "@/data/dummy-data";
+import { disasterPoints } from "@/data/dummy-data";
 import { ArsipFilter } from "./arsip-filter";
 import { DisasterMap } from "./disaster-map";
 import { ArchivesErrorFallback, ArchivesSkeleton } from "./archives-fallback";
 
+type PublicArchiveDocumentItem = {
+  id: string;
+  name: string;
+  description: string;
+  dateLabel: string;
+  fileSize: string;
+  year: string;
+  downloadUrl: string;
+  createdAt: string;
+};
+
 type ArchivesApiResponse = {
-  items: ArchiveDocument[];
+  items: PublicArchiveDocumentItem[];
   page: number;
   perPage: number;
   total: number;
   totalPages: number;
   tahun?: string;
   q?: string;
+};
+
+type ArchiveYearsResponse = {
+  years: string[];
 };
 
 async function fetchArchives(params: {
@@ -33,8 +47,14 @@ async function fetchArchives(params: {
   if (params.page > 1) qs.set("hal", String(params.page));
   if (params.tahun && params.tahun !== "semua") qs.set("tahun", params.tahun);
   if (params.q) qs.set("q", params.q);
-  const res = await fetch(`/api/archives?${qs.toString()}`, { cache: "no-store" });
+  const res = await fetch(`/api/public/archives?${qs.toString()}`, { cache: "no-store" });
   if (!res.ok) throw new Error("Gagal memuat arsip.");
+  return res.json();
+}
+
+async function fetchArchiveYears(): Promise<ArchiveYearsResponse> {
+  const res = await fetch("/api/public/archives/years", { cache: "no-store" });
+  if (!res.ok) throw new Error("Gagal memuat tahun arsip.");
   return res.json();
 }
 
@@ -68,6 +88,11 @@ function ArchivesClientInner() {
     setQInput(q);
   }, [q]);
 
+  const yearsQuery = useQuery({
+    queryKey: ["public-archives-years"],
+    queryFn: fetchArchiveYears,
+  });
+
   const { data, isLoading, isFetching, isError } = useQuery({
     queryKey: ["public-archives", page, tahun, q],
     queryFn: () => fetchArchives({ page, tahun, q }),
@@ -86,8 +111,6 @@ function ArchivesClientInner() {
     void setTahun(next === "semua" ? null : next);
     void setPage(null);
   };
-
-  const totalAllDocs = useMemo(() => archiveDocuments.length, []);
 
   return (
     <Wrapper className="pt-24 pb-10 md:pt-28 xl:pt-32">
@@ -156,6 +179,8 @@ function ArchivesClientInner() {
             <ArsipFilter
               activeTahun={tahun || "semua"}
               onTahunChange={onTahunChange}
+              years={yearsQuery.data?.years ?? []}
+              disabled={yearsQuery.isLoading || yearsQuery.isError}
             />
             <div className="flex items-center gap-2 rounded-2xl border border-border/60 bg-background px-3.5 py-2 sm:w-[360px]">
               <input
@@ -183,7 +208,7 @@ function ArchivesClientInner() {
         </div>
 
         <p className="text-sm text-muted-foreground">
-          {data ? `${data.total} dokumen` : "Memuat…"} dari {totalAllDocs}
+          {data ? `${data.total} dokumen` : "Memuat…"}
           {totalPages > 1 ? (
             <span className="text-muted-foreground/70">
               {" "}
@@ -250,7 +275,12 @@ function ArchivesClientInner() {
 
                     <div className="md:col-span-2 md:justify-self-end">
                       <Button asChild variant="outline" className="w-full md:w-auto">
-                        <a href={doc.downloadUrl || "#"} aria-label={`Unduh ${doc.name}`}>
+                        <a
+                          href={doc.downloadUrl || "#"}
+                          target={doc.downloadUrl ? "_blank" : undefined}
+                          rel={doc.downloadUrl ? "noopener noreferrer" : undefined}
+                          aria-label={`Unduh ${doc.name}`}
+                        >
                           <Download className="mr-2 h-4 w-4" />
                           Unduh
                         </a>

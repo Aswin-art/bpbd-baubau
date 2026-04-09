@@ -8,6 +8,7 @@ import Wrapper from "@/components/wrapper";
 import {
   useSuspenseQuery,
 } from "@tanstack/react-query";
+import { getBaseUrl } from "@/lib/url";
 
 type NewsItem = {
   id: string;
@@ -45,14 +46,16 @@ function formatDateLabel(iso: string | null) {
 }
 
 async function fetchLatestNews(): Promise<{ items: NewsItem[] }> {
-  const res = await fetch("/api/public/news?limit=5", { cache: "no-store" });
+  const res = await fetch(`${getBaseUrl()}/api/public/news?limit=5`, {
+    cache: "no-store",
+  });
   if (!res.ok) throw new Error("Failed to fetch news");
   return res.json();
 }
 
 function FeaturedArticle({ news }: { news: NewsItem }) {
   return (
-    <Link href={`/berita/${news.slug}`} className="group block">
+    <Link href={`/articles/${news.slug}`} className="group block">
       <article className="relative overflow-hidden rounded-2xl bg-secondary h-full min-h-[380px] sm:min-h-[440px] flex flex-col justify-end p-6 sm:p-8">
         {/* Background image */}
         {news.thumbnailUrl ? (
@@ -106,7 +109,7 @@ function ArticleRow({
   index: number;
 }) {
   return (
-    <Link href={`/berita/${news.slug}`} className="group block">
+    <Link href={`/articles/${news.slug}`} className="group block">
       <article className="flex gap-4 sm:gap-5 py-5 border-b border-border/60 last:border-0 items-start">
         {/* Index number */}
         <span className="text-[32px] font-black leading-none text-muted-foreground/20 tabular-nums select-none shrink-0 w-8 text-right group-hover:text-primary/30 transition-colors duration-300">
@@ -180,7 +183,7 @@ export function NewsSection() {
           </h2>
         </div>
         <Link
-          href="/berita"
+          href="/articles"
           className="hidden sm:inline-flex items-center gap-1.5 text-[13px] font-semibold text-foreground hover:text-primary transition-colors"
         >
           Semua berita
@@ -202,7 +205,7 @@ export function NewsSection() {
           {/* Mobile CTA */}
           <div className="pt-6 sm:hidden">
             <Link
-              href="/berita"
+              href="/articles"
               className="flex items-center justify-center gap-2 rounded-lg border border-border py-3 text-sm font-semibold text-foreground hover:bg-muted transition-colors"
             >
               Semua Berita

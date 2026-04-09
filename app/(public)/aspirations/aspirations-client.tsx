@@ -6,13 +6,23 @@ import { useQuery } from "@tanstack/react-query";
 import { parseAsInteger, parseAsString, useQueryState } from "nuqs";
 import { Badge } from "@/components/ui/badge";
 import Wrapper from "@/components/wrapper";
-import type { Aspiration } from "@/data/dummy-data";
 import { aspirationStatusLabels } from "@/data/dummy-data";
 import { AspirasiForm } from "./aspirasi-form";
 import { AspirationsErrorFallback, AspirationsSkeleton } from "./aspirations-fallback";
 
+type AspirationHistoryItem = {
+  id: string;
+  submitterName: string;
+  description: string;
+  status: string;
+  createdAt: string;
+  adminReply?: string | null;
+  repliedAt?: string | null;
+};
+
 type AspirationsApiResponse = {
-  items: Aspiration[];
+  requiresAuth?: boolean;
+  items: AspirationHistoryItem[];
   page: number;
   perPage: number;
   total: number;
@@ -30,7 +40,7 @@ async function fetchAspirations(params: {
   if (params.page > 1) qs.set("hal", String(params.page));
   if (params.status && params.status !== "semua") qs.set("status", params.status);
   if (params.q) qs.set("q", params.q);
-  const res = await fetch(`/api/aspirations?${qs.toString()}`, { cache: "no-store" });
+  const res = await fetch(`/api/public/aspirations?${qs.toString()}`, { cache: "no-store" });
   if (!res.ok) throw new Error("Gagal memuat aspirasi.");
   return res.json();
 }
@@ -191,7 +201,7 @@ function AspirationsClientInner() {
                     id="aspirasi-history-heading"
                     className="mt-2 text-lg font-semibold text-secondary"
                   >
-                    Aspirasi terkirim
+                    Aspirasi Anda
                   </h2>
                 </div>
                 <p className="text-xs text-muted-foreground">
@@ -202,6 +212,23 @@ function AspirationsClientInner() {
 
             <div className="px-6 py-6">
               <div className="grid gap-4">
+                {data?.requiresAuth ? (
+                  <div className="rounded-2xl bg-muted/40 px-5 py-6">
+                    <p className="text-sm font-semibold text-secondary">
+                      Masuk untuk melihat riwayat aspirasi
+                    </p>
+                    <p className="mt-1 text-sm text-muted-foreground">
+                      Riwayat hanya menampilkan aspirasi yang pernah Anda kirim saat login.
+                    </p>
+                    <a
+                      href="/sign-in"
+                      className="mt-4 inline-flex rounded-md bg-secondary px-4 py-2 text-sm font-semibold text-secondary-foreground"
+                    >
+                      Masuk
+                    </a>
+                  </div>
+                ) : null}
+
                 <div className="flex flex-wrap items-center gap-2">
                   {statusOptions.map((opt) => {
                     const active = (status || "semua") === opt.value;
@@ -261,7 +288,7 @@ function AspirationsClientInner() {
               </div>
             </div>
 
-            {isError ? (
+            {data?.requiresAuth ? null : isError ? (
               (() => {
                 throw new Error("Gagal memuat aspirasi.");
               })()

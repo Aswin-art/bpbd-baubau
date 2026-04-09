@@ -3,6 +3,8 @@ import { AuthBackground } from "@/app/(auth)/components/auth-background";
 import Image from "next/image";
 import { ArrowUpRight, FileText, MapPin, ShieldCheck } from "lucide-react";
 import { SignInForm } from "./components/sign-in-form";
+import { getServerSession } from "@/lib/server";
+import { redirect } from "next/navigation";
 
 export const metadata: Metadata = {
   title: "Masuk - BPBD Kota Baubau",
@@ -10,7 +12,12 @@ export const metadata: Metadata = {
     "Portal login Badan Penanggulangan Bencana Daerah Kota Baubau.",
 };
 
-export default function SignInPage() {
+export default async function SignInPage() {
+  const session = await getServerSession();
+  if (session?.user) {
+    redirect("/dashboard/profiles");
+  }
+
   return (
     <main className="relative min-h-screen overflow-hidden bg-background">
       <AuthBackground />

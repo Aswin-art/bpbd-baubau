@@ -10,10 +10,10 @@ import { MobileMenu } from "./mobile-menu";
 
 const navigation = [
   { name: "Beranda", href: "/" },
-  { name: "Berita", href: "/berita" },
-  { name: "Dokumen & SOP", href: "/dokumen" },
-  { name: "Aspirasi", href: "/aspirasi" },
-  { name: "Arsip Bencana", href: "/arsip" },
+  { name: "Berita", href: "/articles" },
+  { name: "Dokumen & SOP", href: "/documents" },
+  { name: "Aspirasi", href: "/aspirations" },
+  { name: "Arsip Bencana", href: "/archives" },
 ];
 
 function MenuToggle({
