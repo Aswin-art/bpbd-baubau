@@ -8,7 +8,6 @@ import { Download, FileText, BookMarked, MapPin } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import Wrapper from "@/components/wrapper";
-import { disasterPoints } from "@/data/dummy-data";
 import { ArsipFilter } from "./arsip-filter";
 import { DisasterMap } from "./disaster-map";
 import { ArchivesErrorFallback, ArchivesSkeleton } from "./archives-fallback";
@@ -128,8 +127,8 @@ function ArchivesClientInner() {
             </h1>
           </div>
           <p className="max-w-md text-sm leading-relaxed text-muted-foreground lg:max-w-xs lg:text-right">
-            Peta kejadian bencana dan unduhan laporan PDF. Data peta menampilkan beberapa
-            titik contoh agar mudah dipahami.
+            Peta kejadian bencana dan unduhan laporan PDF. Titik peta bersumber dari data
+            yang dikelola di dashboard BPBD.
           </p>
         </div>
       </header>
@@ -153,7 +152,7 @@ function ArchivesClientInner() {
             </div>
           </div>
         </div>
-        <DisasterMap records={disasterPoints} />
+        <DisasterMap />
       </section>
 
       <section className="mt-14" aria-labelledby="arsip-docs-heading">

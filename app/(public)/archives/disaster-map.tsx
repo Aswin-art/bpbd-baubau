@@ -48,7 +48,7 @@ export function DisasterMap({
     }
     let cancelled = false;
     setLoading(true);
-    fetch("/api/map-disasters")
+    fetch("/api/map-disasters", { cache: "no-store" })
       .then((r) => r.json())
       .then((d) => {
         if (!cancelled) {

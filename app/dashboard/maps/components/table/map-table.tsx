@@ -38,7 +38,7 @@ export function MapTable() {
         </p>
         <div className="flex flex-wrap gap-2">
           <Button size="sm" variant="outline" className="gap-1.5" asChild>
-            <Link href="/arsip" target="_blank" rel="noopener noreferrer">
+            <Link href="/archives" target="_blank" rel="noopener noreferrer">
               <MapPin className="h-4 w-4" />
               Halaman publik
               <ExternalLink className="h-3.5 w-3.5 opacity-70" />
