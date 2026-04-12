@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -24,6 +24,7 @@ import {
 } from "@/components/ui/form";
 import { cn } from "@/lib/utils";
 import { createUploadHandler, useUpload } from "@/modules/upload";
+import { authClient } from "@/lib/auth-client";
 
 import type { UserProfileResponse } from "@/modules/profiles";
 import {
@@ -46,6 +47,24 @@ class UnauthorizedError extends Error {
     super(message);
     this.name = "UnauthorizedError";
   }
+}
+
+/** BlockNote expects an array of blocks; Prisma JSON may be array, string, or null. */
+function normalizeProfileBio(bio: unknown): unknown[] {
+  if (bio == null) return [];
+  if (Array.isArray(bio)) return bio;
+  if (typeof bio === "object" && bio !== null && Array.isArray((bio as { blocks?: unknown }).blocks)) {
+    return (bio as { blocks: unknown[] }).blocks;
+  }
+  if (typeof bio === "string") {
+    try {
+      const parsed = JSON.parse(bio) as unknown;
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return [];
+    }
+  }
+  return [];
 }
 
 async function readApiJson<T>(res: Response): Promise<T> {
@@ -161,8 +180,14 @@ export default function ProfilePage() {
     },
   });
 
+  /** BlockNote Editor only reads initial `value` once; remount after reset so loaded bio appears (e.g. after login). */
+  const [bioEditorKey, setBioEditorKey] = useState<string | null>(null);
+
   useEffect(() => {
-    if (!profile) return;
+    if (!profile) {
+      setBioEditorKey(null);
+      return;
+    }
 
     const dob = profile.dateOfBirth;
     const parsedDob =
@@ -176,7 +201,7 @@ export default function ProfilePage() {
       name: profile.name || "",
       email: profile.email || "",
       photoUrl: profile.photoUrl || "",
-      bio: profile.bio || [],
+      bio: normalizeProfileBio(profile.bio) as UpdateMyProfileInput["bio"],
       phoneNumber: profile.phoneNumber || "",
       homeAddress: profile.homeAddress || "",
       dateOfBirth: parsedDob,
@@ -184,11 +209,27 @@ export default function ProfilePage() {
       newPassword: "",
       confirmPassword: "",
     });
+    const updated =
+      profile.updatedAt instanceof Date
+        ? profile.updatedAt.toISOString()
+        : String(profile.updatedAt ?? "");
+    setBioEditorKey(`${profile.id}-${updated}`);
   }, [profile, form]);
 
   const { mutateAsync, isPending } = useMutation({
     mutationFn: patchProfile,
-    onSuccess: async () => {
+    onSuccess: async (_data, variables) => {
+      const changedPassword = Boolean(variables.newPassword?.length);
+      if (changedPassword) {
+        toast.success("Kata sandi berhasil diubah. Silakan masuk kembali.");
+        form.setValue("currentPassword", "");
+        form.setValue("newPassword", "");
+        form.setValue("confirmPassword", "");
+        await authClient.signOut();
+        queryClient.clear();
+        router.replace("/sign-in");
+        return;
+      }
       toast.success("Profil berhasil diperbarui.");
       await queryClient.invalidateQueries({ queryKey: ["myProfile"] });
       form.setValue("currentPassword", "");
@@ -388,11 +429,19 @@ export default function ProfilePage() {
                     <FormItem>
                       <FormControl>
                         <div className="rounded-xl border bg-card px-4 py-2 min-h-25">
-                          <Editor
-                            value={field.value || []}
-                            onChange={field.onChange}
-                            scope="general"
-                          />
+                          {bioEditorKey ? (
+                            <Editor
+                              key={bioEditorKey}
+                              value={(field.value as unknown[]) || []}
+                              onChange={field.onChange}
+                              scope="general"
+                            />
+                          ) : (
+                            <div
+                              className="min-h-[120px] rounded-lg bg-muted/40 animate-pulse"
+                              aria-hidden
+                            />
+                          )}
                         </div>
                       </FormControl>
                       <FormMessage />

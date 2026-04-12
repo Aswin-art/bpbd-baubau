@@ -1,7 +1,6 @@
 import { AppError } from "@/lib/app-error";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
-import bcrypt from "bcryptjs";
 import { profileRepository } from "./profiles.repository";
 import { UpdateMyProfileInput } from "./profiles.dto";
 
@@ -34,12 +33,10 @@ export const profileService = {
     }
 
     if (role !== "lecturer") {
-      // Admin / other role: no domain bio
       return {
         type: "user" as const,
         user: {
           ...user,
-          bio: null,
         },
       };
     }
@@ -84,39 +81,36 @@ export const profileService = {
       input.homeAddress !== undefined ||
       input.dateOfBirth !== undefined;
 
-    if (role === "admin" && wantsBioUpdate) {
-      throw AppError.badRequest("Admin does not have a bio", "ADMIN_NO_BIO");
-    }
-
-    if (role === "admin" && wantsDomainUpdate) {
-      throw AppError.badRequest(
-        "Admin does not have domain profile",
-        "ADMIN_NO_DOMAIN_PROFILE",
-      );
-    }
-
-    // Password change:
-    // IMPORTANT: do NOT call auth.api.signInEmail here.
-    // It can create session/auth side effects. We only need password verification.
+    // Password: Better Auth stores the hash on Account (credential), not User.password;
+    // hashing is scrypt — never use bcrypt.compare against User.password.
     if (input.currentPassword && input.newPassword) {
-      const passwordRow =
-        await profileRepository.getUserPasswordHashById(userId);
-      const passwordHash = passwordRow?.password;
-
-      // If user doesn't have a password set (e.g. social-only account), block change.
-      if (!passwordHash) {
-        throw AppError.badRequest(
-          "Password is not set for this account",
-          "PASSWORD_NOT_SET",
-        );
-      }
-
-      const ok = await bcrypt.compare(input.currentPassword, passwordHash);
-      if (!ok) {
-        throw AppError.badRequest(
-          "Current password is incorrect",
-          "CURRENT_PASSWORD_INCORRECT",
-        );
+      try {
+        await auth.api.changePassword({
+          body: {
+            currentPassword: input.currentPassword,
+            newPassword: input.newPassword,
+            revokeOtherSessions: true,
+          },
+          headers: await headers(),
+        });
+      } catch (err: unknown) {
+        const msg =
+          err && typeof err === "object" && "message" in err
+            ? String((err as { message: unknown }).message)
+            : "Gagal mengubah kata sandi";
+        const lower = msg.toLowerCase();
+        if (
+          lower.includes("invalid password") ||
+          lower.includes("incorrect password") ||
+          lower.includes("wrong password") ||
+          lower.includes("current password")
+        ) {
+          throw AppError.badRequest(
+            "Kata sandi saat ini tidak benar",
+            "CURRENT_PASSWORD_INCORRECT",
+          );
+        }
+        throw AppError.badRequest(msg, "PASSWORD_CHANGE_FAILED");
       }
     }
 
@@ -145,13 +139,6 @@ export const profileService = {
 
     if (!updatedUser) {
       throw AppError.notFound("User not found", "USER_NOT_FOUND");
-    }
-
-    if (input.currentPassword && input.newPassword) {
-      await auth.api.setUserPassword({
-        body: { userId, newPassword: input.newPassword },
-        headers: await headers(),
-      });
     }
 
     // Return latest in GET shape

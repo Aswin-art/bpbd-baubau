@@ -20,13 +20,6 @@ export const profileRepository = {
     });
   },
 
-  getUserPasswordHashById(userId: string) {
-    return db.user.findUnique({
-      where: { id: userId },
-      select: { password: true },
-    });
-  },
-
   updateUser(userId: string, data: Record<string, unknown>) {
     return db.user.update({
       where: { id: userId },
