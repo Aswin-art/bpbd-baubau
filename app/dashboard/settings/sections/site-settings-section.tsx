@@ -252,7 +252,7 @@ export function SiteSettingsSection() {
                 name="structurePhotoUrl"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Foto struktur organisasi (URL)</FormLabel>
+                    <FormLabel>Diagram struktur organisasi</FormLabel>
                     <FormControl>
                       <FileUpload
                         value={field.value ?? ""}
@@ -261,6 +261,11 @@ export function SiteSettingsSection() {
                         aspectRatio={4 / 3}
                       />
                     </FormControl>
+                    <FormDescription>
+                      Hanya dipakai di halaman{" "}
+                      <span className="font-medium text-foreground">Profil</span>{" "}
+                      (bagian diagram struktur).
+                    </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -271,7 +276,7 @@ export function SiteSettingsSection() {
                 name="officePhotoUrl"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Foto kantor (URL)</FormLabel>
+                    <FormLabel>Foto kantor</FormLabel>
                     <FormControl>
                       <FileUpload
                         value={field.value ?? ""}
@@ -280,6 +285,11 @@ export function SiteSettingsSection() {
                         aspectRatio={4 / 3}
                       />
                     </FormControl>
+                    <FormDescription>
+                      Dipakai di{" "}
+                      <span className="font-medium text-foreground">Beranda</span>
+                      , bagian &quot;Tentang Kami&quot; (kolom gambar).
+                    </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}

@@ -9,7 +9,6 @@ type PublicSiteSettings = {
   objectives?: string | null;
   goals?: string | null;
   structurePhotoUrl?: string | null;
-  officePhotoUrl?: string | null;
   mapEmbedUrl?: string | null;
   contactEmail?: string | null;
   contactPhone?: string | null;
@@ -36,7 +35,6 @@ export function ProfilesClient() {
   const phone = settings.contactPhone || "(0402) 2821110";
   const email = settings.contactEmail || "bpbd@baubau.go.id";
   const structureImage = settings.structurePhotoUrl || "/struktur-kepengurusan.svg";
-  const officePhoto = settings.officePhotoUrl || null;
   const mapEmbedUrl = settings.mapEmbedUrl || null;
   const objectives = settings.objectives || null;
   const goals = settings.goals || null;
@@ -187,26 +185,6 @@ export function ProfilesClient() {
                 />
               </div>
             </div>
-
-            {officePhoto ? (
-              <div className="overflow-hidden rounded-2xl border border-border/60 bg-background">
-                <div className="border-b border-border px-5 py-4">
-                  <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.3em] text-muted-foreground">
-                    Foto kantor
-                  </p>
-                </div>
-                <div className="relative aspect-video bg-muted">
-                  <Image
-                    src={officePhoto}
-                    alt="Foto kantor BPBD Kota Baubau"
-                    fill
-                    className="object-cover"
-                    sizes="(max-width: 1024px) 100vw, 1200px"
-                    priority={false}
-                  />
-                </div>
-              </div>
-            ) : null}
 
             {mapEmbedUrl ? (
               <div className="overflow-hidden rounded-2xl border border-border/60 bg-background">
@@ -372,8 +350,8 @@ export function ProfilesClient() {
                 <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
                   Konten halaman ini bisa diubah dari Dashboard &rarr; Settings.
                   Gunakan field <span className="font-semibold">Objective</span>,{" "}
-                  <span className="font-semibold">Goals</span>, foto struktur, dan
-                  map embed.
+                  <span className="font-semibold">Goals</span>, gambar diagram
+                  struktur, dan map embed.
                 </p>
               </div>
             </div>

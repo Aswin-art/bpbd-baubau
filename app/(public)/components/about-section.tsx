@@ -8,11 +8,15 @@ import Wrapper from "@/components/wrapper";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { getBaseUrl } from "@/lib/url";
 
-const PROFILE_IMAGE =
-  "https://picsum.photos/seed/bpbd-about-profile/800/1000";
+const OFFICE_PLACEHOLDER_IMAGE =
+  "https://picsum.photos/seed/bpbd-office-about/800/1000";
 
 async function fetchPublicSiteSettings(): Promise<{
-  settings: { contactPhone?: string | null; structurePhotoUrl?: string | null };
+  settings: {
+    contactPhone?: string | null;
+    officePhotoUrl?: string | null;
+    aboutDescription?: string | null;
+  };
 }> {
   const res = await fetch(`${getBaseUrl()}/api/public/site-settings`, {
     cache: "no-store",
@@ -28,7 +32,9 @@ export function AboutSection() {
   });
 
   const emergencyNumber = data?.settings?.contactPhone ?? "-";
-  const profileImageUrl = data?.settings?.structurePhotoUrl ?? PROFILE_IMAGE;
+  const officeImageUrl =
+    data?.settings?.officePhotoUrl ?? OFFICE_PLACEHOLDER_IMAGE;
+  const aboutDescription = data?.settings?.aboutDescription?.trim() || null;
 
   return (
     <section className="relative z-10 pb-16 sm:pb-20">
@@ -45,18 +51,30 @@ export function AboutSection() {
                 Menjaga Kota Baubau
                 <span className="text-primary"> Tetap Tangguh</span>
               </h2>
-              <p className="text-[15px] leading-relaxed text-muted-foreground">
-                Badan Penanggulangan Bencana Daerah (BPBD) Kota Baubau hadir
-                sebagai garda terdepan dalam melindungi masyarakat dari ancaman
-                bencana. Kami bergerak di tiga pilar utama: pencegahan &amp;
-                mitigasi, kesiapsiagaan, serta penanganan darurat dan pemulihan
-                pasca bencana.
-              </p>
-              <p className="text-[15px] leading-relaxed text-muted-foreground">
-                Melalui pelatihan rutin, edukasi masyarakat, dan koordinasi
-                lintas sektor, kami membangun budaya sadar bencana yang dimulai
-                dari tingkat kelurahan hingga kota.
-              </p>
+              {aboutDescription ? (
+                <div className="space-y-4 text-[15px] leading-relaxed text-muted-foreground">
+                  {aboutDescription.split(/\n\n+/).map((block, i) => (
+                    <p key={i} className="text-pretty">
+                      {block}
+                    </p>
+                  ))}
+                </div>
+              ) : (
+                <>
+                  <p className="text-[15px] leading-relaxed text-muted-foreground">
+                    Badan Penanggulangan Bencana Daerah (BPBD) Kota Baubau hadir
+                    sebagai garda terdepan dalam melindungi masyarakat dari ancaman
+                    bencana. Kami bergerak di tiga pilar utama: pencegahan &amp;
+                    mitigasi, kesiapsiagaan, serta penanganan darurat dan pemulihan
+                    pasca bencana.
+                  </p>
+                  <p className="text-[15px] leading-relaxed text-muted-foreground">
+                    Melalui pelatihan rutin, edukasi masyarakat, dan koordinasi
+                    lintas sektor, kami membangun budaya sadar bencana yang dimulai
+                    dari tingkat kelurahan hingga kota.
+                  </p>
+                </>
+              )}
             </div>
 
             {/* Quick links (responsive untuk kolom teks yang sempit) */}
@@ -121,8 +139,8 @@ export function AboutSection() {
           <div className="lg:col-span-6 lg:order-1">
             <div className="relative mx-auto aspect-4/5 w-full max-w-md overflow-hidden rounded-2xl bg-muted shadow-lg ring-1 ring-border/60 sm:max-w-lg lg:mx-0 lg:max-w-none">
           <Image
-            src={profileImageUrl}
-            alt="Profil pimpinan BPBD Kota Baubau"
+            src={officeImageUrl}
+            alt="Foto kantor BPBD Kota Baubau"
             fill
             className="object-cover"
             sizes="(max-width: 1024px) 100vw, 50vw"

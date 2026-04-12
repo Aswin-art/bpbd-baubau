@@ -1,14 +1,14 @@
 "use client";
 
-import { ColumnDef } from "@tanstack/react-table";
+import type { ColumnDef } from "@tanstack/react-table";
 import Image from "next/image";
 
 import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
 import { DataTableColumnHeader } from "@/components/datatable/table-header";
 import { formatDateTime } from "@/helpers/date";
 import { CellAction } from "./cell-action";
 import type { Aspiration } from "./aspirations-table";
-import { cn } from "@/lib/utils";
 
 export type { Aspiration };
 
@@ -17,28 +17,6 @@ const aspirationStatusLabels: Record<Aspiration["status"], string> = {
   in_progress: "Diproses",
   completed: "Selesai",
   rejected: "Ditolak",
-};
-
-const statusStyle: Record<
-  Aspiration["status"],
-  { variant: "default" | "secondary" | "destructive" | "outline"; className: string }
-> = {
-  pending: {
-    variant: "outline",
-    className: "bg-amber-50 text-amber-800 border-amber-200/60",
-  },
-  in_progress: {
-    variant: "outline",
-    className: "bg-blue-50 text-blue-800 border-blue-200/60",
-  },
-  completed: {
-    variant: "outline",
-    className: "bg-emerald-50 text-emerald-800 border-emerald-200/60",
-  },
-  rejected: {
-    variant: "outline",
-    className: "bg-red-50 text-red-800 border-red-200/60",
-  },
 };
 
 function getDescriptionPreview(description: unknown): string {
@@ -59,6 +37,28 @@ function getDescriptionPreview(description: unknown): string {
 
 export function useColumns(): ColumnDef<Aspiration>[] {
   return [
+    {
+      id: "select",
+      header: ({ table }) => (
+        <Checkbox
+          checked={
+            table.getIsAllPageRowsSelected() ||
+            (table.getIsSomePageRowsSelected() && "indeterminate")
+          }
+          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+          aria-label="Pilih semua"
+        />
+      ),
+      cell: ({ row }) => (
+        <Checkbox
+          checked={row.getIsSelected()}
+          onCheckedChange={(value) => row.toggleSelected(!!value)}
+          aria-label="Pilih baris"
+        />
+      ),
+      enableSorting: false,
+      enableHiding: false,
+    },
     {
       accessorKey: "submitterName",
       header: ({ column }) => (
@@ -99,15 +99,8 @@ export function useColumns(): ColumnDef<Aspiration>[] {
       ),
       cell: ({ row }) => {
         const st = row.original.status;
-        const style = statusStyle[st];
         return (
-          <Badge
-            variant={style?.variant || "outline"}
-            className={cn(
-              "capitalize shadow-sm rounded-full px-2.5 py-0.5 text-xs font-medium",
-              style?.className,
-            )}
-          >
+          <Badge variant="outline" className="capitalize font-medium text-xs px-2.5 py-0.5">
             {aspirationStatusLabels[st]}
           </Badge>
         );

@@ -149,14 +149,14 @@ const Navbar = () => {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.25 }}
-              className="fixed inset-0 z-60 flex flex-col overflow-hidden bg-black text-white"
+              className="fixed inset-0 z-60 flex flex-col overflow-hidden bg-white text-zinc-950"
             >
-              {/* grain */}
-              <div className="pointer-events-none absolute inset-0 opacity-25 mix-blend-overlay">
-                <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-60 brightness-100 contrast-150" />
+              {/* subtle grain (same spirit as main nav, tuned for light bg) */}
+              <div className="pointer-events-none absolute inset-0 opacity-[0.07] mix-blend-multiply">
+                <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
               </div>
 
-              <div className="relative flex items-center justify-between border-b border-white/10 px-5 py-5">
+              <div className="relative flex items-center justify-between border-b border-black/10 px-5 py-5">
                 <Link
                   href="/"
                   onClick={() => setIsMobileMenuOpen(false)}
@@ -174,7 +174,7 @@ const Navbar = () => {
                   type="button"
                   onClick={toggleMenu}
                   aria-label="Tutup menu"
-                  className="flex h-10 w-10 items-center justify-center rounded-full border border-white/15 bg-white/5 text-white transition-colors hover:bg-white/10"
+                  className="flex h-10 w-10 items-center justify-center rounded-full border border-black/10 bg-zinc-100 text-zinc-950 transition-colors hover:bg-zinc-200"
                 >
                   <X size={20} aria-hidden />
                 </button>
@@ -192,8 +192,8 @@ const Navbar = () => {
                         className={cn(
                           "rounded-2xl border px-5 py-4 text-lg font-semibold tracking-tight transition-colors",
                           active
-                            ? "border-white/20 bg-white/10 text-white"
-                            : "border-white/10 bg-transparent text-white/85 hover:bg-white/10 hover:text-white",
+                            ? "border-primary/25 bg-primary/10 text-zinc-950"
+                            : "border-black/10 bg-zinc-50/80 text-zinc-800 hover:border-black/15 hover:bg-zinc-100 hover:text-zinc-950",
                         )}
                       >
                         {item.name}
@@ -203,7 +203,10 @@ const Navbar = () => {
                 </nav>
 
                 <div className="mt-10 grid gap-3">
-                  <Button asChild className="h-12 w-full rounded-full bg-white/95 text-black hover:bg-white">
+                  <Button
+                    asChild
+                    className="h-12 w-full rounded-full bg-zinc-950 text-white hover:bg-zinc-900"
+                  >
                     <Link
                       href={session?.user ? "/dashboard/profiles" : "/sign-in"}
                       onClick={() => setIsMobileMenuOpen(false)}
@@ -216,7 +219,7 @@ const Navbar = () => {
                   <Button
                     asChild
                     variant="outline"
-                    className="h-12 w-full rounded-full border-white/20 bg-transparent text-white hover:bg-white/10 hover:text-white"
+                    className="h-12 w-full rounded-full border-black/15 bg-transparent text-zinc-950 hover:bg-zinc-100 hover:text-zinc-950"
                   >
                     <a href="tel:04022821110">
                       Hubungi posko darurat

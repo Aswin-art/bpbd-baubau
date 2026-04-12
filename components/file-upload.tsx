@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import Image from "next/image";
 import ReactCrop, {
   type Crop,
@@ -77,6 +77,7 @@ export default function FileUpload(props: FileUploadProps) {
   const [imageSrc, setImageSrc] = useState<string | null>(null);
   const [crop, setCrop] = useState<Crop>();
   const [completedCrop, setCompletedCrop] = useState<PixelCrop | null>(null);
+  const cropImageRef = useRef<HTMLImageElement | null>(null);
 
   function onImageLoad(e: React.SyntheticEvent<HTMLImageElement>) {
     const { width, height } = e.currentTarget;
@@ -256,7 +257,12 @@ export default function FileUpload(props: FileUploadProps) {
         completedCrop.width > 0 &&
         completedCrop.height > 0
       ) {
-        croppedBlob = await getCroppedImg(imageSrc, completedCrop as Area);
+        croppedBlob = await getCroppedImg(
+          imageSrc,
+          completedCrop as Area,
+          "image/jpeg",
+          cropImageRef.current,
+        );
       } else {
         // full image fallback
         const r = await fetch(imageSrc);
@@ -294,6 +300,9 @@ export default function FileUpload(props: FileUploadProps) {
   };
 
   const handleClose = () => {
+    if (imageSrc?.startsWith("blob:")) {
+      URL.revokeObjectURL(imageSrc);
+    }
     setImageSrc(null);
     setCrop(undefined);
     setCompletedCrop(null);
@@ -467,28 +476,34 @@ export default function FileUpload(props: FileUploadProps) {
       )}
 
       {!multiple && (
-        <Dialog open={!!imageSrc} onOpenChange={() => setImageSrc(null)}>
+        <Dialog
+          open={!!imageSrc}
+          onOpenChange={(open) => {
+            if (!open) handleClose();
+          }}
+        >
           <DialogContent className="sm:max-w-150">
             <DialogHeader>
               <DialogTitle>Sesuaikan Gambar</DialogTitle>
             </DialogHeader>
 
-            <div className="relative flex w-full items-center justify-center overflow-hidden rounded-md border bg-background h-75">
+            <div className="relative flex w-full min-h-0 items-center justify-center overflow-auto rounded-md border bg-background max-h-[min(60vh,28rem)] p-2">
               {imageSrc && (
-                <div className="flex justify-center items-center w-full h-full">
+                <div className="flex justify-center items-center w-full min-h-0">
                   <ReactCrop
                     crop={crop}
                     onChange={(_, percentCrop) => setCrop(percentCrop)}
                     onComplete={(c) => setCompletedCrop(c)}
                     aspect={aspectRatio}
-                    className="max-h-full"
+                    className="max-w-full"
                   >
                     <img
+                      ref={cropImageRef}
                       alt="Upload"
                       src={imageSrc}
                       onLoad={onImageLoad}
-                      className="max-w-full object-contain"
-                      style={{ maxHeight: "calc(60vh - 2rem)" }} // Account for padding
+                      className="block h-auto w-auto max-w-full max-h-[min(56vh,26rem)]"
+                      draggable={false}
                     />
                   </ReactCrop>
                 </div>
