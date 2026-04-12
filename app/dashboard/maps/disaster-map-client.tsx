@@ -33,6 +33,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { DisasterMap } from "@/app/(public)/archives/disaster-map";
+import { PG_INT32_MAX } from "@/lib/pg-int32";
 import type { MapDisasterPointDTO } from "@/lib/map-disaster-types";
 import type { MapDisasterCreateInput } from "@/lib/map-disaster-zod";
 import { DataTable } from "@/components/datatable/table-data";
@@ -373,10 +374,16 @@ export function DisasterMapClient() {
                   id="cas"
                   type="number"
                   min={0}
+                  max={PG_INT32_MAX}
                   value={form.casualties}
-                  onChange={(e) =>
-                    updateField("casualties", parseInt(e.target.value, 10) || 0)
-                  }
+                  onChange={(e) => {
+                    const n = parseInt(e.target.value, 10);
+                    const v = Number.isFinite(n) ? n : 0;
+                    updateField(
+                      "casualties",
+                      Math.min(Math.max(0, v), PG_INT32_MAX),
+                    );
+                  }}
                 />
               </div>
               <div className="space-y-2">
@@ -385,10 +392,16 @@ export function DisasterMapClient() {
                   id="dis"
                   type="number"
                   min={0}
+                  max={PG_INT32_MAX}
                   value={form.displaced}
-                  onChange={(e) =>
-                    updateField("displaced", parseInt(e.target.value, 10) || 0)
-                  }
+                  onChange={(e) => {
+                    const n = parseInt(e.target.value, 10);
+                    const v = Number.isFinite(n) ? n : 0;
+                    updateField(
+                      "displaced",
+                      Math.min(Math.max(0, v), PG_INT32_MAX),
+                    );
+                  }}
                 />
               </div>
             </div>

@@ -5,6 +5,7 @@ import { AppError } from "@/lib/app-error";
 import { getServerSession } from "@/lib/server";
 import { checkPermission } from "@/lib/permission-cache";
 import db from "@/lib/db";
+import { parsePgInt32Count } from "@/lib/pg-int32";
 
 function toIso(v: Date | string) {
   return v instanceof Date ? v.toISOString() : v;
@@ -66,10 +67,10 @@ export const PATCH = apiHandler(async (req: NextRequest, context) => {
         : {}),
       ...(body.date !== undefined ? { date: String(body.date).trim() } : {}),
       ...(body.casualties !== undefined
-        ? { casualties: Number(body.casualties || 0) }
+        ? { casualties: parsePgInt32Count(body.casualties, "Korban jiwa") }
         : {}),
       ...(body.displaced !== undefined
-        ? { displaced: Number(body.displaced || 0) }
+        ? { displaced: parsePgInt32Count(body.displaced, "Mengungsi") }
         : {}),
       ...(body.description !== undefined ? { description: body.description as any } : {}),
       ...(body.image !== undefined

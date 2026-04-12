@@ -25,8 +25,23 @@ import { SearchSelect } from "@/components/ui/search-select";
 import { DatePicker } from "@/components/ui/date-picker";
 import FileUpload from "@/components/file-upload";
 import { createMultipleUploadHandler, useMultipleUpload } from "@/modules/upload";
+import { PG_INT32_MAX } from "@/lib/pg-int32";
 
 const BAUBAU_CENTER = { latitude: -5.48, longitude: 122.6, zoom: 12 };
+
+/** Unwrap `{ status, data }` from apiSuccess or use a raw array. */
+function unwrapApiList(raw: unknown): unknown[] {
+  if (Array.isArray(raw)) return raw;
+  if (
+    raw &&
+    typeof raw === "object" &&
+    "data" in raw &&
+    Array.isArray((raw as { data: unknown }).data)
+  ) {
+    return (raw as { data: unknown[] }).data;
+  }
+  return [];
+}
 
 interface MapFormProps {
   initialData?: MapDisasterPointDTO;
@@ -37,7 +52,7 @@ export function MapForm({ initialData }: MapFormProps) {
   const isEdit = !!initialData;
 
   const [form, setForm] = useState({
-    type: initialData?.type ?? "",
+    type: initialData?.type ?? "Banjir",
     location: initialData?.location ?? "",
     kecamatan: initialData?.kecamatan ?? "",
     date: initialData?.date ?? "",
@@ -56,13 +71,40 @@ export function MapForm({ initialData }: MapFormProps) {
   const uploadMutation = useMultipleUpload({ scope: "maps" });
   const onUpload = createMultipleUploadHandler(uploadMutation);
 
+  /**
+   * Hanya digit; nol di depan dibuang (0123 → 123). Dipakai dengan input teks + value String(n)
+   * supaya tampilan tidak bisa “nempel” seperti di type="number".
+   */
+  function parseCountField(raw: string): number {
+    const digits = raw.replace(/\D/g, "");
+    if (digits === "") return 0;
+    const trimmed = digits.replace(/^0+/, "") || "0";
+    const n = parseInt(trimmed, 10);
+    if (!Number.isFinite(n)) return 0;
+    return Math.min(Math.max(0, n), PG_INT32_MAX);
+  }
+
   function handleChange(
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) {
-    const { name, value, type } = e.target;
+    const target = e.target;
+    const { name, value } = target;
+    const type = (target as HTMLInputElement).type;
+
+    if (type === "number") {
+      if (name === "lat" || name === "lng") {
+        const n = parseFloat(String(value).replace(/,/g, "."));
+        setForm((prev) => ({
+          ...prev,
+          [name]: Number.isFinite(n) ? n : 0,
+        }));
+        return;
+      }
+    }
+
     setForm((prev) => ({
       ...prev,
-      [name]: type === "number" ? (parseFloat(value) || 0) : value,
+      [name]: value,
     }));
   }
 
@@ -165,17 +207,16 @@ export function MapForm({ initialData }: MapFormProps) {
             <Label htmlFor="type">Jenis Bencana</Label>
             <SearchSelect
               apiEndpoint="/api/dashboard/maps/categories"
-              placeholder="Pilih / ketik kategori bencana"
+              placeholder="Pilih / ketik jenis lain jika tidak ada di daftar"
               value={form.type || null}
-              onChange={(v) => setForm((f) => ({ ...f, type: v || "" }))}
+              onChange={(v) => setForm((f) => ({ ...f, type: v || "Banjir" }))}
               creatable
-              responseMapper={(data) => {
-                const arr = Array.isArray(data) ? data : [];
-                return arr
+              responseMapper={(data) =>
+                unwrapApiList(data)
                   .map((c) => String(c))
                   .filter(Boolean)
-                  .map((c) => ({ id: c, label: c }));
-              }}
+                  .map((c) => ({ id: c, label: c }))
+              }
             />
           </div>
 
@@ -280,10 +321,17 @@ export function MapForm({ initialData }: MapFormProps) {
               <Input
                 id="casualties"
                 name="casualties"
-                type="number"
-                min={0}
-                value={form.casualties}
-                onChange={handleChange}
+                type="text"
+                inputMode="numeric"
+                autoComplete="off"
+                className="tabular-nums"
+                value={String(form.casualties)}
+                onChange={(e) =>
+                  setForm((f) => ({
+                    ...f,
+                    casualties: parseCountField(e.target.value),
+                  }))
+                }
               />
             </div>
             <div className="space-y-2">
@@ -291,10 +339,17 @@ export function MapForm({ initialData }: MapFormProps) {
               <Input
                 id="displaced"
                 name="displaced"
-                type="number"
-                min={0}
-                value={form.displaced}
-                onChange={handleChange}
+                type="text"
+                inputMode="numeric"
+                autoComplete="off"
+                className="tabular-nums"
+                value={String(form.displaced)}
+                onChange={(e) =>
+                  setForm((f) => ({
+                    ...f,
+                    displaced: parseCountField(e.target.value),
+                  }))
+                }
               />
             </div>
           </div>

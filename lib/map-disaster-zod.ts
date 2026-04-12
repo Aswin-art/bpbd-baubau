@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+import { PG_INT32_MAX } from "@/lib/pg-int32";
+
 export const mapDisasterCreateSchema = z.object({
   type: z.string().min(1),
   location: z.string().min(1),
@@ -9,8 +11,8 @@ export const mapDisasterCreateSchema = z.object({
   image: z.string().url(),
   lat: z.number(),
   lng: z.number(),
-  casualties: z.number().int().min(0).default(0),
-  displaced: z.number().int().min(0).default(0),
+  casualties: z.number().int().min(0).max(PG_INT32_MAX).default(0),
+  displaced: z.number().int().min(0).max(PG_INT32_MAX).default(0),
 });
 
 export type MapDisasterCreateInput = z.infer<typeof mapDisasterCreateSchema>;
