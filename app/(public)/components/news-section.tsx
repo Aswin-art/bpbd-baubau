@@ -2,11 +2,9 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowRight, ArrowUpRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import Wrapper from "@/components/wrapper";
-import {
-  useSuspenseQuery,
-} from "@tanstack/react-query";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { getBaseUrl } from "@/lib/url";
 
 type NewsItem = {
@@ -19,25 +17,6 @@ type NewsItem = {
   publishedAt: string | null;
 };
 
-function getCategoryLabel(category: string) {
-  const c = category.trim().toLowerCase();
-  if (c === "kebencanaan") return "Kebencanaan";
-  if (c === "kegiatan") return "Kegiatan";
-  if (c === "pengumuman") return "Pengumuman";
-  return category || "Lainnya";
-}
-
-function formatDateLabel(iso: string | null) {
-  if (!iso) return "";
-  const dt = new Date(iso);
-  if (Number.isNaN(dt.getTime())) return "";
-  return new Intl.DateTimeFormat("id-ID", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-  }).format(dt);
-}
-
 async function fetchLatestNews(): Promise<{ items: NewsItem[] }> {
   const res = await fetch(`${getBaseUrl()}/api/public/news?limit=10`, {
     cache: "no-store",
@@ -46,134 +25,93 @@ async function fetchLatestNews(): Promise<{ items: NewsItem[] }> {
   return res.json();
 }
 
-function FeaturedStory({ news }: { news: NewsItem }) {
+/** Variasi rasio gambar biar grid punya irama (bukan deretan kartu identik). */
+function gridAspectClass(i: number) {
+  const m = i % 4;
+  if (m === 0) return "aspect-4/3";
+  if (m === 1) return "aspect-3/4";
+  if (m === 2) return "aspect-16/10";
+  return "aspect-square";
+}
+
+function NewsLead({ news, index }: { news: NewsItem; index: number }) {
+  const n = String(index).padStart(2, "0");
   return (
-    <Link href={`/articles/${news.slug}`} className="group block">
-      <article className="relative overflow-hidden rounded-2xl border border-border/60 bg-muted">
-        <div className="relative aspect-video w-full">
-          {news.thumbnailUrl ? (
-            <Image
-              src={news.thumbnailUrl}
-              alt={news.title}
-              fill
-              sizes="(max-width: 1024px) 100vw, 70vw"
-              className="object-cover transition-transform duration-700 group-hover:scale-[1.03]"
-              priority
-            />
-          ) : null}
-          <div className="pointer-events-none absolute inset-0 bg-linear-to-t from-black/70 via-black/20 to-transparent" />
-        </div>
-
-        <div className="absolute inset-0 flex flex-col justify-end p-6 sm:p-8">
-          <div className="flex flex-wrap items-center gap-3 text-white/85">
-            <span className="inline-flex items-center gap-2 font-mono text-[11px] font-semibold uppercase tracking-[0.28em]">
-              <span className="h-2 w-2 rounded-full bg-primary shadow-[0_0_0_4px_rgba(255,255,255,0.08)]" />
-              {getCategoryLabel(news.category)}
-            </span>
-            <span className="text-[12px] text-white/70">
-              {formatDateLabel(news.publishedAt)}
-            </span>
+    <Link
+      href={`/articles/${news.slug}`}
+      className="group block border-l-2 border-transparent pl-4 transition-[border-color] duration-200 hover:border-primary sm:pl-6"
+    >
+      <article className="grid gap-8 lg:grid-cols-12 lg:gap-10 lg:items-end">
+        <div className="lg:col-span-7">
+          <div className="relative aspect-21/10 overflow-hidden bg-muted">
+            {news.thumbnailUrl ? (
+              <Image
+                src={news.thumbnailUrl}
+                alt={news.title}
+                fill
+                priority
+                sizes="(max-width: 1024px) 100vw, 58vw"
+                className="object-cover transition-transform duration-500 ease-out group-hover:scale-[1.02]"
+              />
+            ) : (
+              <div className="absolute inset-0 bg-muted" />
+            )}
           </div>
-
-          <h3 className="mt-4 text-balance font-heading text-3xl font-semibold leading-[1.05] tracking-tight text-white sm:text-4xl">
+        </div>
+        <div className="lg:col-span-5">
+          <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.38em] text-muted-foreground">
+            {n} — utama
+          </p>
+          <h3 className="mt-4 text-balance font-heading text-3xl font-semibold leading-[1.05] tracking-tight text-foreground transition-colors group-hover:text-primary sm:text-4xl lg:text-[2.75rem]">
             {news.title}
           </h3>
-
-          <p className="mt-4 max-w-3xl text-pretty text-[14px] leading-relaxed text-white/75 line-clamp-2 sm:text-[15px]">
-            {news.excerpt ?? ""}
-          </p>
-
-          <div className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-white/90 transition-colors group-hover:text-white">
-            Baca selengkapnya
-            <ArrowUpRight className="h-4 w-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
-          </div>
         </div>
       </article>
     </Link>
   );
 }
 
-function StoryListItem({
+function NewsGridItem({
   news,
   index,
+  gridIndex,
 }: {
   news: NewsItem;
   index: number;
+  gridIndex: number;
 }) {
+  const n = String(index).padStart(2, "0");
   return (
-    <Link href={`/articles/${news.slug}`} className="group block">
-      <article className="grid grid-cols-[auto_1fr] gap-4 border-t border-border/60 py-5">
-        <div className="pt-0.5">
-          <span className="block w-10 text-right font-mono text-[12px] font-semibold tabular-nums text-muted-foreground/70">
-            {String(index).padStart(2, "0")}
-          </span>
-        </div>
-
-        <div className="min-w-0">
-          <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-            <span className="font-mono text-[11px] font-semibold uppercase tracking-[0.22em] text-foreground/65">
-              {getCategoryLabel(news.category)}
-            </span>
-            <span className="text-[12px] text-muted-foreground">
-              {formatDateLabel(news.publishedAt)}
-            </span>
-          </div>
-
-          <div className="mt-2 flex items-start justify-between gap-4">
-            <h3 className="text-balance font-heading text-[18px] font-semibold leading-snug text-foreground transition-colors group-hover:text-primary line-clamp-2">
-              {news.title}
-            </h3>
-            <span className="mt-1 shrink-0 text-muted-foreground transition-colors group-hover:text-primary">
-              <ArrowUpRight className="h-4 w-4" />
-            </span>
-          </div>
-
-          <p className="mt-2 hidden text-[13px] leading-relaxed text-muted-foreground sm:block line-clamp-1">
-            {news.excerpt ?? ""}
+    <div className="break-inside-avoid">
+      <Link
+        href={`/articles/${news.slug}`}
+        className="group block border-l-2 border-transparent pl-3 transition-[border-color] duration-200 hover:border-primary sm:pl-4"
+      >
+        <article>
+          <p className="font-mono text-[10px] font-semibold tabular-nums uppercase tracking-[0.38em] text-muted-foreground">
+            {n}
           </p>
-        </div>
-      </article>
-    </Link>
-  );
-}
-
-function NewsCard({ news }: { news: NewsItem }) {
-  return (
-    <Link href={`/articles/${news.slug}`} className="group block">
-      <article className="overflow-hidden rounded-2xl border border-border/60 bg-background transition-colors hover:bg-muted/20">
-        <div className="relative aspect-16/10 w-full bg-muted">
-          {news.thumbnailUrl ? (
-            <Image
-              src={news.thumbnailUrl}
-              alt={news.title}
-              fill
-              sizes="(max-width: 1024px) 100vw, 33vw"
-              className="object-cover transition-transform duration-700 group-hover:scale-[1.03]"
-            />
-          ) : null}
-          <div className="pointer-events-none absolute inset-0 bg-linear-to-t from-black/25 via-black/0 to-black/0 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-        </div>
-
-        <div className="p-5">
-          <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-            <span className="font-mono text-[11px] font-semibold uppercase tracking-[0.22em] text-foreground/65">
-              {getCategoryLabel(news.category)}
-            </span>
-            <span className="text-[12px] text-muted-foreground">
-              {formatDateLabel(news.publishedAt)}
-            </span>
+          <div
+            className={`relative mt-3 overflow-hidden bg-muted ${gridAspectClass(gridIndex)}`}
+          >
+            {news.thumbnailUrl ? (
+              <Image
+                src={news.thumbnailUrl}
+                alt={news.title}
+                fill
+                sizes="(max-width: 640px) 92vw, (max-width: 1024px) 42vw, 28vw"
+                className="object-cover transition-transform duration-500 ease-out group-hover:scale-[1.03]"
+              />
+            ) : (
+              <div className="absolute inset-0 bg-muted" />
+            )}
           </div>
-
-          <h3 className="mt-3 text-balance font-heading text-[18px] font-semibold leading-snug text-foreground transition-colors group-hover:text-primary line-clamp-2">
+          <h3 className="mt-3 text-balance font-heading text-[17px] font-semibold leading-snug tracking-tight text-foreground transition-colors group-hover:text-primary sm:text-lg">
             {news.title}
           </h3>
-
-          <p className="mt-2 text-[13px] leading-relaxed text-muted-foreground line-clamp-2">
-            {news.excerpt ?? ""}
-          </p>
-        </div>
-      </article>
-    </Link>
+        </article>
+      </Link>
+    </div>
   );
 }
 
@@ -184,94 +122,74 @@ export function NewsSection() {
   });
 
   const items = data?.items ?? [];
-  const featured = items[0];
-  const rest = items.slice(1);
-  const gridItems = rest.slice(0, 6);
-  const sideItems = rest.slice(6, 10);
+  const gridItems = items.slice(0, 10);
+  const lead = gridItems[0];
+  const rest = gridItems.slice(1);
 
-  if (!featured) {
+  if (gridItems.length === 0) {
     return (
       <Wrapper className="py-16 sm:py-20">
-        <div className="rounded-xl border border-border bg-muted/30 p-6 sm:p-8">
-          <p className="text-sm font-semibold text-foreground">
-            Belum ada berita dipublikasikan.
-          </p>
-        </div>
+        <p className="max-w-md border-l-2 border-primary pl-4 text-sm leading-relaxed text-muted-foreground">
+          Belum ada berita dipublikasikan.
+        </p>
       </Wrapper>
     );
   }
 
   return (
-    <Wrapper className="py-16 sm:py-20">
-      <div className="mb-10 grid gap-4 sm:grid-cols-[1fr_auto] sm:items-end">
-        <div className="max-w-2xl">
-          <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.35em] text-foreground/70">
-            Informasi terkini
-          </p>
-          <h2 className="mt-3 text-balance font-heading text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
-            Berita &amp; Kegiatan
-          </h2>
-          <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-            Kegiatan, pengumuman, dan rilis terbaru—dirangkum ringkas untuk Anda.
-          </p>
-        </div>
-
-        <Link
-          href="/articles"
-          className="hidden sm:inline-flex items-center gap-2 text-sm font-semibold text-foreground hover:text-primary transition-colors"
-        >
-          Lihat semua
-          <ArrowRight className="h-4 w-4" />
-        </Link>
-      </div>
-
-      <div className="grid gap-8 lg:gap-10">
-        <FeaturedStory news={featured} />
-
-        <div className="grid gap-6 lg:grid-cols-[1fr_360px] lg:gap-10">
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {gridItems.map((n) => (
-              <NewsCard key={n.slug} news={n} />
-            ))}
-          </div>
-
-          <aside className="lg:pl-2">
-            <div className="rounded-2xl border border-border/60 bg-background p-5">
-              <div className="flex items-center justify-between gap-4">
-                <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.28em] text-foreground/60">
-                  Ringkasan
-                </p>
-                <div className="h-px flex-1 bg-border/60" />
-                <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.28em] text-foreground/60">
-                  Terbaru
-                </p>
-              </div>
-
-              <div className="mt-2">
-                {sideItems.length > 0 ? (
-                  sideItems.map((news, i) => (
-                    <StoryListItem key={news.slug} news={news} index={i + 8} />
-                  ))
-                ) : (
-                  <p className="mt-4 text-sm text-muted-foreground">
-                    Belum ada berita tambahan.
-                  </p>
-                )}
-              </div>
-
-              <div className="mt-5 sm:hidden">
-                <Link
-                  href="/articles"
-                  className="flex items-center justify-center gap-2 rounded-xl border border-border/60 bg-background py-3 text-sm font-semibold text-foreground hover:bg-muted/40 transition-colors"
-                >
-                  Lihat semua berita
-                  <ArrowRight className="h-4 w-4" />
-                </Link>
-              </div>
+    <section className="relative border-t border-border">
+      <Wrapper className="relative py-16 sm:py-24">
+        {/* Masthead: kaku di kiri, aksi di kanan — tanpa subcopy panjang */}
+        <div className="flex flex-col gap-8 sm:flex-row sm:items-end sm:justify-between">
+          <div className="max-w-3xl">
+            <div className="flex items-baseline gap-4">
+              <span
+                className="font-mono text-[10px] font-semibold uppercase tracking-[0.42em] text-muted-foreground"
+                aria-hidden
+              >
+                01
+              </span>
+              <span className="h-px flex-1 max-w-16 bg-foreground/20" aria-hidden />
             </div>
-          </aside>
+            <h2 className="mt-4 text-balance font-heading text-[clamp(2.25rem,5.5vw,3.75rem)] font-semibold leading-[0.95] tracking-[-0.03em] text-foreground">
+              Berita &amp; kegiatan
+            </h2>
+          </div>
+          <div className="flex shrink-0 flex-col items-start gap-3 sm:items-end">
+            <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.38em] text-muted-foreground">
+              {String(items.length).padStart(2, "0")} entri
+            </p>
+            <Link
+              href="/articles"
+              className="inline-flex items-center gap-2 font-mono text-[11px] font-semibold uppercase tracking-[0.24em] text-foreground underline decoration-foreground/25 underline-offset-4 transition-colors hover:text-primary hover:decoration-primary/40"
+            >
+              Arsip
+              <ArrowRight className="h-3.5 w-3.5" strokeWidth={2} />
+            </Link>
+          </div>
         </div>
-      </div>
-    </Wrapper>
+
+        {lead ? (
+          <div className="mt-14 border-t border-border pt-14">
+            <NewsLead news={lead} index={1} />
+          </div>
+        ) : null}
+
+        {rest.length > 0 ? (
+          <div className="mt-16 border-t border-border pt-12">
+            <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.38em] text-muted-foreground">
+              Lainnya
+            </p>
+            <div className="mt-8 columns-1 gap-x-8 gap-y-10 sm:columns-2 lg:columns-3">
+              {rest.map((n, i) => (
+                <div key={n.slug} className="mb-10 break-inside-avoid">
+                  <NewsGridItem news={n} index={i + 2} gridIndex={i} />
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : null}
+      </Wrapper>
+    </section>
   );
 }

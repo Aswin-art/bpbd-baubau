@@ -39,117 +39,136 @@ export function AboutSection() {
   return (
     <section className="relative z-10 pb-16 sm:pb-20">
       <Wrapper>
+        {/* divider from hero */}
+        <div className="pt-6 sm:pt-8">
+          <div className="mx-auto h-px w-full max-w-6xl bg-black/10" />
+        </div>
+
         {/* Tentang kami */}
-        <div className="pt-14 lg:pt-20">
-        <div className="grid items-start gap-10 lg:grid-cols-12 lg:gap-12">
-          <div className="lg:col-span-6 lg:order-2">
-            <div className="space-y-5">
-              <p className="text-xs font-semibold uppercase tracking-widest text-primary">
-                Tentang Kami
-              </p>
-              <h2 className="text-2xl font-bold leading-snug tracking-tight text-foreground sm:text-3xl">
-                Menjaga Kota Baubau
-                <span className="text-primary"> Tetap Tangguh</span>
-              </h2>
-              {aboutDescription ? (
-                <div className="space-y-4 text-[15px] leading-relaxed text-muted-foreground">
-                  {aboutDescription.split(/\n\n+/).map((block, i) => (
-                    <p key={i} className="text-pretty">
-                      {block}
+        <div className="pt-12 lg:pt-16">
+          <div className="grid items-start gap-10 lg:grid-cols-12 lg:gap-12">
+            {/* Swiss grid: media rail */}
+            <div className="lg:col-span-5">
+              <div className="relative mx-auto aspect-4/5 w-full max-w-md overflow-hidden rounded-2xl bg-muted ring-1 ring-border/60 sm:max-w-lg lg:mx-0 lg:max-w-none">
+                <Image
+                  src={officeImageUrl}
+                  alt="Foto kantor BPBD Kota Baubau"
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 1024px) 100vw, 45vw"
+                  priority={false}
+                />
+              </div>
+            </div>
+
+            {/* Swiss grid: typography + actions */}
+            <div className="lg:col-span-7">
+              <div className="grid gap-8">
+                <div className="grid gap-4">
+                  <div className="flex items-end justify-between gap-6">
+                    <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.32em] text-muted-foreground">
+                      Tentang Kami
                     </p>
-                  ))}
+                    <p className="hidden font-mono text-[10px] font-semibold uppercase tracking-[0.32em] text-muted-foreground sm:block">
+                      BPBD · Baubau
+                    </p>
+                  </div>
+
+                  <h2 className="text-balance font-heading text-3xl font-semibold leading-[1.05] tracking-tight text-foreground sm:text-5xl">
+                    Menjaga Kota Baubau
+                    <span className="text-primary"> Tetap Tangguh</span>
+                  </h2>
+
+                  {aboutDescription ? (
+                    <div className="space-y-4 text-[15px] leading-relaxed text-muted-foreground sm:text-[16px]">
+                      {aboutDescription.split(/\n\n+/).map((block, i) => (
+                        <p key={i} className="text-pretty">
+                          {block}
+                        </p>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="space-y-4 text-[15px] leading-relaxed text-muted-foreground sm:text-[16px]">
+                      <p className="text-pretty">
+                        Badan Penanggulangan Bencana Daerah (BPBD) Kota Baubau hadir
+                        sebagai garda terdepan dalam melindungi masyarakat dari ancaman
+                        bencana. Kami bergerak di tiga pilar utama: pencegahan &amp;
+                        mitigasi, kesiapsiagaan, serta penanganan darurat dan pemulihan
+                        pasca bencana.
+                      </p>
+                      <p className="text-pretty">
+                        Melalui pelatihan rutin, edukasi masyarakat, dan koordinasi
+                        lintas sektor, kami membangun budaya sadar bencana yang dimulai
+                        dari tingkat kelurahan hingga kota.
+                      </p>
+                    </div>
+                  )}
                 </div>
-              ) : (
-                <>
-                  <p className="text-[15px] leading-relaxed text-muted-foreground">
-                    Badan Penanggulangan Bencana Daerah (BPBD) Kota Baubau hadir
-                    sebagai garda terdepan dalam melindungi masyarakat dari ancaman
-                    bencana. Kami bergerak di tiga pilar utama: pencegahan &amp;
-                    mitigasi, kesiapsiagaan, serta penanganan darurat dan pemulihan
-                    pasca bencana.
-                  </p>
-                  <p className="text-[15px] leading-relaxed text-muted-foreground">
-                    Melalui pelatihan rutin, edukasi masyarakat, dan koordinasi
-                    lintas sektor, kami membangun budaya sadar bencana yang dimulai
-                    dari tingkat kelurahan hingga kota.
-                  </p>
-                </>
-              )}
-            </div>
 
-            {/* Quick links (responsive untuk kolom teks yang sempit) */}
-            <div className="mt-8 grid auto-rows-fr grid-cols-1 gap-4 sm:grid-cols-2 lg:mt-10">
-              <Card className="group h-full border-0 shadow-lg shadow-black/5 transition-all hover:-translate-y-0.5 hover:shadow-xl">
-                <CardContent className="flex h-full items-start gap-4 p-5">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-red-50 text-red-600 transition-colors group-hover:bg-red-100">
-                    <Phone className="h-5 w-5" />
+                {/* Swiss actions: minimal, typographic, aligned */}
+                <div className="grid gap-3 border-t border-black/10 pt-6 sm:grid-cols-12 sm:gap-4">
+                  <div className="sm:col-span-5">
+                    <Card className="h-full border border-black/10 bg-white">
+                      <CardContent className="flex items-start gap-4 p-5">
+                        <div className="mt-0.5 flex h-10 w-10 items-center justify-center rounded-xl bg-red-500/10 text-red-600">
+                          <Phone className="h-5 w-5" />
+                        </div>
+                        <div className="min-w-0">
+                          <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.32em] text-muted-foreground">
+                            Telepon darurat
+                          </p>
+                          <p className="mt-1 text-lg font-semibold tracking-tight text-foreground">
+                            {emergencyNumber}
+                          </p>
+                        </div>
+                      </CardContent>
+                    </Card>
                   </div>
-                  <div className="min-w-0">
-                    <p className="text-sm font-semibold text-foreground">
-                      Nomor Darurat
-                    </p>
-                    <p className="text-lg font-bold tracking-tight text-red-600">
-                      {emergencyNumber}
-                    </p>
+
+                  <div className="sm:col-span-7">
+                    <div className="grid gap-3 sm:grid-cols-2">
+                      <Link href="/aspirations" className="block">
+                        <Card className="group h-full border border-black/10 bg-white transition-colors hover:border-black/15">
+                          <CardContent className="flex h-full items-start gap-4 p-5">
+                            <div className="mt-0.5 flex h-10 w-10 items-center justify-center rounded-xl bg-blue-500/10 text-blue-700">
+                              <MessageSquare className="h-5 w-5" />
+                            </div>
+                            <div className="min-w-0">
+                              <p className="text-sm font-semibold tracking-tight text-foreground">
+                                Kirim Aspirasi
+                              </p>
+                              <p className="mt-1 text-xs text-muted-foreground">
+                                Laporkan situasi di lingkungan Anda
+                              </p>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      </Link>
+
+                      <Link href="/documents" className="block">
+                        <Card className="group h-full border border-black/10 bg-white transition-colors hover:border-black/15">
+                          <CardContent className="flex h-full items-start gap-4 p-5">
+                            <div className="mt-0.5 flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-700">
+                              <FileText className="h-5 w-5" />
+                            </div>
+                            <div className="min-w-0">
+                              <p className="text-sm font-semibold tracking-tight text-foreground">
+                                SOP Terbaru
+                              </p>
+                              <p className="mt-1 text-xs text-muted-foreground">
+                                Unduh prosedur darurat
+                              </p>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      </Link>
+                    </div>
                   </div>
-                </CardContent>
-              </Card>
-
-              <Link href="/aspirations" className="block">
-                <Card className="group h-full border-0 shadow-lg shadow-black/5 transition-all hover:-translate-y-0.5 hover:shadow-xl">
-                  <CardContent className="flex h-full items-start gap-4 p-5">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 text-blue-600 transition-colors group-hover:bg-blue-100">
-                      <MessageSquare className="h-5 w-5" />
-                    </div>
-                    <div className="min-w-0">
-                      <p className="text-sm font-semibold text-foreground">
-                        Kirim Aspirasi
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        Laporkan situasi di lingkungan Anda
-                      </p>
-                    </div>
-                  </CardContent>
-                </Card>
-              </Link>
-
-              <Link
-                href="/documents"
-                className="block sm:col-span-2 xl:col-span-1"
-              >
-                <Card className="group h-full border-0 shadow-lg shadow-black/5 transition-all hover:-translate-y-0.5 hover:shadow-xl">
-                  <CardContent className="flex h-full items-start gap-4 p-5">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-green-50 text-green-600 transition-colors group-hover:bg-green-100">
-                      <FileText className="h-5 w-5" />
-                    </div>
-                    <div className="min-w-0">
-                      <p className="text-sm font-semibold text-foreground">
-                        SOP Terbaru
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        Unduh dokumen prosedur darurat
-                      </p>
-                    </div>
-                  </CardContent>
-                </Card>
-              </Link>
-            </div>
-          </div>
-
-          <div className="lg:col-span-6 lg:order-1">
-            <div className="relative mx-auto aspect-4/5 w-full max-w-md overflow-hidden rounded-2xl bg-muted shadow-lg ring-1 ring-border/60 sm:max-w-lg lg:mx-0 lg:max-w-none">
-          <Image
-            src={officeImageUrl}
-            alt="Foto kantor BPBD Kota Baubau"
-            fill
-            className="object-cover"
-            sizes="(max-width: 1024px) 100vw, 50vw"
-            priority={false}
-          />
+                </div>
+              </div>
             </div>
           </div>
         </div>
-      </div>
       </Wrapper>
     </section>
   );

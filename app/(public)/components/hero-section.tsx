@@ -5,9 +5,9 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, EffectFade } from "swiper/modules";
 import { motion, AnimatePresence } from "motion/react";
 import Image from "next/image";
-import { ArrowUpRight, Play } from "lucide-react";
-import { useState } from "react";
-import type { Swiper as SwiperType } from "swiper";
+import { ArrowUpRight, ChevronLeft, ChevronRight } from "lucide-react";
+import { useRef, useState } from "react";
+import type { Swiper as SwiperInstance } from "swiper";
 
 import { Button } from "@/components/ui/button";
 import { useSuspenseQuery } from "@tanstack/react-query";
@@ -16,7 +16,6 @@ import { getBaseUrl } from "@/lib/url";
 
 import "swiper/css";
 import "swiper/css/effect-fade";
-import { cn } from "@/lib/utils";
 
 type UiHeroSlide = {
   id: string;
@@ -42,6 +41,8 @@ export function Jumbotron() {
     queryFn: fetchHeroSlides,
   });
 
+  const swiperRef = useRef<SwiperInstance | null>(null);
+
   const slides: UiHeroSlide[] = (data?.slides ?? []).map((s) => ({
     id: s.id,
     imageUrl: s.imageUrl,
@@ -50,32 +51,37 @@ export function Jumbotron() {
     cta: { href: s.linkUrl },
   }));
   const [activeIndex, setActiveIndex] = useState(0);
-  const [swiper, setSwiper] = useState<SwiperType | null>(null);
 
   const activeSlide = slides[activeIndex];
 
   if (slides.length === 0) {
     return (
-      <section className="relative w-full pt-16 sm:pt-[76px]">
-        <div className="relative h-[calc(92vh-4rem)] min-h-[640px] w-full overflow-hidden bg-black md:h-[calc(100vh-4rem)] flex items-center justify-center">
-          <p className="text-white/60 text-lg">Belum ada slide hero.</p>
+      <section className="relative w-full pt-12 sm:pt-[56px]">
+        <div className="mx-auto flex h-[calc(100svh-48px)] w-full flex-col px-1.5 py-4 sm:h-[calc(100svh-56px)] sm:px-2 sm:py-4 lg:px-3">
+          <div className="relative flex min-h-0 w-full flex-1 items-center justify-center overflow-hidden rounded-3xl bg-black">
+            <p className="text-white/60 text-lg">Belum ada slide hero.</p>
+          </div>
         </div>
       </section>
     );
   }
 
   return (
-    <section className="relative w-full pt-16 sm:pt-[76px]">
-      {/* Full-bleed cinematic stage */}
-      <div className="relative h-[calc(92vh-4rem)] min-h-[680px] w-full overflow-hidden bg-black md:h-[calc(100vh-4rem)]">
-        {/* Grain + vignette */}
+    <section className="relative w-full pt-12 sm:pt-[56px]">
+      {/* Inset cinematic stage (not full-bleed), always one-screen tall */}
+      <div className="mx-auto flex h-[calc(100svh-48px)] w-full flex-col px-1.5 py-4 sm:h-[calc(100svh-56px)] sm:px-2 sm:py-4 lg:px-3">
+        <div className="relative min-h-0 w-full flex-1 overflow-hidden rounded-3xl bg-black ring-1 ring-white/10">
+        {/* Grain + vignette + Swiss grid */}
         <div className="pointer-events-none absolute inset-0 z-20 opacity-25 mix-blend-overlay">
           <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-60 brightness-100 contrast-150" />
         </div>
         <div className="pointer-events-none absolute inset-0 z-20">
-          <div className="absolute inset-0 bg-radial-[ellipse_at_center] from-transparent via-black/10 to-black/70" />
-          <div className="absolute inset-x-0 bottom-0 h-56 bg-linear-to-t from-black/85 via-black/35 to-transparent" />
-          <div className="absolute inset-x-0 top-0 h-28 bg-linear-to-b from-black/60 via-black/20 to-transparent" />
+          <div className="absolute inset-0 bg-radial-[ellipse_at_center] from-transparent via-black/10 to-black/80" />
+          <div className="absolute inset-x-0 bottom-0 h-64 bg-linear-to-t from-black/90 via-black/35 to-transparent" />
+          <div className="absolute inset-x-0 top-0 h-32 bg-linear-to-b from-black/70 via-black/20 to-transparent" />
+        </div>
+        <div className="pointer-events-none absolute inset-0 z-20 opacity-[0.18]">
+          <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.08)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.08)_1px,transparent_1px)] bg-size-[72px_72px]" />
         </div>
 
         <Swiper
@@ -89,7 +95,9 @@ export function Jumbotron() {
           }}
           loop={slides.length > 1}
           allowTouchMove={slides.length > 1}
-          onSwiper={setSwiper}
+          onSwiper={(s) => {
+            swiperRef.current = s;
+          }}
           onSlideChange={(s) => setActiveIndex(s.realIndex)}
           className="h-full w-full"
         >
@@ -121,50 +129,45 @@ export function Jumbotron() {
           ))}
         </Swiper>
 
-        {/* New layout: centered title + bottom filmstrip */}
-        <div className="pointer-events-none absolute inset-0 z-30 flex flex-col">
-          {/* top meta row */}
-          <div className="flex items-center justify-between px-6 pt-6 sm:px-10 sm:pt-8 lg:px-14 lg:pt-10">
-            <div className="flex items-center gap-3 text-white/90">
-              <span className="h-2 w-2 rounded-full bg-primary shadow-[0_0_0_4px_rgba(255,255,255,0.06)]" />
-              <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.35em]">
-                Portal Kebencanaan
-              </span>
-            </div>
-            {slides.length > 1 ? (
-              <div className="hidden sm:flex items-center gap-2 rounded-full border border-white/10 bg-black/30 px-3 py-2 backdrop-blur-md">
-                <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.25em] text-white/70">
-                  {String(activeIndex + 1).padStart(2, "0")} /{" "}
-                  {String(slides.length).padStart(2, "0")}
+        {/* Swiss composition: left-aligned typography, strict rhythm */}
+        <div className="pointer-events-none absolute inset-0 z-30">
+          <div className="flex h-full flex-col justify-between px-6 py-8 sm:px-10 sm:py-10 lg:px-14 lg:py-12">
+            {/* Top meta row (aligns with navbar grid) */}
+            <div className="flex items-end justify-between">
+              <div className="flex items-center gap-3 text-white/90">
+                <span className="h-2 w-2 rounded-full bg-primary shadow-[0_0_0_4px_rgba(255,255,255,0.06)]" />
+                <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.35em]">
+                  Portal Kebencanaan
                 </span>
               </div>
-            ) : null}
-          </div>
+              <span className="hidden sm:inline font-mono text-[10px] font-semibold uppercase tracking-[0.32em] text-white/65">
+                BPBD • Baubau
+              </span>
+            </div>
 
-          {/* center title block */}
-          <div className="flex flex-1 items-center px-6 sm:px-10 lg:px-14">
-            <div className="w-full">
+            {/* Bottom-left content */}
+            <div className="flex items-end justify-between gap-6 pb-1">
+              <div className="max-w-4xl">
               <AnimatePresence mode="wait">
                 <motion.div
                   key={activeIndex}
-                  initial={{ opacity: 0, y: 26, filter: "blur(10px)" }}
+                  initial={{ opacity: 0, y: 18, filter: "blur(10px)" }}
                   animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-                  exit={{ opacity: 0, y: -18, filter: "blur(10px)" }}
+                  exit={{ opacity: 0, y: -14, filter: "blur(10px)" }}
                   transition={{ duration: 0.75, ease: [0.16, 1, 0.3, 1] }}
-                  className="mx-auto max-w-5xl text-center"
                 >
                   <h2 className="text-balance font-heading text-4xl font-black uppercase tracking-[-0.03em] text-white drop-shadow-[0_20px_70px_rgba(0,0,0,0.7)] sm:text-6xl lg:text-7xl">
                     {activeSlide?.heading}
                   </h2>
                   {activeSlide?.description ? (
-                    <p className="mx-auto mt-6 max-w-2xl text-pretty text-sm leading-relaxed text-white/85 sm:text-base">
+                    <p className="mt-5 max-w-3xl text-pretty text-sm leading-relaxed text-white/80 sm:text-base">
                       {activeSlide.description}
                     </p>
                   ) : null}
                 </motion.div>
               </AnimatePresence>
 
-              <div className="pointer-events-auto mt-8 flex flex-wrap items-center justify-center gap-3">
+              <div className="pointer-events-auto mt-7 flex flex-wrap items-center gap-3">
                 {activeSlide?.cta?.href ? (
                   <Button
                     asChild
@@ -177,68 +180,61 @@ export function Jumbotron() {
                     </Link>
                   </Button>
                 ) : null}
-
-                {slides.length > 1 ? (
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="lg"
-                    className="group pointer-events-auto h-12 rounded-full border-white/20 bg-transparent px-6 text-sm font-semibold text-white hover:bg-white/10 hover:text-white"
-                    onClick={() => swiper?.slideNext()}
-                  >
-                    Putar cerita
-                    <Play className="ml-2 h-4 w-4" />
-                  </Button>
-                ) : null}
               </div>
+            </div>
+
+              {slides.length > 1 ? (
+                <div className="pointer-events-auto flex items-center">
+                  <div className="inline-flex items-center gap-1 rounded-full border border-white/15 bg-black/20 px-1.5 py-1 text-white backdrop-blur-md">
+                    <button
+                      type="button"
+                      onClick={() => swiperRef.current?.slidePrev()}
+                      aria-label="Slide sebelumnya"
+                      className="inline-flex h-9 w-9 items-center justify-center rounded-full transition-colors hover:bg-white/10"
+                    >
+                      <ChevronLeft className="h-4 w-4" aria-hidden />
+                    </button>
+
+                    <div className="hidden sm:flex items-center gap-1.5 px-1">
+                      {slides.slice(0, 6).map((_, i) => {
+                        const isActive = i === activeIndex;
+                        return (
+                          <span
+                            // eslint-disable-next-line react/no-array-index-key
+                            key={i}
+                            className={
+                              "h-1 w-1 rounded-full transition-colors " +
+                              (isActive ? "bg-white" : "bg-white/35")
+                            }
+                            aria-hidden
+                          />
+                        );
+                      })}
+                      {slides.length > 6 ? (
+                        <span className="ml-0.5 font-mono text-[10px] font-semibold tracking-[0.22em] text-white/70">
+                          {activeIndex + 1}/{slides.length}
+                        </span>
+                      ) : (
+                        <span className="ml-1 font-mono text-[10px] font-semibold tracking-[0.22em] text-white/70">
+                          {activeIndex + 1}/{slides.length}
+                        </span>
+                      )}
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => swiperRef.current?.slideNext()}
+                      aria-label="Slide berikutnya"
+                      className="inline-flex h-9 w-9 items-center justify-center rounded-full transition-colors hover:bg-white/10"
+                    >
+                      <ChevronRight className="h-4 w-4" aria-hidden />
+                    </button>
+                  </div>
+                </div>
+              ) : null}
             </div>
           </div>
-
-          {/* bottom filmstrip */}
-          {slides.length > 1 ? (
-            <div className="pointer-events-auto px-6 pb-6 sm:px-10 sm:pb-8 lg:px-14 lg:pb-10">
-              <div className="flex items-center justify-between gap-4">
-                <p className="hidden sm:block font-mono text-[10px] font-semibold uppercase tracking-[0.3em] text-white/60">
-                  Pilih frame
-                </p>
-                <div className="h-px flex-1 bg-white/10" />
-                <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.3em] text-white/60">
-                  Geser
-                </p>
-              </div>
-
-              <div className="mt-4 flex w-full gap-3 overflow-x-auto pb-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-                {slides.map((slide, idx) => (
-                  <button
-                    key={slide.id}
-                    type="button"
-                    onClick={() => swiper?.slideToLoop(idx)}
-                    className={cn(
-                      "group relative h-16 w-28 shrink-0 overflow-hidden rounded-xl border transition-all sm:h-20 sm:w-36",
-                      idx === activeIndex
-                        ? "border-white/70 ring-2 ring-white/30"
-                        : "border-white/15 opacity-80 hover:opacity-100 hover:border-white/35",
-                    )}
-                    aria-label={`Buka slide ${idx + 1}`}
-                  >
-                    <Image
-                      src={slide.imageUrl}
-                      alt=""
-                      fill
-                      sizes="160px"
-                      className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
-                    />
-                    <div className="absolute inset-0 bg-linear-to-t from-black/40 via-transparent to-transparent" />
-                    <div className="absolute bottom-2 left-2 rounded-full bg-black/45 px-2 py-1 backdrop-blur">
-                      <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.22em] text-white/80">
-                        {String(idx + 1).padStart(2, "0")}
-                      </span>
-                    </div>
-                  </button>
-                ))}
-              </div>
-            </div>
-          ) : null}
+        </div>
         </div>
       </div>
     </section>

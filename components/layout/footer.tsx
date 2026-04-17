@@ -1,115 +1,117 @@
 import Link from "next/link";
-import { Phone, Mail, MapPin } from "lucide-react";
-import { Separator } from "@/components/ui/separator";
-import { emergencyContacts } from "@/data/dummy-data";
 
 export function Footer() {
   return (
-    <footer className="border-t bg-secondary text-secondary-foreground">
-      <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">
-          {/* About */}
-          <div className="space-y-4">
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-primary-foreground font-bold text-sm">
-                BP
-              </div>
-              <div>
-                <p className="font-bold tracking-tight">BPBD</p>
-                <p className="text-xs text-secondary-foreground/60">
-                  Kota Baubau
-                </p>
-              </div>
-            </div>
-            <p className="text-sm text-secondary-foreground/70 leading-relaxed">
-              Badan Penanggulangan Bencana Daerah Kota Baubau berkomitmen
-              melindungi masyarakat melalui pencegahan, kesiapsiagaan, dan
-              penanganan bencana yang profesional.
-            </p>
-          </div>
+    <div
+      className="relative h-[860px] sm:h-[820px] md:h-[720px] lg:h-[560px]"
+      style={{ clipPath: "polygon(0% 0, 100% 0%, 100% 100%, 0 100%)" }}
+    >
+      <div className="fixed bottom-0 left-0 h-[860px] w-full sm:h-[820px] md:h-[720px] lg:h-[560px]">
+        <footer
+          className="h-full border-t border-border bg-background text-foreground"
+          aria-label="Footer"
+        >
+          <div className="flex h-full flex-col">
+            {/* Top line: left note, right link columns (antigravity-like) */}
+            <div className="mx-auto w-full max-w-7xl px-4 pt-8 sm:px-6 lg:px-8 lg:pt-10">
+              <div className="grid gap-10 lg:grid-cols-12 lg:items-start lg:gap-10">
+                <div className="lg:col-span-5">
+                  <p className="text-sm font-medium tracking-tight text-foreground">
+                    BPBD Kota Baubau
+                  </p>
+                  <p className="mt-2 max-w-md text-sm leading-relaxed text-muted-foreground">
+                    Informasi, layanan, dan kontak resmi untuk kesiapsiagaan dan respons
+                    kebencanaan.
+                  </p>
 
-          {/* Quick Links */}
-          <div className="space-y-4">
-            <h3 className="text-sm font-semibold uppercase tracking-wider text-secondary-foreground/50">
-              Navigasi
-            </h3>
-            <ul className="space-y-2">
-              {[
-                { name: "Beranda", href: "/" },
-                { name: "Berita", href: "/articles" },
-                { name: "Dokumen & SOP", href: "/dokumen" },
-                { name: "Aspirasi", href: "/aspirasi" },
-                { name: "Arsip Bencana", href: "/arsip" },
-              ].map((link) => (
-                <li key={link.href}>
-                  <Link
-                    href={link.href}
-                    className="text-sm text-secondary-foreground/70 transition-colors hover:text-primary"
-                  >
-                    {link.name}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
+                  {/* Map embed (bottom-left, under description) */}
+                  <div className="mt-6 max-w-md overflow-hidden rounded-xl border border-border bg-muted">
+                    <div className="relative h-[220px] sm:h-[240px]">
+                      <iframe
+                        title="Peta lokasi BPBD Kota Baubau"
+                        src="https://www.google.com/maps?q=BPBD%20Kota%20Baubau&output=embed"
+                        className="absolute inset-0 h-full w-full"
+                        loading="lazy"
+                        referrerPolicy="no-referrer-when-downgrade"
+                      />
+                    </div>
+                  </div>
+                </div>
 
-          {/* Emergency Contacts */}
-          <div className="space-y-4">
-            <h3 className="text-sm font-semibold uppercase tracking-wider text-secondary-foreground/50">
-              Kontak Darurat
-            </h3>
-            <ul className="space-y-2">
-              {emergencyContacts.map((contact) => (
-                <li key={contact.number} className="flex items-center gap-2">
-                  <Phone className="h-3.5 w-3.5 text-primary flex-shrink-0" />
-                  <span className="text-sm text-secondary-foreground/70">
-                    {contact.name}:{" "}
-                    <strong className="text-secondary-foreground/90">
-                      {contact.number}
-                    </strong>
-                  </span>
-                </li>
-              ))}
-            </ul>
-          </div>
+                <div className="lg:col-span-7">
+                  <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-2">
+                    <div>
+                      <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.38em] text-muted-foreground">
+                        Navigasi
+                      </p>
+                      <ul className="mt-4 space-y-2 text-sm">
+                        {[
+                          { name: "Beranda", href: "/" },
+                          { name: "Berita", href: "/articles" },
+                          { name: "Dokumen & SOP", href: "/dokumen" },
+                          { name: "Aspirasi", href: "/aspirasi" },
+                          { name: "Arsip Bencana", href: "/arsip" },
+                        ].map((link) => (
+                          <li key={link.href}>
+                            <Link
+                              href={link.href}
+                              className="text-foreground/80 transition-colors hover:text-foreground"
+                            >
+                              {link.name}
+                            </Link>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
 
-          {/* Address */}
-          <div className="space-y-4">
-            <h3 className="text-sm font-semibold uppercase tracking-wider text-secondary-foreground/50">
-              Alamat Kantor
-            </h3>
-            <div className="space-y-3 text-sm text-secondary-foreground/70">
-              <div className="flex gap-2">
-                <MapPin className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
-                <p>
-                  Jl. Betoambari No. 1, Kelurahan Bataraguru, Kecamatan Wolio,
-                  Kota Baubau, Sulawesi Tenggara 93721
-                </p>
-              </div>
-              <div className="flex items-center gap-2">
-                <Phone className="h-4 w-4 text-primary flex-shrink-0" />
-                <p>0402-2821110</p>
-              </div>
-              <div className="flex items-center gap-2">
-                <Mail className="h-4 w-4 text-primary flex-shrink-0" />
-                <p>bpbd@baubaukota.go.id</p>
+                    <div className="sm:col-span-1 lg:col-span-1">
+                      <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.38em] text-muted-foreground">
+                        Kantor
+                      </p>
+                      <div className="mt-4 space-y-3 text-sm text-foreground/80">
+                        <p className="leading-relaxed">
+                          Jl. Betoambari No. 1, Kel. Bataraguru, Kec. Wolio, Kota Baubau
+                          93721
+                        </p>
+                        <p className="tabular-nums">0402-2821110</p>
+                        <p className="break-all">bpbd@baubaukota.go.id</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
+
+            {/* Bottom area: copyright above, slogan as last line */}
+            <div className="mt-auto">
+              <div className="border-t border-border/70">
+                <div className="mx-auto max-w-7xl px-4 py-5 sm:px-6 lg:px-8">
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <p className="text-xs text-muted-foreground">
+                      &copy; {new Date().getFullYear()} BPBD Kota Baubau
+                    </p>
+                    <div className="flex flex-wrap gap-x-5 gap-y-2 text-xs text-muted-foreground">
+                      <span>Pemerintah Kota Baubau</span>
+                      <span className="hidden sm:inline" aria-hidden>
+                        •
+                      </span>
+                      <span>Sulawesi Tenggara</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="pb-7">
+                <div className="mx-auto max-w-7xl px-4 pt-4 sm:px-6 lg:px-8">
+                  <p className="text-balance font-heading text-[clamp(2.1rem,4.8vw,3.75rem)] font-semibold leading-[0.95] tracking-[-0.04em] text-foreground/80">
+                    Sigap. Tanggap. Melindungi.
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
-
-        <Separator className="my-8 bg-secondary-foreground/10" />
-
-        <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
-          <p className="text-xs text-secondary-foreground/50">
-            &copy; {new Date().getFullYear()} BPBD Kota Baubau. Hak Cipta
-            Dilindungi.
-          </p>
-          <p className="text-xs text-secondary-foreground/50">
-            Pemerintah Kota Baubau, Sulawesi Tenggara
-          </p>
-        </div>
+        </footer>
       </div>
-    </footer>
+    </div>
   );
 }
