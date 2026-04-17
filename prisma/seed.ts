@@ -16,7 +16,7 @@ type SeedNewsArticle = {
   title: string;
   excerpt: string;
   category: string;
-  content: { html: string };
+  content: any;
   imageUrl: string;
   dateLabel: string;
   publishedAt: string | null;
@@ -65,7 +65,7 @@ export interface DocumentItem {
   id: string;
   name: string;
   description: string;
-  category: "sop" | "regulasi" | "pedoman";
+  category:  "perencanaan" | "laporan";
   date: string;
   fileSize: string;
   downloadUrl: string;
@@ -83,17 +83,17 @@ const heroSlides: SeedHeroSlide[] = [
     cta: { label: "Program", href: "/news" },
     ctaSecondary: { label: "Arsip kejadian", href: "/archives" },
   },
-  {
-    id: "hero-siaga",
-    imageUrl: "/images/hero-2.avif",
-    badge: "Siaga & tanggap",
-    heading: "Melindungi warga Baubau",
-    headingAccent: "dari ancaman bencana",
-    description:
-      "Informasi kebencanaan, SOP tanggap darurat, dan layanan pelaporan untuk kesiapsiagaan masyarakat.",
-    cta: { label: "Berita terkini", href: "/news" },
-    ctaSecondary: { label: "Dokumen & SOP", href: "/documents" },
-  },
+ {
+  id: "hero-siaga",
+  imageUrl: "/images/hero-2.avif",
+  badge: "Siaga & tanggap",
+  heading: "BPBD Siap Membantu dan Melindungi Masyarakat",
+  headingAccent: "dan Melindungi Masyarakat",
+  description:
+    "BPBD Kota Baubau berkomitmen dalam penanggulangan bencana melalui layanan informasi, SOP tanggap darurat, serta respons cepat untuk melindungi masyarakat.",
+  cta: { label: "Berita terkini", href: "/news" },
+  ctaSecondary: { label: "Dokumen & SOP", href: "/documents" },
+},
   {
     id: "hero-layanan",
     imageUrl: "/images/hero-3.avif",
@@ -109,128 +109,155 @@ const heroSlides: SeedHeroSlide[] = [
 
 const newsArticles: SeedNewsArticle[] = [
   {
-    id: "clx0a0001",
-    slug: "pelatihan-tanggap-darurat-kecamatan-wolio-2026",
-    title: "Pelatihan Tanggap Darurat di Kecamatan Wolio Diikuti 200 Warga",
-    excerpt:
-      "BPBD Kota Baubau menggelar pelatihan simulasi gempa bumi dan evakuasi bagi warga Kecamatan Wolio sebagai bagian dari program kesiapsiagaan masyarakat.",
-    category: "edukasi",
-    imageUrl: "https://picsum.photos/seed/bpbd-wolio/800/450",
-    dateLabel: "4 April 2026",
-    publishedAt: "2026-04-04T08:00:00.000Z",
-    isPublished: true,
-    authorId: null,
-    content: {
-      html: `<p>Badan Penanggulangan Bencana Daerah (BPBD) Kota Baubau berhasil menggelar pelatihan tanggap darurat bencana di Kecamatan Wolio pada Sabtu (4/4/2026). Kegiatan yang diikuti oleh sekitar 200 warga ini merupakan bagian dari program rutin kesiapsiagaan masyarakat dalam menghadapi potensi bencana alam.</p>
-    <p>Kepala BPBD Kota Baubau, Drs. H. Ahmad Fauzi, M.Si, menyampaikan bahwa pelatihan ini bertujuan untuk meningkatkan kapasitas warga dalam merespons situasi darurat, khususnya gempa bumi dan banjir yang menjadi ancaman utama di wilayah Kota Baubau.</p>
-    <p>"Kesiapsiagaan adalah kunci utama dalam mengurangi risiko korban jiwa. Kami berharap dengan pelatihan ini, warga bisa lebih sigap dan terlatih ketika situasi darurat terjadi," ujar Ahmad Fauzi.</p>
-    <p>Pelatihan meliputi simulasi evakuasi, pertolongan pertama, teknik pemadaman api, serta edukasi mengenai jalur evakuasi dan titik kumpul yang telah ditetapkan di setiap kelurahan.</p>`,
+  id: "clx0a0003",
+  slug: "angin-puting-beliung-sulaa-2026",
+  title: "Angin Puting Beliung Menerpa Rumah Warga di Kelurahan Sulaa",
+  excerpt:
+    "Cuaca ekstrem disertai angin kencang menyebabkan 11 rumah warga rusak di Kelurahan Sulaa.",
+  category: "berita-utama",
+  imageUrl: "/images/articles/beritawebjanuari.avif",
+  dateLabel: "28 Januari 2026",
+  publishedAt: "2026-01-28T08:20:00.000Z",
+  isPublished: true,
+  authorId: null,
+  content: [
+    {
+      id: "p1-sulaa",
+      type: "paragraph",
+      props: {
+        textColor: "default",
+        backgroundColor: "default",
+        textAlignment: "left",
+      },
+      content: [
+        {
+          type: "text",
+          text: "Cuaca ekstrem melanda Kota Baubau dengan curah hujan tinggi disertai angin kencang. Bencana angin puting beliung terjadi di Kelurahan Sulaa pada Rabu, 28 Januari 2026 pukul 15.20 WITA.",
+          styles: {},
+        },
+      ],
     },
-    createdAt: "2026-04-04T08:00:00.000Z",
-    updatedAt: "2026-04-04T08:00:00.000Z",
-  },
-  {
-    id: "clx0a0002",
-    slug: "distribusi-logistik-korban-banjir-betoambari",
-    title: "BPBD Distribusikan Logistik untuk Korban Banjir di Betoambari",
-    excerpt:
-      "Sebanyak 150 paket bantuan logistik telah disalurkan kepada warga terdampak banjir di Kecamatan Betoambari yang terjadi pada awal April 2026.",
-    category: "berita-utama",
-    imageUrl: "https://picsum.photos/seed/bpbd-logistik/800/450",
-    dateLabel: "3 April 2026",
-    publishedAt: "2026-04-03T10:00:00.000Z",
-    isPublished: true,
-    authorId: null,
-    content: {
-      html: `<p>BPBD Kota Baubau menyalurkan 150 paket bantuan logistik kepada warga yang terdampak banjir di Kecamatan Betoambari. Banjir yang terjadi akibat hujan deras pada 1 April 2026 telah merendam puluhan rumah warga.</p>
-    <p>Paket bantuan terdiri dari beras, mie instan, air mineral, selimut, dan peralatan kebersihan. Distribusi dilakukan secara langsung ke posko-posko pengungsian dan rumah warga yang terdampak.</p>`,
+  ],
+  createdAt: "2026-01-28T08:20:00.000Z",
+  updatedAt: "2026-01-28T08:20:00.000Z",
+},
+
+{
+  id: "clx0a0004",
+  slug: "talud-jalan-longsor-bukit-wolio-2026",
+  title: "Talud Jalan Longsor di Kelurahan Bukit Wolio Indah",
+  excerpt:
+    "Hujan deras menyebabkan talud longsor di belakang SMP Negeri 12 Kota Baubau, mengakibatkan satu rumah warga mengalami kerusakan ringan.",
+  category: "berita-utama",
+  imageUrl: "/images/articles/talutlongsor.avif",
+  dateLabel: "2 Januari 2026",
+  publishedAt: "2026-01-02T08:00:00.000Z",
+  isPublished: true,
+  authorId: null,
+  content: [
+    {
+      id: "p1-talud",
+      type: "paragraph",
+      props: {
+        textColor: "default",
+        backgroundColor: "default",
+        textAlignment: "left",
+      },
+      content: [
+        {
+          type: "text",
+          text: "Hujan deras melanda Kota Baubau yang menyebabkan terjadinya longsor talud di Kelurahan Bukit Wolio Indah, tepatnya di belakang SMP Negeri 12 Kota Baubau.",
+          styles: {},
+        },
+      ],
     },
-    createdAt: "2026-04-03T10:00:00.000Z",
-    updatedAt: "2026-04-03T10:00:00.000Z",
-  },
+  ],
+  createdAt: "2026-01-02T08:00:00.000Z",
+  updatedAt: "2026-01-02T08:00:00.000Z",
+},
+
+{
+  id: "clx0a0005",
+  slug: "angin-kencang-robohkan-pohon-baubau-2026",
+  title: "Angin Kencang Merobohkan Pohon di Kota Baubau",
+  excerpt:
+    "Angin kencang menyebabkan pohon tumbang di dua lokasi di Kota Baubau dan sempat mengganggu arus lalu lintas.",
+  category: "berita-utama",
+  imageUrl: "/images/articles/pohonroboh.avif",
+  dateLabel: "7 Februari 2026",
+  publishedAt: "2026-02-07T08:20:00.000Z",
+  isPublished: true,
+  authorId: null,
+  content: [
+    {
+      id: "p1-pohon",
+      type: "paragraph",
+      props: {
+        textColor: "default",
+        backgroundColor: "default",
+        textAlignment: "left",
+      },
+      content: [
+        {
+          type: "text",
+          text: "Pada hari Sabtu, 7 Februari 2026 pukul 08.20 WITA, angin kencang melanda Kota Baubau dan menyebabkan pohon tumbang di dua lokasi.",
+          styles: {},
+        },
+      ],
+    },
+    {
+      id: "p2-pohon",
+      type: "paragraph",
+      props: {
+        textColor: "default",
+        backgroundColor: "default",
+        textAlignment: "left",
+      },
+      content: [
+        {
+          type: "text",
+          text: "Lokasi kejadian berada di Jl. Labalawa Kelurahan Wajo dan di Kelurahan Melai Kecamatan Murhum Kota Baubau.",
+          styles: {},
+        },
+      ],
+    },
+    
+  ],
+  createdAt: "2026-02-07T08:20:00.000Z",
+  updatedAt: "2026-02-07T08:20:00.000Z",
+}
+
   // NOTE: remaining seed items omitted for brevity in diff; still present below in file after patch application.
 ];
 
 export const documents: DocumentItem[] = [
   {
     id: "1",
-    name: "SOP Tanggap Darurat Bencana Banjir",
-    description:
-      "Prosedur standar penanganan darurat bencana banjir meliputi evakuasi, penyelamatan, dan penanganan korban di wilayah Kota Baubau.",
-    category: "sop",
-    date: "15 Januari 2026",
-    fileSize: "2.4 MB",
-    downloadUrl: "#",
+    name: "RENSTRA BPBD Kota Baubau 2025-2029",
+    description: "Dokumen Rencana Strategis BPBD Kota Baubau tahun 2025–2029.",
+    category: "perencanaan",
+    date: "2025 - 2029",
+    fileSize: "15 MB",
+    downloadUrl: "/pdfperencanaan/2. RENSTRA BPBD KOTA BAUBAU 2025-2029.pdf",
   },
   {
     id: "2",
-    name: "SOP Evakuasi Gempa Bumi",
-    description:
-      "Panduan evakuasi warga saat terjadi gempa bumi termasuk jalur evakuasi, titik kumpul, dan prosedur pertolongan pertama.",
-    category: "sop",
-    date: "10 Januari 2026",
-    fileSize: "1.8 MB",
-    downloadUrl: "#",
+    name: "RENJA BPBD Kota Baubau Tahun 2025",
+    description: "Dokumen Rencana Kerja BPBD Kota Baubau tahun 2025.",
+    category: "perencanaan",
+    date: "2025",
+    fileSize: "5 MB",
+    downloadUrl: "/pdfperencanaan/3. RENJA BPBD KOTA BAUBAU TAHUN 2025.pdf",
   },
   {
     id: "3",
-    name: "Peraturan Walikota No. 12 Tahun 2025 tentang Penanggulangan Bencana",
-    description:
-      "Regulasi yang mengatur mekanisme koordinasi, pendanaan, dan tanggung jawab instansi dalam penanggulangan bencana daerah.",
-    category: "regulasi",
-    date: "20 Desember 2025",
-    fileSize: "5.1 MB",
-    downloadUrl: "#",
-  },
-  {
-    id: "4",
-    name: "Pedoman Pembentukan Desa Tangguh Bencana",
-    description:
-      "Panduan teknis pembentukan dan pembinaan desa/kelurahan tangguh bencana di Kota Baubau.",
-    category: "pedoman",
-    date: "5 November 2025",
-    fileSize: "3.2 MB",
-    downloadUrl: "#",
-  },
-  {
-    id: "5",
-    name: "SOP Penanganan Kebakaran Hutan dan Lahan",
-    description:
-      "Prosedur operasional penanganan kebakaran hutan dan lahan termasuk koordinasi dengan Damkar dan instansi terkait.",
-    category: "sop",
-    date: "1 Oktober 2025",
-    fileSize: "2.0 MB",
-    downloadUrl: "#",
-  },
-  {
-    id: "6",
-    name: "Regulasi Penggunaan Dana Siap Pakai Penanggulangan Bencana",
-    description:
-      "Ketentuan mekanisme pencairan, penggunaan, dan pertanggungjawaban dana siap pakai untuk keadaan darurat bencana.",
-    category: "regulasi",
-    date: "15 September 2025",
-    fileSize: "1.5 MB",
-    downloadUrl: "#",
-  },
-  {
-    id: "7",
-    name: "Pedoman Teknis Penilaian Kerusakan dan Kerugian Pasca Bencana",
-    description:
-      "Panduan metodologi penilaian kerusakan fisik dan kerugian ekonomi akibat bencana untuk dasar rehabilitasi dan rekonstruksi.",
-    category: "pedoman",
-    date: "20 Agustus 2025",
-    fileSize: "4.7 MB",
-    downloadUrl: "#",
-  },
-  {
-    id: "8",
-    name: "SOP Pengelolaan Posko Pengungsian",
-    description:
-      "Prosedur pendirian, pengelolaan, dan penutupan posko pengungsian termasuk standar layanan minimum bagi pengungsi.",
-    category: "sop",
-    date: "10 Juli 2025",
-    fileSize: "1.9 MB",
-    downloadUrl: "#",
+    name: "LAKIP BPBD Kota Baubau Tahun 2024",
+    description: "Dokumen Laporan Akuntabilitas Kinerja tahun 2024.",
+    category: "laporan",
+    date: "2024",
+    fileSize: "6 MB",
+    downloadUrl:
+      "/pdfperencanaan/11. DOKUMEN LAKIP BPBD KOTA BAUBAU TAHUN 2024.pdf",
   },
 ];
 
@@ -352,98 +379,104 @@ export const archiveDocuments: ArchiveDocument[] = [
   },
 ];
 
-export const disasterPoints: import("@/lib/map-disaster-types").MapDisasterPointDTO[] = [
-  {
-    id: "clx0d0001",
-    type: "Banjir",
-    location: "Jl. Sultan Hasanuddin, Kel. Wameo",
-    kecamatan: "Batupoaro",
-    date: "1 April 2026",
-    casualties: 0,
-    displaced: 45,
-    description: "Banjir setinggi 60 cm akibat hujan deras selama 6 jam merendam 23 rumah warga.",
-    image: "https://picsum.photos/seed/banjir-wameo/400/200",
-    lat: -5.4735,
-    lng: 122.605,
-    createdAt: "2026-04-01T08:00:00.000Z",
-    updatedAt: "2026-04-01T08:00:00.000Z",
-  },
-  {
-    id: "clx0d0002",
-    type: "Tanah Longsor",
-    location: "Bukit Kadolomoko, RT 03",
-    kecamatan: "Kokalukuna",
-    date: "15 Maret 2026",
-    casualties: 0,
-    displaced: 12,
-    description: "Longsor menimpa 3 rumah setelah hujan lebat 2 hari berturut-turut.",
-    image: "https://picsum.photos/seed/longsor-kadolomoko/400/200",
-    lat: -5.495,
-    lng: 122.625,
-    createdAt: "2026-03-15T10:00:00.000Z",
-    updatedAt: "2026-03-15T10:00:00.000Z",
-  },
-  {
-    id: "clx0d0003",
-    type: "Angin Puting Beliung",
-    location: "Kel. Bataraguru, dekat lapangan",
-    kecamatan: "Wolio",
-    date: "10 Februari 2026",
-    casualties: 0,
-    displaced: 8,
-    description: "Angin kencang merusak atap 5 rumah dan 1 bangunan sekolah.",
-    image: "https://picsum.photos/seed/angin-bataraguru/400/200",
-    lat: -5.467,
-    lng: 122.613,
-    createdAt: "2026-02-10T14:00:00.000Z",
-    updatedAt: "2026-02-10T14:00:00.000Z",
-  },
-  {
-    id: "clx0d0004",
-    type: "Kebakaran",
-    location: "Kel. Wajo, RT 07",
-    kecamatan: "Murhum",
-    date: "25 Desember 2025",
-    casualties: 0,
-    displaced: 20,
-    description: "Kebakaran rumah tinggal diduga akibat korsleting listrik, menghanguskan 4 rumah.",
-    image: "https://picsum.photos/seed/kebakaran-wajo/400/200",
-    lat: -5.46,
-    lng: 122.598,
-    createdAt: "2025-12-25T06:00:00.000Z",
-    updatedAt: "2025-12-25T06:00:00.000Z",
-  },
-  {
-    id: "clx0d0005",
-    type: "Gelombang Tinggi",
-    location: "Pantai Lakeba",
-    kecamatan: "Betoambari",
-    date: "8 Januari 2026",
-    casualties: 0,
-    displaced: 0,
-    description: "Gelombang setinggi 3 meter merusak 2 perahu nelayan dan 1 dermaga kayu.",
-    image: "https://picsum.photos/seed/gelombang-lakeba/400/200",
-    lat: -5.502,
-    lng: 122.59,
-    createdAt: "2026-01-08T07:00:00.000Z",
-    updatedAt: "2026-01-08T07:00:00.000Z",
-  },
-  {
-    id: "clx0d0006",
-    type: "Banjir",
-    location: "Kel. Sulaa, RW 02",
-    kecamatan: "Betoambari",
-    date: "20 Februari 2026",
-    casualties: 0,
-    displaced: 30,
-    description: "Luapan sungai kecil menyebabkan genangan di 15 rumah selama 2 hari.",
-    image: "https://picsum.photos/seed/banjir-sulaa/400/200",
-    lat: -5.508,
-    lng: 122.582,
-    createdAt: "2026-02-20T09:00:00.000Z",
-    updatedAt: "2026-02-20T09:00:00.000Z",
-  },
-];
+export const disasterPoints: import("@/lib/map-disaster-types").MapDisasterPointDTO[] =
+  [
+    {
+      id: "clx0d0001",
+      type: "Banjir",
+      location: "Jl. Sultan Hasanuddin, Kel. Wameo",
+      kecamatan: "Batupoaro",
+      date: "1 April 2026",
+      casualties: 0,
+      displaced: 45,
+      description:
+        "Banjir setinggi 60 cm akibat hujan deras selama 6 jam merendam 23 rumah warga.",
+      image: "https://picsum.photos/seed/banjir-wameo/400/200",
+      lat: -5.4735,
+      lng: 122.605,
+      createdAt: "2026-04-01T08:00:00.000Z",
+      updatedAt: "2026-04-01T08:00:00.000Z",
+    },
+    {
+      id: "clx0d0002",
+      type: "Tanah Longsor",
+      location: "Bukit Kadolomoko, RT 03",
+      kecamatan: "Kokalukuna",
+      date: "15 Maret 2026",
+      casualties: 0,
+      displaced: 12,
+      description:
+        "Longsor menimpa 3 rumah setelah hujan lebat 2 hari berturut-turut.",
+      image: "https://picsum.photos/seed/longsor-kadolomoko/400/200",
+      lat: -5.495,
+      lng: 122.625,
+      createdAt: "2026-03-15T10:00:00.000Z",
+      updatedAt: "2026-03-15T10:00:00.000Z",
+    },
+    {
+      id: "clx0d0003",
+      type: "Angin Puting Beliung",
+      location: "Kel. Bataraguru, dekat lapangan",
+      kecamatan: "Wolio",
+      date: "10 Februari 2026",
+      casualties: 0,
+      displaced: 8,
+      description: "Angin kencang merusak atap 5 rumah dan 1 bangunan sekolah.",
+      image: "https://picsum.photos/seed/angin-bataraguru/400/200",
+      lat: -5.467,
+      lng: 122.613,
+      createdAt: "2026-02-10T14:00:00.000Z",
+      updatedAt: "2026-02-10T14:00:00.000Z",
+    },
+    {
+      id: "clx0d0004",
+      type: "Kebakaran",
+      location: "Kel. Wajo, RT 07",
+      kecamatan: "Murhum",
+      date: "25 Desember 2025",
+      casualties: 0,
+      displaced: 20,
+      description:
+        "Kebakaran rumah tinggal diduga akibat korsleting listrik, menghanguskan 4 rumah.",
+      image: "https://picsum.photos/seed/kebakaran-wajo/400/200",
+      lat: -5.46,
+      lng: 122.598,
+      createdAt: "2025-12-25T06:00:00.000Z",
+      updatedAt: "2025-12-25T06:00:00.000Z",
+    },
+    {
+      id: "clx0d0005",
+      type: "Gelombang Tinggi",
+      location: "Pantai Lakeba",
+      kecamatan: "Betoambari",
+      date: "8 Januari 2026",
+      casualties: 0,
+      displaced: 0,
+      description:
+        "Gelombang setinggi 3 meter merusak 2 perahu nelayan dan 1 dermaga kayu.",
+      image: "https://picsum.photos/seed/gelombang-lakeba/400/200",
+      lat: -5.502,
+      lng: 122.59,
+      createdAt: "2026-01-08T07:00:00.000Z",
+      updatedAt: "2026-01-08T07:00:00.000Z",
+    },
+    {
+      id: "clx0d0006",
+      type: "Banjir",
+      location: "Kel. Sulaa, RW 02",
+      kecamatan: "Betoambari",
+      date: "20 Februari 2026",
+      casualties: 0,
+      displaced: 30,
+      description:
+        "Luapan sungai kecil menyebabkan genangan di 15 rumah selama 2 hari.",
+      image: "https://picsum.photos/seed/banjir-sulaa/400/200",
+      lat: -5.508,
+      lng: 122.582,
+      createdAt: "2026-02-20T09:00:00.000Z",
+      updatedAt: "2026-02-20T09:00:00.000Z",
+    },
+  ];
 
 export const kecamatanList = [
   "Semua Kecamatan",
@@ -488,8 +521,6 @@ export const aspirationStatusLabels: Record<Aspiration["status"], string> = {
 
 // The rest of data arrays (documents, aspirations, archiveDocuments, disasterPoints, etc.)
 // will remain defined below in this file to fully remove the dependency on data/dummy-data.ts.
-
-
 
 function toDate(v: string | Date | null | undefined) {
   if (!v) return null;
@@ -537,7 +568,9 @@ async function wipeAllTables() {
 async function seedNewsArticles() {
   const defaultAuthorId = seededUserIds.admin;
   if (!defaultAuthorId) {
-    throw new Error("Missing seeded admin user id. seedUsers() must run first.");
+    throw new Error(
+      "Missing seeded admin user id. seedUsers() must run first.",
+    );
   }
   for (const a of newsArticles) {
     await db.article.upsert({
