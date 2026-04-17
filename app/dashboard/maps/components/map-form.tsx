@@ -6,7 +6,7 @@ import Link from "next/link";
 import Map, { Marker, NavigationControl } from "react-map-gl/maplibre";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { format } from "date-fns";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -49,6 +49,7 @@ interface MapFormProps {
 
 export function MapForm({ initialData }: MapFormProps) {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const isEdit = !!initialData;
 
   const [form, setForm] = useState({
@@ -137,10 +138,14 @@ export function MapForm({ initialData }: MapFormProps) {
       }
       return json.data;
     },
-    onSuccess: () => {
-      toast.success(isEdit ? "Titik bencana berhasil diperbarui." : "Titik bencana berhasil dibuat.");
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["dashboard", "map"] });
+      toast.success(
+        isEdit
+          ? "Titik bencana berhasil diperbarui."
+          : "Titik bencana berhasil dibuat.",
+      );
       router.push("/dashboard/maps");
-      router.refresh();
     },
     onError: (e: Error) => toast.error(e.message),
   });

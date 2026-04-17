@@ -95,6 +95,7 @@ export const publicNavItems: PublicNavItem[] = [
   { name: "Dokumen & SOP", href: "/documents" },
   { name: "Aspirasi", href: "/aspirations" },
   { name: "Arsip Bencana", href: "/archives" },
+  { name: "Pencarian", href: "/search" },
 ];
 
 export const heroSlides: HeroSlide[] = [
@@ -113,7 +114,7 @@ export const heroSlides: HeroSlide[] = [
     id: "hero-siaga",
     imageUrl: "/images/hero-2.avif",
     badge: "Siaga & tanggap",
-    heading: "Melindungi warga Baubau",
+    heading: "BPBD SIAP MEMBANTU DAN MELINDUNGI MASYARAKAT DALAM PENANGGULANGAN BENCANA",
     headingAccent: "dari ancaman bencana",
     description:
       "Informasi kebencanaan, SOP tanggap darurat, dan layanan pelaporan untuk kesiapsiagaan masyarakat.",

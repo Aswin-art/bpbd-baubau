@@ -8,6 +8,7 @@ import {
   Eye,
   EyeOff,
   Archive,
+  MessageSquare,
 } from "lucide-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -26,6 +27,7 @@ import type { Article } from "@/modules/articles";
 import { DeleteDialog } from "../dialogs/delete-dialog";
 import { PublishDialog } from "../dialogs/publish-dialog";
 import { ArchiveDialog } from "../dialogs/archive-dialog";
+import { ArticleCommentsDialog } from "../dialogs/article-comments-dialog";
 
 interface CellActionProps {
   article: Article;
@@ -50,21 +52,7 @@ export function CellAction({ article }: CellActionProps) {
   const [publishDialogOpen, setPublishDialogOpen] = useState(false);
   const [unpublishDialogOpen, setUnpublishDialogOpen] = useState(false);
   const [archiveDialogOpen, setArchiveDialogOpen] = useState(false);
-
-  const statusMutation = useMutation({
-    mutationFn: ({ id, status }: { id: string; status: string }) =>
-      updateArticleStatus(id, status),
-    onSuccess: async () => {
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: ["articles"] }),
-        queryClient.invalidateQueries({ queryKey: ["article-stats"] }),
-      ]);
-      toast.success("Status artikel berhasil diperbarui.");
-    },
-    onError: (error: Error) => {
-      toast.error(error.message);
-    },
-  });
+  const [commentsDialogOpen, setCommentsDialogOpen] = useState(false);
 
   return (
     <>
@@ -84,6 +72,13 @@ export function CellAction({ article }: CellActionProps) {
             >
               <Edit className="mr-2 h-4 w-4" /> Edit artikel
             </Link>
+          </DropdownMenuItem>
+
+          <DropdownMenuItem
+            onClick={() => setCommentsDialogOpen(true)}
+            className="cursor-pointer"
+          >
+            <MessageSquare className="mr-2 h-4 w-4" /> Kelola komentar
           </DropdownMenuItem>
 
           {article.status !== "PUBLISHED" && (
@@ -147,6 +142,12 @@ export function CellAction({ article }: CellActionProps) {
         onOpenChange={setArchiveDialogOpen}
         ids={[article.id]}
         itemName={article.title}
+      />
+      <ArticleCommentsDialog
+        open={commentsDialogOpen}
+        onOpenChange={setCommentsDialogOpen}
+        articleId={article.id}
+        articleTitle={article.title}
       />
     </>
   );

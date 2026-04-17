@@ -2,6 +2,7 @@
 
 import { ColumnDef } from "@tanstack/react-table";
 import Image from "next/image";
+import { MessageSquare } from "lucide-react";
 import { formatDateTime } from "@/helpers/date";
 import { shimmerPlaceholder } from "@/helpers/image-placeholder";
 
@@ -106,6 +107,22 @@ export function useColumns(): ColumnDef<Article>[] {
           >
             {category}
           </Badge>
+        );
+      },
+    },
+    {
+      id: "commentCount",
+      accessorFn: (row) => row.commentCount ?? 0,
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Komentar" />
+      ),
+      cell: ({ row }) => {
+        const n = (row.original.commentCount ?? 0) as number;
+        return (
+          <div className="flex items-center gap-1.5 text-sm text-muted-foreground tabular-nums">
+            <MessageSquare className="h-3.5 w-3.5 shrink-0 opacity-70" />
+            {n}
+          </div>
         );
       },
     },

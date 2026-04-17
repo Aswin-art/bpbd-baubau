@@ -11,7 +11,7 @@ import {
   Archive,
 } from "lucide-react";
 import db from "@/lib/db";
-import { categoryLabels } from "@/data/dummy-data";
+// Category labels are now taken directly from DB (`article.category`).
 import { shareUrlForPath } from "@/lib/site-url";
 import Wrapper from "@/components/wrapper";
 import { CommentWrapper } from "./comment-wrapper";
@@ -129,7 +129,7 @@ export default async function NewsDetailPage({ params }: PageProps) {
             <header className="space-y-6">
               <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
                 <span className="font-medium text-primary">
-                  {categoryLabels[news.category]}
+                  {news.category}
                 </span>
                 <span className="text-muted-foreground/60">·</span>
                 <time
@@ -163,7 +163,7 @@ export default async function NewsDetailPage({ params }: PageProps) {
 
             <ArticleContent value={news.content} />
 
-            <CommentWrapper />
+            <CommentWrapper slug={slug} />
           </article>
 
           <aside className="space-y-10 lg:sticky lg:top-32 lg:self-start">

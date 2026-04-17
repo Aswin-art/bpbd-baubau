@@ -10,6 +10,7 @@ import { MobileMenu } from "./mobile-menu";
 
 const navigation = [
   { name: "Beranda", href: "/" },
+  { name: "Pencarian", href: "/search" },
   { name: "Berita", href: "/articles" },
   { name: "Dokumen & SOP", href: "/documents" },
   { name: "Aspirasi", href: "/aspirations" },

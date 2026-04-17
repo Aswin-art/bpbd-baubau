@@ -30,33 +30,7 @@ type Role = {
   permissions: RolePermission[];
 };
 
-// Available actions per resource
-const resourceActions: Record<string, string[]> = {
-  dashboard: ["view"],
-  personal_profile: ["view", "update"],
-  portal_content: ["create", "read", "update", "delete", "publish"],
-  academic_master: ["create", "read", "update", "delete", "book"],
-  programs: [
-    "register",
-    "read",
-    "update",
-    "approve_logbook",
-    "plot_supervisor",
-  ],
-  thesis: [
-    "propose",
-    "read",
-    "update",
-    "approve_title",
-    "examine",
-    "schedule_defense",
-    "plot_supervisor",
-  ],
-  letters: ["request", "read", "approve", "generate", "archive"],
-  system_users: ["create", "read", "update", "delete", "ban"],
-  system_roles: ["create", "read", "update", "delete"],
-  system_settings: ["create", "read", "update", "delete", "reorder"],
-};
+const resourceActions = statement as unknown as Record<string, readonly string[]>;
 
 interface EditPermissionsDialogProps {
   open: boolean;
@@ -142,7 +116,7 @@ export function EditPermissionsDialog({
   };
 
   const toggleAllActions = (resource: string) => {
-    const available = resourceActions[resource] || [];
+    const available = [...(resourceActions[resource] || [])];
     const current = permissions[resource] || [];
     const allSelected = available.every((a) => current.includes(a));
 
@@ -201,7 +175,7 @@ export function EditPermissionsDialog({
               </p>
             ) : (
               filteredResources.map((resource) => {
-                const availableActions = resourceActions[resource] || [];
+                const availableActions = [...(resourceActions[resource] || [])];
                 const currentActions = permissions[resource] || [];
                 const allSelected = availableActions.every((a) =>
                   currentActions.includes(a),
@@ -224,7 +198,12 @@ export function EditPermissionsDialog({
                       </span>
                     </div>
                     <div className="flex flex-wrap gap-2 ml-6">
-                      {availableActions.map((action) => (
+                      {availableActions.length === 0 ? (
+                        <p className="text-xs text-muted-foreground">
+                          Tidak ada aksi yang terdefinisi untuk resource ini.
+                        </p>
+                      ) : (
+                        availableActions.map((action) => (
                         <label
                           key={action}
                           className="flex items-center gap-1.5 text-sm cursor-pointer"
@@ -238,7 +217,8 @@ export function EditPermissionsDialog({
                           />
                           {labelize(action)}
                         </label>
-                      ))}
+                        ))
+                      )}
                     </div>
                   </div>
                 );

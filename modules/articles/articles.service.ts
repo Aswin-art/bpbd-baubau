@@ -1,5 +1,7 @@
 import { revalidateTag } from "next/cache";
 import { AppError } from "@/lib/app-error";
+import { sanitizeCommentHtml } from "@/lib/comment-html";
+import { parseRole, isStaffRole } from "@/lib/rbac";
 import { articleRepository } from "./articles.repository";
 import type {
   CreateArticleInput,
@@ -186,6 +188,69 @@ export const articleService = {
 
   async getCategories() {
     return articleRepository.getCategories();
+  },
+
+  async listComments(articleId: string) {
+    const article = await articleRepository.findById(articleId);
+    if (!article) {
+      throw AppError.notFound("Article not found", "ARTICLE_NOT_FOUND");
+    }
+    return articleRepository.findCommentsByArticleId(articleId);
+  },
+
+  async deleteComment(articleId: string, commentId: string) {
+    const article = await articleRepository.findById(articleId);
+    if (!article) {
+      throw AppError.notFound("Article not found", "ARTICLE_NOT_FOUND");
+    }
+
+    const result = await articleRepository.deleteComment(articleId, commentId);
+    if (!result) {
+      throw AppError.notFound("Comment not found", "COMMENT_NOT_FOUND");
+    }
+
+    revalidateArticleCache(article.slug);
+    return { deleted: true as const };
+  },
+
+  async replyComment(params: {
+    articleId: string;
+    parentCommentId: string;
+    user: { id: string; role?: string | null; name?: string | null; email?: string | null };
+    bodyHtml: string;
+  }) {
+    const article = await articleRepository.findById(params.articleId);
+    if (!article) {
+      throw AppError.notFound("Article not found", "ARTICLE_NOT_FOUND");
+    }
+
+    const comments = await articleRepository.findCommentsByArticleId(params.articleId);
+    const parent = comments.find((c) => c.id === params.parentCommentId);
+    if (!parent) {
+      throw AppError.notFound("Comment not found", "COMMENT_NOT_FOUND");
+    }
+
+    const role = parseRole(params.user as any);
+    const isAdmin = isStaffRole(role);
+
+    const sanitized = sanitizeCommentHtml(params.bodyHtml);
+    if (!sanitized || sanitized.trim() === "") {
+      throw AppError.badRequest("Komentar kosong", "EMPTY_COMMENT");
+    }
+
+    const authorName = String(params.user.name || params.user.email || "Admin");
+
+    const created = await articleRepository.createComment({
+      articleId: params.articleId,
+      userId: params.user.id,
+      authorName,
+      bodyHtml: sanitized,
+      isAdmin,
+      parentId: params.parentCommentId,
+    });
+
+    revalidateArticleCache(article.slug);
+    return created;
   },
 };
 

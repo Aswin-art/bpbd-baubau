@@ -51,11 +51,8 @@ export function CellAction({ data }: CellActionProps) {
       <DeleteDialog
         open={deleteDialogOpen}
         onOpenChange={setDeleteDialogOpen}
-        pointLabel={`${data.type} — ${data.location}`}
-        onConfirm={() => {
-          console.log("Delete disaster point:", data.id);
-          setDeleteDialogOpen(false);
-        }}
+        ids={[data.id]}
+        itemName={`${data.type} — ${data.location}`}
       />
     </>
   );

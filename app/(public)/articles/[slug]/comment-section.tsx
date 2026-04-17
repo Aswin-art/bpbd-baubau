@@ -1,6 +1,8 @@
 "use client";
 
 import { useCallback, useMemo, useState } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import {
   createEditor,
   Descendant,
@@ -19,8 +21,10 @@ import {
   withReact,
 } from "slate-react";
 import { Bold, Italic, Send, Underline, Strikethrough, Code, Quote } from "lucide-react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { slateToSafeCommentHtml, sanitizeCommentHtml } from "@/lib/comment-html";
+import { cn } from "@/lib/utils";
 
 type CustomText = {
   text: string;
@@ -58,6 +62,7 @@ interface Comment {
   author: string;
   date: string;
   html: string;
+  isAdmin?: boolean;
 }
 
 const dummyComments: Comment[] = [
@@ -225,7 +230,8 @@ function SlateCommentEditor({
             e.preventDefault();
             toggleMark(editor, "bold");
           }}
-          className="flex h-9 w-9 items-center justify-center rounded-sm text-secondary transition-colors hover:bg-muted hover:text-foreground"
+          disabled={submitting}
+          className="flex h-9 w-9 items-center justify-center rounded-sm text-secondary transition-colors hover:bg-muted hover:text-foreground disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-secondary"
           aria-label="Tebal"
           title="Tebal (Ctrl+B)"
         >
@@ -237,7 +243,8 @@ function SlateCommentEditor({
             e.preventDefault();
             toggleMark(editor, "italic");
           }}
-          className="flex h-9 w-9 items-center justify-center rounded-sm text-secondary transition-colors hover:bg-muted hover:text-foreground"
+          disabled={submitting}
+          className="flex h-9 w-9 items-center justify-center rounded-sm text-secondary transition-colors hover:bg-muted hover:text-foreground disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-secondary"
           aria-label="Miring"
           title="Miring (Ctrl+I)"
         >
@@ -249,7 +256,8 @@ function SlateCommentEditor({
             e.preventDefault();
             toggleExtendedMark(editor, "underline");
           }}
-          className="flex h-9 w-9 items-center justify-center rounded-sm text-secondary transition-colors hover:bg-muted hover:text-foreground"
+          disabled={submitting}
+          className="flex h-9 w-9 items-center justify-center rounded-sm text-secondary transition-colors hover:bg-muted hover:text-foreground disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-secondary"
           aria-label="Garis bawah"
           title="Garis bawah (Ctrl+U)"
         >
@@ -261,7 +269,8 @@ function SlateCommentEditor({
             e.preventDefault();
             toggleExtendedMark(editor, "strike");
           }}
-          className="flex h-9 w-9 items-center justify-center rounded-sm text-secondary transition-colors hover:bg-muted hover:text-foreground"
+          disabled={submitting}
+          className="flex h-9 w-9 items-center justify-center rounded-sm text-secondary transition-colors hover:bg-muted hover:text-foreground disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-secondary"
           aria-label="Coret"
           title="Coret"
         >
@@ -273,7 +282,8 @@ function SlateCommentEditor({
             e.preventDefault();
             toggleExtendedMark(editor, "code");
           }}
-          className="flex h-9 w-9 items-center justify-center rounded-sm text-secondary transition-colors hover:bg-muted hover:text-foreground"
+          disabled={submitting}
+          className="flex h-9 w-9 items-center justify-center rounded-sm text-secondary transition-colors hover:bg-muted hover:text-foreground disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-secondary"
           aria-label="Kode"
           title="Kode (Ctrl+`)"
         >
@@ -285,7 +295,8 @@ function SlateCommentEditor({
             e.preventDefault();
             toggleBlockquote(editor);
           }}
-          className="flex h-9 w-9 items-center justify-center rounded-sm text-secondary transition-colors hover:bg-muted hover:text-foreground"
+          disabled={submitting}
+          className="flex h-9 w-9 items-center justify-center rounded-sm text-secondary transition-colors hover:bg-muted hover:text-foreground disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-secondary"
           aria-label="Kutipan"
           title="Kutipan"
         >
@@ -337,31 +348,93 @@ function SlateCommentEditor({
   );
 }
 
-export function CommentSection() {
-  const [comments, setComments] = useState<Comment[]>(dummyComments);
+export function CommentSection({ slug }: { slug: string }) {
   const [submitting, setSubmitting] = useState(false);
   const [visibleCount, setVisibleCount] = useState(8);
+  const pathname = usePathname();
+  const queryClient = useQueryClient();
+  const articlePath = `/articles/${slug}`;
+
+  const { data: session } = useQuery({
+    queryKey: ["auth", "session"],
+    queryFn: async () => {
+      const res = await fetch("/api/auth/get-session");
+      const json = await res.json().catch(() => null);
+      if (!res.ok) return null;
+      return json?.data ?? json ?? null;
+    },
+    staleTime: 1000 * 60 * 5,
+  });
+
+  const user = (session as any)?.user ?? null;
+  const isLoggedIn = !!user;
+
+  const { data: comments = dummyComments } = useQuery({
+    queryKey: ["public-articles", "comments", slug],
+    queryFn: async () => {
+      const res = await fetch(`/api/public${articlePath}/comments`);
+      const json = await res.json().catch(() => null);
+      if (!res.ok || json?.status !== "success") {
+        throw new Error(json?.message || "Gagal memuat komentar.");
+      }
+      const rows = (json.data?.comments ?? []) as Array<{
+        id: string;
+        authorName: string;
+        createdAt: string;
+        bodyHtml: string;
+        isAdmin: boolean;
+      }>;
+      return rows.map((c) => ({
+        id: c.id,
+        author: c.authorName,
+        date: new Date(c.createdAt).toLocaleDateString("id-ID", {
+          day: "numeric",
+          month: "long",
+          year: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+        }),
+        html: c.bodyHtml,
+        isAdmin: c.isAdmin,
+      })) satisfies Comment[];
+    },
+    staleTime: 1000 * 30,
+  });
+
+  const postMutation = useMutation({
+    mutationFn: async (bodyHtml: string) => {
+      const res = await fetch(`/api/public${articlePath}/comments`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ bodyHtml }),
+      });
+      const json = await res.json().catch(() => null);
+      if (!res.ok || json?.status !== "success") {
+        throw new Error(json?.message || "Gagal mengirim komentar.");
+      }
+      return json.data.comment as {
+        id: string;
+        authorName: string;
+        createdAt: string;
+        bodyHtml: string;
+      };
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: ["public-articles", "comments", slug],
+      });
+    },
+  });
 
   const handleSubmitHtml = useCallback(async (html: string) => {
+    if (!isLoggedIn) return;
     setSubmitting(true);
-    await new Promise((r) => setTimeout(r, 800));
-
-    const newComment: Comment = {
-      id: String(Date.now()),
-      author: "Pengguna",
-      date: new Date().toLocaleDateString("id-ID", {
-        day: "numeric",
-        month: "long",
-        year: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-      }),
-      html,
-    };
-
-    setComments((prev) => [...prev, newComment]);
-    setSubmitting(false);
-  }, []);
+    try {
+      await postMutation.mutateAsync(html);
+    } finally {
+      setSubmitting(false);
+    }
+  }, [isLoggedIn, postMutation]);
 
   return (
     <section
@@ -405,7 +478,10 @@ export function CommentSection() {
         {comments.slice(0, visibleCount).map((comment, index) => (
           <article
             key={comment.id}
-            className="grid gap-6 border-b border-border py-8 first:pt-0 last:border-b-0 sm:grid-cols-[auto_1fr] sm:gap-8 sm:py-10"
+            className={cn(
+              "grid gap-6 border-b border-border py-8 first:pt-0 last:border-b-0 sm:grid-cols-[auto_1fr] sm:gap-8 sm:py-10",
+              comment.isAdmin && "rounded-2xl bg-muted/30 px-4 sm:px-6",
+            )}
           >
             <span
               className="font-mono text-xs tabular-nums text-muted-foreground sm:pt-0.5"
@@ -415,15 +491,25 @@ export function CommentSection() {
             </span>
             <div className="min-w-0 space-y-4">
               <div className="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:gap-4">
-                <span className="text-base font-semibold tracking-tight text-secondary">
-                  {comment.author}
-                </span>
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="text-base font-semibold tracking-tight text-secondary">
+                    {comment.author}
+                  </span>
+                  {comment.isAdmin && (
+                    <span className="rounded-full border border-border bg-background px-2 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-[0.18em] text-primary">
+                      Admin
+                    </span>
+                  )}
+                </div>
                 <span className="font-mono text-[11px] tabular-nums uppercase tracking-wider text-muted-foreground">
                   {comment.date}
                 </span>
               </div>
               <div
-                className="max-w-[65ch] text-[15px] leading-[1.7] text-foreground/90 [&_em]:italic [&_p+p]:mt-3 [&_strong]:font-semibold [&_strong]:text-secondary"
+                className={cn(
+                  "max-w-[65ch] text-[15px] leading-[1.7] text-foreground/90 [&_em]:italic [&_p+p]:mt-3 [&_strong]:font-semibold [&_strong]:text-secondary",
+                  comment.isAdmin && "border-l-2 border-primary/40 pl-4",
+                )}
                 dangerouslySetInnerHTML={{
                   __html: sanitizeCommentHtml(comment.html),
                 }}
@@ -437,10 +523,24 @@ export function CommentSection() {
         <p className="mb-4 font-mono text-[10px] font-semibold uppercase tracking-[0.3em] text-muted-foreground">
           Tanggapan baru
         </p>
+        {!isLoggedIn && (
+          <div className="mb-4 rounded-xl border border-border bg-muted/30 px-4 py-3 text-sm text-muted-foreground">
+            Untuk berkomentar, silakan{" "}
+            <Link
+              href={`/sign-in?returnTo=${encodeURIComponent(pathname)}`}
+              className="font-semibold text-primary hover:text-primary/80"
+            >
+              masuk
+            </Link>
+            .
+          </div>
+        )}
         <SlateCommentEditor
           onSubmitHtml={handleSubmitHtml}
-          submitting={submitting}
-          intentLabel="Tulis tanggapan Anda di sini…"
+          submitting={submitting || !isLoggedIn}
+          intentLabel={
+            isLoggedIn ? "Tulis tanggapan Anda di sini…" : "Masuk untuk menulis komentar…"
+          }
         />
       </div>
     </section>

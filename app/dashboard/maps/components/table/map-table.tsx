@@ -10,6 +10,8 @@ import type { MapDisasterPointDTO } from "@/lib/map-disaster-types";
 import { columns } from "./columns";
 import { DisasterMap } from "@/app/(public)/archives/disaster-map";
 import { MapPreviewSkeleton } from "@/app/dashboard/components/skeletons/map-preview-skeleton";
+import { useState } from "react";
+import { DeleteDialog } from "../dialogs/delete-dialog";
 
 async function fetchDisasterPoints(): Promise<MapDisasterPointDTO[]> {
   const res = await fetch("/api/map-disasters");
@@ -29,6 +31,17 @@ export function MapTable() {
   });
 
   const rows = data ?? [];
+  const [rowSelection, setRowSelection] = useState<Record<string, boolean>>({});
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+
+  const selectedIds = Object.keys(rowSelection)
+    .map((index) => rows[parseInt(index)]?.id)
+    .filter(Boolean);
+
+  const selectedItemName =
+    selectedIds.length === 1
+      ? rows.find((r) => r.id === selectedIds[0])?.location
+      : undefined;
 
   return (
     <div className="space-y-4">
@@ -70,13 +83,41 @@ export function MapTable() {
       {isLoading ? (
         <TableSkeleton />
       ) : (
-        <DataTable
-          columns={columns}
-          data={rows}
-          searchKey="location"
-          isLoading={isLoading}
-        />
+        <>
+          {Object.keys(rowSelection).length > 0 && (
+            <div className="flex items-center gap-2 bg-muted/50 p-2 rounded-md">
+              <span className="text-sm text-muted-foreground">
+                {Object.keys(rowSelection).length} titik dipilih
+              </span>
+              <div className="flex items-center gap-2 ml-auto">
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  onClick={() => setDeleteDialogOpen(true)}
+                >
+                  Hapus
+                </Button>
+              </div>
+            </div>
+          )}
+          <DataTable
+            columns={columns}
+            data={rows}
+            searchKey="location"
+            isLoading={isLoading}
+            rowSelection={rowSelection}
+            onRowSelectionChange={setRowSelection}
+          />
+        </>
       )}
+
+      <DeleteDialog
+        open={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+        ids={selectedIds}
+        itemName={selectedItemName}
+        onSuccess={() => setRowSelection({})}
+      />
     </div>
   );
 }

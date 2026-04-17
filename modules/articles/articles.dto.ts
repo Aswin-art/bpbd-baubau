@@ -26,6 +26,8 @@ export const articleSchema = z.object({
   publishedAt: z.date().or(z.string()).nullable(),
   authorId: z.string(),
   authorName: z.string().optional(),
+  /** Jumlah komentar (hanya di daftar dashboard). */
+  commentCount: z.number().optional(),
   createdAt: z.date().or(z.string()),
   updatedAt: z.date().or(z.string()),
 });

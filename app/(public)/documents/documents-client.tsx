@@ -5,6 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import { parseAsInteger, parseAsString, useQueryState } from "nuqs";
 import { ErrorBoundary } from "react-error-boundary";
 import { Download, ChevronLeft, ChevronRight, ArrowUpRight } from "lucide-react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import Wrapper from "@/components/wrapper";
 import { categoryLabels } from "@/data/dummy-data";
@@ -34,6 +35,39 @@ type DocumentsApiResponse = {
 type DocumentCategoriesResponse = {
   categories: string[];
 };
+
+function filenameFromDisposition(header: string | null): string | null {
+  if (!header) return null;
+  const m = /filename\*?=(?:UTF-8''|")?([^\";]+)/i.exec(header);
+  if (!m?.[1]) return null;
+  const raw = m[1].replace(/"/g, "").trim();
+  try {
+    return decodeURIComponent(raw);
+  } catch {
+    return raw;
+  }
+}
+
+async function downloadDocument(doc: PublicDocumentItem) {
+  const res = await fetch(`/api/public/documents/${doc.id}/download`);
+  if (!res.ok) {
+    const json = await res.json().catch(() => null);
+    throw new Error(json?.message || "Gagal mengunduh dokumen.");
+  }
+
+  const blob = await res.blob();
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download =
+    filenameFromDisposition(res.headers.get("content-disposition")) ||
+    doc.name ||
+    "dokumen";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
 
 async function fetchDocuments(params: {
   page: number;
@@ -212,25 +246,36 @@ function DocumentsClientInner() {
                     </div>
 
                     <div className="mt-5 flex items-center justify-between gap-3 md:col-span-2 md:mt-0 md:justify-end">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-9 px-3 text-xs font-semibold text-primary hover:text-primary hover:bg-primary/10"
+                        disabled={!doc.downloadUrl}
+                        onClick={async () => {
+                          try {
+                            await downloadDocument(doc);
+                          } catch (e) {
+                            toast.error((e as Error).message);
+                          }
+                        }}
+                        aria-label={`Unduh ${doc.name}`}
+                      >
+                        <Download className="h-3.5 w-3.5 mr-1.5" />
+                        Unduh
+                      </Button>
                       <a
                         href={doc.downloadUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className={doc.downloadUrl ? "inline-flex" : "pointer-events-none opacity-50"}
-                        aria-label={`Unduh ${doc.name}`}
+                        aria-label={`Buka ${doc.name} di tab baru`}
+                        className={
+                          doc.downloadUrl
+                            ? "hidden md:flex h-10 w-10 items-center justify-center rounded-full bg-muted/70 text-secondary transition-colors group-hover:bg-primary/10 group-hover:text-primary"
+                            : "hidden md:flex h-10 w-10 items-center justify-center rounded-full bg-muted/70 text-secondary opacity-50 pointer-events-none"
+                        }
                       >
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="h-9 px-3 text-xs font-semibold text-primary hover:text-primary hover:bg-primary/10"
-                        >
-                          <Download className="h-3.5 w-3.5 mr-1.5" />
-                          Unduh
-                        </Button>
-                      </a>
-                      <span className="hidden md:flex h-10 w-10 items-center justify-center rounded-full bg-muted/70 text-secondary transition-colors group-hover:bg-primary/10 group-hover:text-primary">
                         <ArrowUpRight className="h-4 w-4" />
-                      </span>
+                      </a>
                     </div>
                   </div>
                 </li>

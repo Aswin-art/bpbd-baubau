@@ -14,6 +14,6 @@ const CommentSection = dynamic(
   },
 );
 
-export function CommentWrapper() {
-  return <CommentSection />;
+export function CommentWrapper({ slug }: { slug: string }) {
+  return <CommentSection slug={slug} />;
 }

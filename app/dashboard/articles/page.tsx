@@ -28,7 +28,8 @@ export default function Page() {
               Artikel
             </h2>
             <p className="text-muted-foreground">
-              Kelola artikel portal: buat, edit, publikasi, arsip, dan hapus.
+              Kelola artikel portal: buat, edit, publikasi, arsip, hapus, dan moderasi
+              komentar.
             </p>
           </div>
           <Button asChild size="lg" className="shadow-sm">

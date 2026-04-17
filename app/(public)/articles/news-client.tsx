@@ -7,7 +7,6 @@ import { useQuery } from "@tanstack/react-query";
 import { parseAsInteger, parseAsString, useQueryState } from "nuqs";
 import { ArrowUpRight, ChevronLeft, ChevronRight } from "lucide-react";
 import { ErrorBoundary } from "react-error-boundary";
-import { categoryLabels } from "@/data/dummy-data";
 import { NewsErrorFallback, NewsSkeleton } from "./news-fallback";
 import Wrapper from "@/components/wrapper";
 
@@ -43,6 +42,12 @@ async function fetchNews(params: {
   if (params.q) qs.set("q", params.q);
   const res = await fetch(`/api/public/articles?${qs.toString()}`, { cache: "no-store" });
   if (!res.ok) throw new Error("Gagal memuat berita.");
+  return res.json();
+}
+
+async function fetchArticleCategories(): Promise<{ categories: string[] }> {
+  const res = await fetch("/api/public/articles/categories", { cache: "no-store" });
+  if (!res.ok) throw new Error("Gagal memuat kategori berita.");
   return res.json();
 }
 
@@ -85,17 +90,23 @@ function NewsClientInner() {
     queryFn: () => fetchNews({ page, tag, q }),
   });
 
+  const categoriesQuery = useQuery({
+    queryKey: ["public-news-categories"],
+    queryFn: fetchArticleCategories,
+    staleTime: 1000 * 60 * 60,
+  });
+
   const totalPages = data?.totalPages ?? 1;
   const current = data?.page ?? page;
   const items = data?.items ?? [];
 
   const tagOptions = useMemo(() => {
-    const entries = Object.entries(categoryLabels);
+    const cats = categoriesQuery.data?.categories ?? [];
     return [
       { value: "semua", label: "Semua" },
-      ...entries.map(([value, label]) => ({ value, label })),
+      ...cats.map((value) => ({ value, label: value })),
     ];
-  }, []);
+  }, [categoriesQuery.data?.categories]);
 
   const goTo = (p: number) => {
     const next = Math.max(1, Math.min(p, totalPages));
@@ -240,7 +251,7 @@ function NewsClientInner() {
                       <div className="min-w-0 space-y-3 md:col-span-6 lg:col-span-7">
                         <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
                           <span className="font-medium text-primary">
-                            {categoryLabels[news.category] ?? news.category}
+                            {news.category}
                           </span>
                           <span>{news.dateLabel}</span>
                         </div>
