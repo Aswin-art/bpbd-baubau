@@ -15,7 +15,7 @@ export default function ForgotPasswordPage() {
       <AuthBackground />
 
       <div className="grid min-h-screen w-full lg:grid-cols-12">
-        {/* Swiss left rail (7/12) */}
+        {/* Left rail (7/12) */}
         <section className="relative hidden lg:block lg:col-span-7">
           <Image
             src="/images/hero-2.avif"
@@ -23,76 +23,80 @@ export default function ForgotPasswordPage() {
             fill
             priority={false}
             sizes="(max-width: 1024px) 0px, 58vw"
-            className="object-cover"
+            className="object-cover grayscale"
           />
-          <div className="absolute inset-0 bg-black/60" />
-          <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.10)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.10)_1px,transparent_1px)] bg-size-[72px_72px] opacity-25" />
+          <div className="absolute inset-0 bg-secondary/80" />
+          <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.15)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.15)_1px,transparent_1px)] bg-size-[64px_64px] opacity-20" />
 
           <div className="absolute inset-0 p-14">
             <div className="grid h-full grid-rows-[auto_1fr_auto]">
               {/* Top: identity */}
-              <div className="flex items-start justify-between">
+              <div className="flex items-start justify-between border-b-2 border-white/20 pb-6">
                 <div className="flex items-center gap-5">
                   <Image
                     src="/logo-bpbd.avif"
                     alt="BPBD Kota Baubau"
                     width={220}
                     height={88}
-                    className="h-12 w-auto object-contain"
+                    className="h-12 w-auto object-contain brightness-0 invert"
                     priority={false}
                   />
                   <div className="leading-tight">
-                    <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.40em] text-white/70">
+                    <p className="font-mono text-xs font-bold uppercase tracking-widest text-primary">
                       Pemerintah Kota Baubau
                     </p>
-                    <p className="mt-1 text-sm font-semibold text-white">
+                    <p className="mt-1 text-base font-black uppercase text-white">
                       Badan Penanggulangan Bencana Daerah
                     </p>
                   </div>
                 </div>
-                <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.40em] text-white/60">
-                  Bantuan akses
+                <p className="border-2 border-white/20 bg-white/5 px-3 py-1.5 font-mono text-[10px] font-bold uppercase tracking-widest text-white">
+                  Bantuan Akses
                 </p>
               </div>
 
               {/* Middle: editorial block */}
               <div className="flex items-center">
                 <div className="max-w-3xl">
-                  <h2 className="text-balance text-6xl font-bold leading-[0.92] tracking-[-0.06em] text-white">
-                    Reset password
+                  <h2 className="text-balance text-6xl font-black leading-[0.92] tracking-tight text-white uppercase">
+                    Reset Password
                     <br />
-                    akun portal
+                    Akun Portal
                   </h2>
-                  <div className="mt-7 h-px w-20 bg-white/20" />
-                  <p className="mt-7 max-w-2xl text-base leading-relaxed text-white/80">
+                  <div className="mt-8 h-1 w-24 bg-primary" />
+                  <p className="mt-8 max-w-2xl text-lg font-medium leading-relaxed text-white/80">
                     Kami hanya mengirim tautan reset ke email terdaftar untuk menjaga keamanan akun.
                   </p>
                 </div>
               </div>
 
               {/* Bottom: modules grid */}
-              <div className="grid max-w-3xl grid-cols-2 gap-10 text-white">
-                <div className="space-y-3">
-                  <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.40em] text-white/60">
+              <div className="grid max-w-3xl grid-cols-2 gap-8 text-white border-t-2 border-white/20 pt-8">
+                <div className="space-y-4">
+                  <p className="font-mono text-xs font-bold uppercase tracking-widest text-primary">
                     01
                   </p>
-                  <div className="flex items-center gap-2">
-                    <Mail className="h-4 w-4" strokeWidth={2.5} />
-                    <p className="text-sm font-semibold">Email terdaftar</p>
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-10 w-10 items-center justify-center border-2 border-white/20 bg-white/5">
+                      <Mail className="h-5 w-5" strokeWidth={2.5} />
+                    </div>
+                    <p className="text-base font-black uppercase">Email Terdaftar</p>
                   </div>
-                  <p className="text-xs leading-relaxed text-white/70">
+                  <p className="text-sm font-medium leading-relaxed text-white/70">
                     Pastikan email aktif dan bisa diakses.
                   </p>
                 </div>
-                <div className="space-y-3">
-                  <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.40em] text-white/60">
+                <div className="space-y-4">
+                  <p className="font-mono text-xs font-bold uppercase tracking-widest text-primary">
                     02
                   </p>
-                  <div className="flex items-center gap-2">
-                    <ShieldCheck className="h-4 w-4" strokeWidth={2.5} />
-                    <p className="text-sm font-semibold">Keamanan</p>
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-10 w-10 items-center justify-center border-2 border-white/20 bg-white/5">
+                      <ShieldCheck className="h-5 w-5" strokeWidth={2.5} />
+                    </div>
+                    <p className="text-base font-black uppercase">Keamanan</p>
                   </div>
-                  <p className="text-xs leading-relaxed text-white/70">
+                  <p className="text-sm font-medium leading-relaxed text-white/70">
                     Tautan reset bersifat terbatas dan aman.
                   </p>
                 </div>
@@ -101,12 +105,12 @@ export default function ForgotPasswordPage() {
           </div>
         </section>
 
-        {/* Swiss right panel (5/12) */}
-        <section className="relative flex min-h-screen flex-col justify-between border-l border-border/60 px-5 py-12 sm:px-10 lg:col-span-5 lg:px-14">
-          <div className="mx-auto w-full max-w-xl">
+        {/* Right panel (5/12) */}
+        <section className="relative flex min-h-screen flex-col justify-between border-l-2 border-border bg-background px-6 py-12 sm:px-12 lg:col-span-5 lg:px-16">
+          <div className="mx-auto w-full max-w-md flex-1 flex flex-col justify-center">
             {/* Mobile header */}
-            <div className="mb-10 lg:hidden">
-              <div className="flex items-center justify-between">
+            <div className="mb-12 lg:hidden">
+              <div className="flex items-center justify-between border-b-2 border-border pb-6">
                 <Image
                   src="/logo-bpbd.avif"
                   alt="BPBD Kota Baubau"
@@ -115,42 +119,43 @@ export default function ForgotPasswordPage() {
                   className="h-10 w-auto object-contain"
                   priority={false}
                 />
-                <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.40em] text-muted-foreground">
-                  Bantuan akses
+                <p className="border-2 border-border bg-muted px-2 py-1 font-mono text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+                  Bantuan Akses
                 </p>
               </div>
-              <div className="mt-6 h-px w-16 bg-border/70" />
-              <h2 className="mt-6 text-balance text-3xl font-bold leading-[1.02] tracking-[-0.04em] text-foreground">
-                Reset password
+              <h2 className="mt-8 text-balance text-4xl font-black leading-none tracking-tight text-secondary uppercase">
+                Reset Password
               </h2>
-              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+              <p className="mt-3 text-base font-medium leading-relaxed text-muted-foreground">
                 Masukkan email terdaftar untuk menerima tautan reset.
               </p>
             </div>
 
-            <div className="border border-border/60 bg-background px-8 py-10 shadow-sm sm:rounded-3xl sm:px-10">
+            <div className="border-2 border-border bg-card p-8 sm:p-10">
               <div className="grid gap-8">
-                <div className="space-y-2">
-                  <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.40em] text-muted-foreground">
-                    Autentikasi
+                <div className="space-y-4 border-b-2 border-border pb-6 hidden lg:block">
+                  <p className="font-mono text-xs font-bold uppercase tracking-widest text-primary">
+                    Bantuan Akses
                   </p>
-                  <div className="h-px w-12 bg-border/70" />
+                  <h2 className="text-3xl font-black uppercase text-secondary">
+                    Reset Password
+                  </h2>
                 </div>
                 <ForgotPasswordForm />
               </div>
             </div>
           </div>
 
-          <div className="mx-auto w-full max-w-xl border-t border-border/60 pt-6">
+          <div className="mx-auto w-full max-w-md border-t-2 border-border pt-6 mt-12">
             <div className="flex items-center justify-between">
               <a
                 href="/"
-                className="group inline-flex items-center gap-2 text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
+                className="group inline-flex items-center gap-2 font-mono text-xs font-bold uppercase tracking-widest text-muted-foreground transition-colors hover:text-primary"
               >
-                Kembali ke beranda
-                <ArrowUpRight className="h-4 w-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+                Kembali ke Beranda
+                <ArrowUpRight className="h-4 w-4" strokeWidth={2.5} />
               </a>
-              <p className="hidden text-xs text-muted-foreground sm:block">
+              <p className="hidden font-mono text-[10px] font-bold uppercase tracking-widest text-muted-foreground sm:block">
                 &copy; {new Date().getFullYear()} BPBD Kota Baubau
               </p>
             </div>

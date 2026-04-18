@@ -57,7 +57,7 @@ const Navbar = () => {
     return () => mq.removeEventListener("change", onChange);
   }, []);
 
-  const shrinkActive = isScrolled && isDesktop;
+  const shrinkActive = !isDesktop || isScrolled;
 
   const navLinkActive = (href: string) => {
     if (href === "/") {
@@ -73,7 +73,7 @@ const Navbar = () => {
           className="mx-auto w-full px-1.5 sm:px-2 lg:px-3"
           style={{ transformOrigin: "50% 0%" }}
           animate={{
-            width: shrinkActive ? "80%" : "100%",
+            width: !isDesktop ? "95%" : (shrinkActive ? "80%" : "100%"),
             y: shrinkActive ? 12 : 0,
           }}
           transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
@@ -81,7 +81,7 @@ const Navbar = () => {
          <motion.div
             className={cn(
               "relative transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]",
-              isScrolled
+              shrinkActive
                 ? "overflow-hidden rounded-xl bg-white/40 backdrop-blur-2xl backdrop-saturate-200 shadow-[0_8px_30px_rgb(0,0,0,0.06)]"
                 : "bg-transparent border-transparent shadow-none"
             )}
@@ -118,8 +118,8 @@ const Navbar = () => {
               </div>
 
               {/* Right cluster (menu + login) */}
-              <div className="col-span-4 hidden items-center justify-end gap-3 sm:col-span-6 lg:col-span-9 lg:flex">
-                <nav className={cn("flex items-center whitespace-nowrap gap-7", shrinkActive && "hidden")}>
+              <div className="col-span-4 flex items-center justify-end gap-3 sm:col-span-6 lg:col-span-9">
+                <nav className={cn("hidden lg:flex items-center whitespace-nowrap gap-7", shrinkActive && "!hidden")}>
                   {publicNavItems.map((item) => {
                     const active = navLinkActive(item.href);
                     return (
@@ -143,7 +143,7 @@ const Navbar = () => {
                   asChild
                   size="sm"
                   className={cn(
-                    "inline-flex rounded-xl transition-all duration-300",
+                    "hidden lg:inline-flex rounded-xl transition-all duration-300",
                     "bg-zinc-200 text-zinc-950 hover:bg-zinc-300",
                     "h-10 px-6",
                     "font-mono text-[10px] font-semibold uppercase tracking-[0.28em]",
@@ -197,10 +197,10 @@ const Navbar = () => {
 
               <div className="absolute inset-0 bg-white text-zinc-950" />
 
-              <div className="relative flex flex-1">
+              <div className="relative flex flex-1 overflow-y-auto">
                 {/* Swiss-inspired grid + typography */}
                 <div className="relative mx-auto flex w-full max-w-7xl flex-1 px-5 pb-8 pt-5 sm:px-8 sm:pb-10 sm:pt-8">
-                  <div className="grid min-h-0 w-full grid-cols-12 gap-x-8 gap-y-8">
+                  <div className="grid h-max w-full grid-cols-12 gap-x-8 gap-y-8">
                     {/* header row */}
                     <div className="col-span-12 flex items-center justify-between">
                       <Link
@@ -237,10 +237,10 @@ const Navbar = () => {
                     </div>
 
                     {/* main */}
-                    <div className="col-span-12 grid min-h-0 grid-cols-12 gap-x-8 gap-y-10">
+                    <div className="col-span-12 grid grid-cols-12 gap-x-8 gap-y-10">
                       {/* menu (focus) */}
                       <motion.div
-                        className="col-span-12 min-h-0 lg:col-span-8"
+                        className="col-span-12 lg:col-span-8"
                         variants={{
                           open: {
                             y: 0,
@@ -259,7 +259,7 @@ const Navbar = () => {
                         animate="open"
                         exit="closed"
                       >
-                        <div className="min-h-0 overflow-y-auto pb-10 lg:pb-0">
+                        <div className="pb-10 lg:pb-0">
                           <nav className="grid gap-x-12 gap-y-1 md:grid-cols-2 md:gap-y-2">
                             {publicNavItems.map((item) => {
                               const active = navLinkActive(item.href);
@@ -359,7 +359,7 @@ const Navbar = () => {
                           </div>
 
                           {/* login */}
-                          <div className="grid gap-3">
+                          <div className="grid gap-3 pb-5">
                             <div className="text-[10px] font-mono font-semibold uppercase tracking-[0.32em] text-zinc-950/60">
                               Akun
                             </div>

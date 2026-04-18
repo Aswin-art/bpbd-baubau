@@ -26,10 +26,10 @@ export function DocumentFilter({
             key={cat}
             onClick={() => onCategoryChange(cat)}
             className={cn(
-              "rounded-full px-3.5 py-2 font-mono text-[11px] font-semibold uppercase tracking-[0.2em] transition-colors",
+              "border-2 px-4 py-2 font-mono text-xs font-bold uppercase tracking-widest transition-colors",
               activeCategory === cat
-                ? "bg-secondary text-secondary-foreground"
-                : "border border-border/60 bg-background text-muted-foreground hover:text-secondary"
+                ? "border-secondary bg-secondary text-secondary-foreground"
+                : "border-border bg-card text-muted-foreground hover:border-primary hover:bg-primary hover:text-primary-foreground"
             )}
           >
             {cat === "semua" ? "Semua" : cat}
@@ -37,13 +37,13 @@ export function DocumentFilter({
         ))}
       </div>
 
-      <div className="flex items-center gap-2 rounded-2xl border border-border/60 bg-background px-3.5 py-2">
-        <Search className="h-4 w-4 shrink-0 text-muted-foreground" />
+      <div className="flex items-center gap-3 border-2 border-border bg-card px-4 py-2 transition-all focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20">
+        <Search className="h-5 w-5 shrink-0 text-muted-foreground" strokeWidth={2.5} />
         <input
           placeholder="Cari dokumen…"
           value={searchQuery}
           onChange={(e) => onSearchChange(e.target.value)}
-          className="w-full bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground"
+          className="w-full bg-transparent text-sm font-medium text-foreground outline-none placeholder:text-muted-foreground"
           aria-label="Cari dokumen"
         />
       </div>

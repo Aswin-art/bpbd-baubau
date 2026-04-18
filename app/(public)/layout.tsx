@@ -1,7 +1,7 @@
 import SplashScreen from "@/app/(public)/components/splash-screen";
 import { Footer } from "@/components/layout/footer";
 import Navbar from "@/components/navbar";
-
+import { CtaSection } from "./components/cta-section";
 
 export default function PublicLayout({
   children,
@@ -17,6 +17,7 @@ export default function PublicLayout({
       >
         <Navbar />
         <main className="flex-1 transition-all duration-300">{children}</main>
+        <CtaSection />
         <Footer />
       </div>
     </div>

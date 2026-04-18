@@ -41,109 +41,97 @@ export function ProfilesClient() {
 
   return (
     <>
-      <header className="max-w-3xl space-y-6">
-        <div className="space-y-6">
-          <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.35em] text-muted-foreground">
+      <header className="max-w-3xl space-y-6 border-b-2 border-border pb-8">
+        <div className="space-y-4">
+          <p className="font-mono text-sm font-bold uppercase tracking-widest text-primary">
             BPBD Kota Baubau · Profil
           </p>
-          <h1 className="text-balance text-4xl font-bold leading-[0.98] tracking-[-0.03em] text-secondary sm:text-5xl md:text-[3.25rem]">
+          <h1 className="text-balance text-4xl font-black leading-none tracking-tight text-secondary sm:text-5xl md:text-[3.5rem]">
             Tujuan, sasaran, dan layanan publik
           </h1>
-          <p className="max-w-2xl text-pretty text-base leading-relaxed text-muted-foreground sm:text-lg">
+          <p className="max-w-2xl text-pretty text-lg font-medium leading-relaxed text-muted-foreground">
             Ringkasan mandat, arah kerja, struktur organisasi, serta kanal
-            komunikasi resmi BPBD Kota Baubau. Disusun agar mudah dipindai dan
-            tetap nyaman dibaca meski konten panjang.
+            komunikasi resmi BPBD Kota Baubau.
           </p>
         </div>
       </header>
 
-      <main className="mt-20 space-y-28">
+      <main className="mt-12 space-y-20">
         <section id="tujuan-sasaran" className="scroll-mt-32">
-          <div className="grid gap-10 lg:grid-cols-12 lg:items-start lg:gap-12">
-            <div className="space-y-5 lg:col-span-4">
-              <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.35em] text-muted-foreground">
-                Arah &amp; tujuan
-              </p>
-              <h2 className="text-2xl font-bold tracking-[-0.03em] text-foreground sm:text-[1.7rem]">
-                Tujuan &amp; sasaran
+          <div className="grid gap-8 lg:grid-cols-12 lg:items-start">
+            <div className="space-y-4 lg:col-span-4">
+              <h2 className="text-3xl font-black tracking-tight text-secondary uppercase">
+                Tujuan &amp; Sasaran
               </h2>
-              <p className="text-[15px] leading-[1.75] text-muted-foreground">
-                Ringkasan yang singkat namun jelas agar mudah dipindai. Konten
-                utama ada di kartu di samping—lebih padat, tanpa ruang kosong yang
-                berlebihan.
+              <p className="text-base font-medium leading-relaxed text-muted-foreground">
+                Arah kerja dan sasaran strategis BPBD Kota Baubau.
               </p>
             </div>
 
             <div className="lg:col-span-8">
-              <div className="grid gap-5 lg:grid-cols-2">
-                <div className="rounded-3xl border border-primary/20 bg-background shadow-sm">
-                  <div className="border-b border-border/60 px-6 py-5">
-                    <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.3em] text-muted-foreground">
+              <div className="grid gap-6 lg:grid-cols-2">
+                {/* Card 1 */}
+                <div className="border-2 border-border bg-card">
+                  <div className="border-b-2 border-border bg-primary px-6 py-3">
+                    <p className="font-mono text-xs font-bold uppercase tracking-widest text-primary-foreground">
                       Tujuan
                     </p>
                   </div>
-                  <div className="px-6 py-6">
-                    <div className="rounded-2xl bg-primary/6 px-5 py-4">
-                      <p className="text-pretty whitespace-pre-wrap text-[15px] leading-[1.75] text-foreground/90">
-                        {objectives ? (
-                          objectives
-                        ) : (
-                          <>
-                            <span className="font-semibold text-foreground">
-                              Tujuan BPBD Kota Baubau
-                            </span>{" "}
-                            adalah{" "}
-                            <span className="font-semibold text-foreground">
-                              Meningkatnya Ketenteraman dan Ketertiban Bidang
-                              Kebencanaan
-                            </span>
-                            .
-                          </>
-                        )}
+                  <div className="space-y-6 p-6">
+                    <p className="text-pretty whitespace-pre-wrap text-lg font-medium leading-relaxed text-card-foreground">
+                      {objectives ? (
+                        objectives
+                      ) : (
+                        <>
+                          <span className="font-bold">Tujuan BPBD Kota Baubau</span>{" "}
+                          adalah{" "}
+                          <span className="font-bold">
+                            Meningkatnya Ketenteraman dan Ketertiban Bidang Kebencanaan
+                          </span>
+                          .
+                        </>
+                      )}
+                    </p>
+                    <div className="h-0.5 w-full bg-border" />
+                    <div>
+                      <p className="font-mono text-xs font-bold uppercase tracking-widest text-primary">
+                        Output yang diharapkan
+                      </p>
+                      <p className="mt-2 text-base font-medium text-muted-foreground">
+                        Informasi dan layanan kebencanaan yang tertib, terkoordinasi,
+                        dan mudah diakses masyarakat.
                       </p>
                     </div>
-                    <div className="mt-5 h-px w-full bg-border/60" />
-                    <p className="mt-5 font-mono text-[11px] uppercase tracking-[0.25em] text-muted-foreground">
-                      Output yang diharapkan
-                    </p>
-                    <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                      Informasi dan layanan kebencanaan yang tertib, terkoordinasi,
-                      dan mudah diakses masyarakat.
-                    </p>
                   </div>
                 </div>
 
-                <div className="rounded-3xl border border-primary/20 bg-background shadow-sm">
-                  <div className="border-b border-border/60 px-6 py-5">
-                    <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.3em] text-muted-foreground">
+                {/* Card 2 */}
+                <div className="border-2 border-border bg-card">
+                  <div className="border-b-2 border-border bg-secondary px-6 py-3">
+                    <p className="font-mono text-xs font-bold uppercase tracking-widest text-secondary-foreground">
                       Sasaran
                     </p>
                   </div>
-                  <div className="px-6 py-6">
-                    <div className="rounded-2xl bg-primary/6 px-5 py-4">
-                      <p className="text-pretty whitespace-pre-wrap text-[15px] leading-[1.75] text-foreground/90">
-                        {goals ? (
-                          goals
-                        ) : (
-                          <>
-                            <span className="font-semibold text-foreground">
-                              Sasaran BPBD Kota Baubau
-                            </span>{" "}
-                            adalah optimalisasi kualitas penanganan bencana alam
-                            pada tahap{" "}
-                            <span className="font-semibold text-foreground">
-                              pra bencana, tanggap darurat, dan pasca bencana
-                            </span>
-                            .
-                          </>
-                        )}
-                      </p>
-                    </div>
-                    <div className="mt-5 rounded-2xl bg-muted/30 px-5 py-4">
-                      <p className="font-mono text-[11px] uppercase tracking-[0.25em] text-muted-foreground">
+                  <div className="space-y-6 p-6">
+                    <p className="text-pretty whitespace-pre-wrap text-lg font-medium leading-relaxed text-card-foreground">
+                      {goals ? (
+                        goals
+                      ) : (
+                        <>
+                          <span className="font-bold">Sasaran BPBD Kota Baubau</span>{" "}
+                          adalah optimalisasi kualitas penanganan bencana alam pada tahap{" "}
+                          <span className="font-bold">
+                            pra bencana, tanggap darurat, dan pasca bencana
+                          </span>
+                          .
+                        </>
+                      )}
+                    </p>
+                    <div className="border-2 border-border bg-muted p-4">
+                      <p className="font-mono text-xs font-bold uppercase tracking-widest text-secondary">
                         Catatan
                       </p>
-                      <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                      <p className="mt-2 text-base font-medium text-muted-foreground">
                         Sasaran ini menjadi acuan utama dalam penyusunan program,
                         koordinasi lintas instansi, dan layanan publik.
                       </p>
@@ -157,24 +145,17 @@ export function ProfilesClient() {
 
         <section id="struktur" className="scroll-mt-32">
           <div className="space-y-6">
-            <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.35em] text-muted-foreground">
-              Organisasi
-            </p>
-            <h2 className="text-2xl font-bold tracking-[-0.03em] text-secondary sm:text-[1.7rem]">
-              Struktur kepengurusan
+            <h2 className="border-b-2 border-border pb-4 text-3xl font-black tracking-tight text-secondary uppercase">
+              Struktur Organisasi
             </h2>
-            <p className="max-w-3xl text-pretty text-[15px] leading-[1.75] text-muted-foreground">
-              Berikut adalah visual struktur organisasi. Silakan ganti dengan
-              file resmi jika sudah tersedia.
-            </p>
 
-            <div className="overflow-hidden rounded-2xl border border-border/60 bg-background">
-              <div className="border-b border-border px-5 py-4">
-                <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.3em] text-muted-foreground">
-                  Diagram
+            <div className="border-2 border-border bg-card">
+              <div className="border-b-2 border-border bg-muted px-5 py-3">
+                <p className="font-mono text-xs font-bold uppercase tracking-widest text-secondary">
+                  Diagram Kepengurusan
                 </p>
               </div>
-              <div className="relative aspect-video bg-background">
+              <div className="relative aspect-video bg-card p-4">
                 <Image
                   src={structureImage}
                   alt="Struktur kepengurusan BPBD Kota Baubau"
@@ -186,14 +167,14 @@ export function ProfilesClient() {
               </div>
             </div>
 
-            {mapEmbedUrl ? (
-              <div className="overflow-hidden rounded-2xl border border-border/60 bg-background">
-                <div className="border-b border-border px-5 py-4">
-                  <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.3em] text-muted-foreground">
-                    Lokasi (peta)
-                  </p>
-                </div>
-                <div className="relative aspect-video bg-muted">
+            <div className="mt-8 border-2 border-border bg-card">
+              <div className="border-b-2 border-border bg-muted px-5 py-3">
+                <p className="font-mono text-xs font-bold uppercase tracking-widest text-secondary">
+                  Lokasi (Peta)
+                </p>
+              </div>
+              <div className="relative aspect-video bg-muted">
+                {mapEmbedUrl ? (
                   <iframe
                     src={mapEmbedUrl}
                     className="absolute inset-0 h-full w-full"
@@ -202,118 +183,109 @@ export function ProfilesClient() {
                     allowFullScreen
                     title="Peta kantor BPBD Kota Baubau"
                   />
-                </div>
+                ) : (
+                  <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center">
+                    <MapPin className="mb-4 h-12 w-12 text-muted-foreground/50" strokeWidth={1.5} />
+                    <p className="font-mono text-sm font-bold uppercase tracking-widest text-muted-foreground">
+                      Peta Belum Tersedia
+                    </p>
+                    <p className="mt-2 max-w-sm text-sm font-medium text-muted-foreground">
+                      Data lokasi peta belum diatur. Silakan tambahkan URL embed peta melalui dashboard pengaturan.
+                    </p>
+                  </div>
+                )}
               </div>
-            ) : null}
+            </div>
           </div>
         </section>
 
         <section id="kontak" className="scroll-mt-32">
-          <div className="grid gap-12 lg:grid-cols-[minmax(0,1fr)_1fr] lg:items-start lg:gap-16">
-            <div className="space-y-6">
-              <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.35em] text-muted-foreground">
-                Layanan
-              </p>
-              <h2 className="text-2xl font-bold tracking-[-0.03em] text-secondary sm:text-[1.7rem]">
-                Contact us
-              </h2>
-              <p className="max-w-2xl text-pretty text-[15px] leading-[1.75] text-muted-foreground">
-                Gunakan kanal resmi berikut untuk koordinasi, informasi, dan
-                pelaporan. (Silakan sesuaikan alamat/akun sosmed agar sesuai data
-                instansi.)
-              </p>
+          <div className="grid gap-12 lg:grid-cols-[minmax(0,1fr)_1fr] lg:items-start">
+            <div className="space-y-8">
+              <div>
+                <h2 className="border-b-2 border-border pb-4 text-3xl font-black tracking-tight text-secondary uppercase">
+                  Kontak & Layanan
+                </h2>
+                <p className="mt-4 max-w-2xl text-pretty text-base font-medium leading-relaxed text-muted-foreground">
+                  Gunakan kanal resmi berikut untuk koordinasi, informasi, dan pelaporan.
+                </p>
+              </div>
 
               <div className="grid gap-4 sm:grid-cols-2">
                 <a
-                  className="group rounded-2xl border border-border/60 bg-background p-6 transition-colors hover:bg-muted/20"
+                  className="group flex flex-col justify-between border-2 border-border bg-card p-6 transition-colors hover:border-primary hover:bg-primary hover:text-primary-foreground"
                   href={`tel:${phone.replace(/[^\d+]/g, "")}`}
                 >
-                  <div className="flex items-start gap-3">
-                    <span className="mt-0.5 flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                      <Phone className="h-4 w-4" strokeWidth={2.5} />
-                    </span>
-                    <div className="min-w-0">
-                      <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.3em] text-muted-foreground">
-                        Telepon
-                      </p>
-                      <p className="mt-2 text-sm font-semibold text-secondary group-hover:text-primary">
-                        {phone}
-                      </p>
-                    </div>
+                  <Phone className="mb-4 h-8 w-8 text-primary group-hover:text-primary-foreground" strokeWidth={2} />
+                  <div>
+                    <p className="font-mono text-xs font-bold uppercase tracking-widest text-muted-foreground group-hover:text-primary-foreground/80">
+                      Telepon
+                    </p>
+                    <p className="mt-1 text-lg font-black text-secondary group-hover:text-primary-foreground">{phone}</p>
                   </div>
                 </a>
 
                 <a
-                  className="group rounded-2xl border border-border/60 bg-background p-6 transition-colors hover:bg-muted/20"
+                  className="group flex flex-col justify-between border-2 border-border bg-card p-6 transition-colors hover:border-primary hover:bg-primary hover:text-primary-foreground"
                   href={`mailto:${email}`}
                 >
-                  <div className="flex items-start gap-3">
-                    <span className="mt-0.5 flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                      <Mail className="h-4 w-4" strokeWidth={2.5} />
-                    </span>
-                    <div className="min-w-0">
-                      <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.3em] text-muted-foreground">
-                        Email
-                      </p>
-                      <p className="mt-2 text-sm font-semibold text-secondary group-hover:text-primary">
-                        {email}
-                      </p>
-                    </div>
+                  <Mail className="mb-4 h-8 w-8 text-primary group-hover:text-primary-foreground" strokeWidth={2} />
+                  <div>
+                    <p className="font-mono text-xs font-bold uppercase tracking-widest text-muted-foreground group-hover:text-primary-foreground/80">
+                      Email
+                    </p>
+                    <p className="mt-1 break-all text-lg font-black text-secondary group-hover:text-primary-foreground">{email}</p>
                   </div>
                 </a>
 
-                <div className="rounded-2xl border border-border/60 bg-background p-6 sm:col-span-2">
-                  <div className="flex items-start gap-3">
-                    <span className="mt-0.5 flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                      <MapPin className="h-4 w-4" strokeWidth={2.5} />
-                    </span>
-                    <div className="min-w-0">
-                      <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.3em] text-muted-foreground">
-                        Alamat
-                      </p>
-                      <p className="mt-2 text-sm font-semibold text-secondary">
-                        Kantor BPBD Kota Baubau
-                      </p>
-                      <p className="mt-1 text-sm text-muted-foreground">
-                        (Isi alamat lengkap di sini)
-                      </p>
-                    </div>
+                <div className="border-2 border-border bg-card p-6 sm:col-span-2">
+                  <MapPin className="mb-4 h-8 w-8 text-primary" strokeWidth={2} />
+                  <div>
+                    <p className="font-mono text-xs font-bold uppercase tracking-widest text-muted-foreground">
+                      Alamat
+                    </p>
+                    <p className="mt-1 text-lg font-black text-secondary">
+                      Kantor BPBD Kota Baubau
+                    </p>
+                    <p className="mt-1 text-base font-medium text-muted-foreground">
+                      (Isi alamat lengkap di sini)
+                    </p>
                   </div>
                 </div>
               </div>
 
-              <div className="border-t border-border pt-8">
-                <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.3em] text-muted-foreground">
-                  Media sosial
+              <div className="border-t-2 border-border pt-8">
+                <p className="font-mono text-xs font-bold uppercase tracking-widest text-secondary">
+                  Media Sosial
                 </p>
-                <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                <div className="mt-4 grid gap-4 sm:grid-cols-2">
                   <a
                     href={settings.socialInstagram || "#"}
-                    className="group inline-flex items-center gap-3 rounded-xl border border-border/60 bg-background px-4 py-3 text-sm font-semibold text-secondary transition-colors hover:text-primary"
+                    className="group flex items-center gap-3 border-2 border-border bg-card px-4 py-3 text-base font-black text-secondary transition-colors hover:border-primary hover:bg-primary hover:text-primary-foreground"
                   >
-                    <Camera className="h-4 w-4" strokeWidth={2.5} />
+                    <Camera className="h-5 w-5 text-primary group-hover:text-primary-foreground" strokeWidth={2} />
                     IG
-                    <span className="ml-auto font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+                    <span className="ml-auto font-mono text-xs uppercase tracking-widest text-muted-foreground group-hover:text-primary-foreground/80">
                       {settings.socialInstagram || "@bpbd"}
                     </span>
                   </a>
                   <a
                     href={settings.socialTiktok || "#"}
-                    className="group inline-flex items-center gap-3 rounded-xl border border-border/60 bg-background px-4 py-3 text-sm font-semibold text-secondary transition-colors hover:text-primary"
+                    className="group flex items-center gap-3 border-2 border-border bg-card px-4 py-3 text-base font-black text-secondary transition-colors hover:border-primary hover:bg-primary hover:text-primary-foreground"
                   >
-                    <Music2 className="h-4 w-4" strokeWidth={2.5} />
+                    <Music2 className="h-5 w-5 text-primary group-hover:text-primary-foreground" strokeWidth={2} />
                     TikTok
-                    <span className="ml-auto font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+                    <span className="ml-auto font-mono text-xs uppercase tracking-widest text-muted-foreground group-hover:text-primary-foreground/80">
                       {settings.socialTiktok || "@bpbd"}
                     </span>
                   </a>
                   <a
                     href={settings.socialX || "#"}
-                    className="group inline-flex items-center gap-3 rounded-xl border border-border/60 bg-background px-4 py-3 text-sm font-semibold text-secondary transition-colors hover:text-primary sm:col-span-2"
+                    className="group flex items-center gap-3 border-2 border-border bg-card px-4 py-3 text-base font-black text-secondary transition-colors hover:border-primary hover:bg-primary hover:text-primary-foreground sm:col-span-2"
                   >
-                    <Play className="h-4 w-4" strokeWidth={2.5} />
+                    <Play className="h-5 w-5 text-primary group-hover:text-primary-foreground" strokeWidth={2} />
                     X / Twitter
-                    <span className="ml-auto font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+                    <span className="ml-auto font-mono text-xs uppercase tracking-widest text-muted-foreground group-hover:text-primary-foreground/80">
                       {settings.socialX || "@bpbd"}
                     </span>
                   </a>
@@ -322,36 +294,47 @@ export function ProfilesClient() {
             </div>
 
             <div className="space-y-6">
-              <div className="rounded-3xl border border-border/60 bg-background p-6 shadow-sm">
-                <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.35em] text-muted-foreground">
-                  Navigasi cepat
+              <div className="border-2 border-border bg-card p-6">
+                <p className="mb-4 border-b-2 border-border pb-3 font-mono text-xs font-bold uppercase tracking-widest text-secondary">
+                  Navigasi Cepat
                 </p>
-                <ul className="mt-5 space-y-2 text-sm font-semibold text-secondary">
+                <ul className="space-y-3 text-base font-black text-secondary">
                   <li>
-                    <a className="hover:text-primary" href="#tujuan-sasaran">
-                      Tujuan &amp; sasaran
+                    <a
+                      className="hover:text-primary hover:underline underline-offset-4 transition-colors"
+                      href="#tujuan-sasaran"
+                    >
+                      Tujuan &amp; Sasaran
                     </a>
                   </li>
                   <li>
-                    <a className="hover:text-primary" href="#struktur">
-                      Struktur kepengurusan
+                    <a
+                      className="hover:text-primary hover:underline underline-offset-4 transition-colors"
+                      href="#struktur"
+                    >
+                      Struktur Organisasi
                     </a>
                   </li>
                   <li>
-                    <a className="hover:text-primary" href="#kontak">
-                      Kontak &amp; layanan
+                    <a 
+                      className="hover:text-primary hover:underline underline-offset-4 transition-colors" 
+                      href="#kontak"
+                    >
+                      Kontak &amp; Layanan
                     </a>
                   </li>
                 </ul>
               </div>
 
-              <div className="rounded-3xl border border-border/60 bg-muted/20 p-6">
-                <p className="text-xs font-semibold text-muted-foreground">Tips</p>
-                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                  Konten halaman ini bisa diubah dari Dashboard &rarr; Settings.
-                  Gunakan field <span className="font-semibold">Objective</span>,{" "}
-                  <span className="font-semibold">Goals</span>, gambar diagram
-                  struktur, dan map embed.
+              <div className="border-2 border-border bg-muted p-6">
+                <p className="font-mono text-xs font-bold uppercase tracking-widest text-secondary">
+                  Informasi Sistem
+                </p>
+                <p className="mt-3 text-base font-medium leading-relaxed text-muted-foreground">
+                  Konten halaman ini dikelola melalui Dashboard &rarr; Settings.
+                  Gunakan field <span className="font-black text-secondary">Objective</span>,{" "}
+                  <span className="font-black text-secondary">Goals</span>, gambar diagram struktur,
+                  dan map embed untuk memperbarui data.
                 </p>
               </div>
             </div>
@@ -361,4 +344,3 @@ export function ProfilesClient() {
     </>
   );
 }
-

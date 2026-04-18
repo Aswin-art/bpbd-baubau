@@ -2,17 +2,17 @@ import type { Metadata } from "next";
 import { AuthBackground } from "@/app/(auth)/components/auth-background";
 import Image from "next/image";
 import { ArrowUpRight, FileText, MapPin, ShieldCheck } from "lucide-react";
-import { SignInForm } from "./components/sign-in-form";
+import { SignUpForm } from "./components/sign-up-form";
 import { getServerSession } from "@/lib/server";
 import { redirect } from "next/navigation";
 
 export const metadata: Metadata = {
-  title: "Masuk - BPBD Kota Baubau",
+  title: "Daftar - BPBD Kota Baubau",
   description:
-    "Portal login Badan Penanggulangan Bencana Daerah Kota Baubau.",
+    "Portal pendaftaran Badan Penanggulangan Bencana Daerah Kota Baubau.",
 };
 
-export default async function SignInPage() {
+export default async function SignUpPage() {
   const session = await getServerSession();
   if (session?.user) {
     redirect("/dashboard/profiles");
@@ -73,8 +73,8 @@ export default async function SignInPage() {
                   </h2>
                   <div className="mt-8 h-1 w-24 bg-primary" />
                   <p className="mt-8 max-w-2xl text-lg font-medium leading-relaxed text-white/80">
-                    Akses dashboard untuk pembaruan data bencana, arsip dokumen, aspirasi
-                    masyarakat, dan peta kejadian di Kota Baubau.
+                    Daftarkan akun untuk dapat mengirim aspirasi, mengakses dokumen publik,
+                    serta berpartisipasi dalam pelaporan kebencanaan di Kota Baubau.
                   </p>
                 </div>
               </div>
@@ -147,10 +147,10 @@ export default async function SignInPage() {
                 </p>
               </div>
               <h2 className="mt-8 text-balance text-4xl font-black leading-none tracking-tight text-secondary uppercase">
-                Masuk
+                Daftar
               </h2>
               <p className="mt-3 text-base font-medium leading-relaxed text-muted-foreground">
-                Gunakan akun internal untuk mengakses dashboard.
+                Buat akun baru untuk mengakses layanan.
               </p>
             </div>
 
@@ -158,13 +158,13 @@ export default async function SignInPage() {
               <div className="grid gap-8">
                 <div className="space-y-4 border-b-2 border-border pb-6 hidden lg:block">
                   <p className="font-mono text-xs font-bold uppercase tracking-widest text-primary">
-                    Autentikasi
+                    Pendaftaran
                   </p>
                   <h2 className="text-3xl font-black uppercase text-secondary">
-                    Masuk
+                    Buat Akun
                   </h2>
                 </div>
-                <SignInForm />
+                <SignUpForm />
               </div>
             </div>
           </div>

@@ -17,10 +17,7 @@ import {
 import { toast } from "sonner";
 
 import Wrapper from "@/components/wrapper";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Select,
   SelectContent,
@@ -95,15 +92,15 @@ type ArchivesApiResponse = {
 
 function GlobalSearchSkeleton() {
   return (
-    <Wrapper className="pt-24 pb-10 md:pt-28 xl:pt-32">
+    <Wrapper className="pt-24 pb-20 md:pt-28 xl:pt-32">
       <div className="animate-pulse space-y-10">
-        <div className="space-y-4">
-          <div className="h-8 w-56 rounded bg-muted" />
-          <div className="h-11 w-full max-w-2xl rounded bg-muted" />
+        <div className="space-y-4 border-b-2 border-border pb-8">
+          <div className="h-4 w-56 bg-muted" />
+          <div className="h-12 w-full max-w-2xl bg-muted sm:h-14" />
         </div>
-        <div className="grid gap-4 lg:grid-cols-3">
+        <div className="grid gap-6 lg:grid-cols-3">
           {Array.from({ length: 3 }).map((_, i) => (
-            <div key={i} className="h-48 rounded-xl bg-muted" />
+            <div key={i} className="h-48 border-2 border-border bg-muted" />
           ))}
         </div>
       </div>
@@ -113,8 +110,8 @@ function GlobalSearchSkeleton() {
 
 function GlobalSearchErrorFallback({ error }: { error: Error }) {
   return (
-    <Wrapper className="pt-24 pb-10 md:pt-28 xl:pt-32">
-      <div className="rounded-2xl border border-destructive/20 bg-destructive/5 p-6 text-sm text-destructive">
+    <Wrapper className="pt-24 pb-20 md:pt-28 xl:pt-32">
+      <div className="border-2 border-destructive bg-destructive/5 p-6 text-sm font-bold uppercase tracking-widest text-destructive">
         {error.message || "Terjadi kesalahan saat memuat pencarian."}
       </div>
     </Wrapper>
@@ -312,21 +309,18 @@ function GlobalSearchClientInner() {
     hasQuery && totalArticles === 0 && totalDocuments === 0 && totalArchives === 0;
 
   return (
-    <Wrapper className="pt-24 pb-10 md:pt-28 xl:pt-32">
-      <header>
+    <Wrapper className="pt-24 pb-20 md:pt-28 xl:pt-32">
+      <header className="border-b-2 border-border pb-8">
         <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
           <div className="max-w-2xl">
-            <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.35em] text-muted-foreground">
-              BPBD Kota Baubau · Pencarian global
+            <p className="font-mono text-sm font-bold uppercase tracking-widest text-primary">
+              BPBD Kota Baubau · Pencarian Global
             </p>
-            <h1 className="mt-4 text-4xl font-bold leading-[0.95] tracking-[-0.03em] text-secondary sm:text-5xl md:text-[3.25rem]">
-              Cari
-              <span className="mt-1 block text-2xl font-semibold tracking-tight text-muted-foreground sm:text-3xl">
-                arsip, berita, dokumen
-              </span>
+            <h1 className="mt-4 text-4xl font-black leading-none tracking-tight text-secondary sm:text-5xl md:text-[3.5rem] uppercase">
+              Cari Arsip, Berita, Dokumen
             </h1>
           </div>
-          <p className="max-w-md text-sm leading-relaxed text-muted-foreground lg:max-w-xs lg:text-right">
+          <p className="max-w-md text-base font-medium leading-relaxed text-muted-foreground lg:max-w-xs lg:text-right">
             Ketik kata kunci untuk mencari di semua modul publik sekaligus.
           </p>
         </div>
@@ -334,43 +328,46 @@ function GlobalSearchClientInner() {
 
       <section className="mt-12 lg:mt-16">
         <div className="relative max-w-2xl">
-          <Search className="absolute left-3 top-3.5 h-4 w-4 text-muted-foreground" />
-          <Input
-            value={qInput}
-            onChange={(e) => setQInput(e.target.value)}
-            placeholder="Cari judul berita, nama dokumen, atau nama arsip…"
-            className="h-11 pl-10"
-          />
-          {anyFetching && (
-            <span className="absolute right-3 top-3.5 text-[10px] font-mono uppercase tracking-[0.25em] text-muted-foreground">
-              memuat…
-            </span>
-          )}
+          <div className="flex items-center gap-3 border-2 border-border bg-card px-4 py-3 transition-all focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20">
+            <Search className="h-5 w-5 shrink-0 text-muted-foreground" strokeWidth={2.5} />
+            <input
+              value={qInput}
+              onChange={(e) => setQInput(e.target.value)}
+              placeholder="Cari judul berita, nama dokumen, atau nama arsip…"
+              className="w-full bg-transparent text-base font-medium text-foreground outline-none placeholder:text-muted-foreground"
+              aria-label="Cari"
+            />
+            {anyFetching && (
+              <span className="shrink-0 font-mono text-[10px] font-bold uppercase tracking-widest text-primary animate-pulse">
+                Memuat…
+              </span>
+            )}
+          </div>
         </div>
 
-        <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex items-center gap-2">
-            <span className="text-[10px] font-mono uppercase tracking-[0.25em] text-muted-foreground">
+        <div className="mt-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center gap-3">
+            <span className="font-mono text-xs font-bold uppercase tracking-widest text-muted-foreground">
               Tipe
             </span>
             <Select
               value={normalizedType || "semua"}
               onValueChange={(v) => void setTipe(v === "semua" ? null : v)}
             >
-              <SelectTrigger className="h-9 w-[180px]">
+              <SelectTrigger className="h-10 w-[180px] rounded-none border-2 border-border bg-card font-mono text-xs font-bold uppercase tracking-widest text-secondary focus:ring-0 focus:border-primary">
                 <SelectValue placeholder="Semua tipe" />
               </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="semua">Semua</SelectItem>
-                <SelectItem value="berita">Berita</SelectItem>
-                <SelectItem value="dokumen">Dokumen & SOP</SelectItem>
-                <SelectItem value="arsip">Arsip Bencana</SelectItem>
+              <SelectContent className="rounded-none border-2 border-border">
+                <SelectItem value="semua" className="font-mono text-xs font-bold uppercase tracking-widest">Semua</SelectItem>
+                <SelectItem value="berita" className="font-mono text-xs font-bold uppercase tracking-widest">Berita</SelectItem>
+                <SelectItem value="dokumen" className="font-mono text-xs font-bold uppercase tracking-widest">Dokumen & SOP</SelectItem>
+                <SelectItem value="arsip" className="font-mono text-xs font-bold uppercase tracking-widest">Arsip Bencana</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
-          <div className="flex items-center gap-2">
-            <span className="text-[10px] font-mono uppercase tracking-[0.25em] text-muted-foreground">
+          <div className="flex items-center gap-3">
+            <span className="font-mono text-xs font-bold uppercase tracking-widest text-muted-foreground">
               Tahun
             </span>
             <Select
@@ -378,13 +375,13 @@ function GlobalSearchClientInner() {
               onValueChange={(v) => void setTahun(v === "semua" ? null : v)}
               disabled={normalizedType !== "arsip"}
             >
-              <SelectTrigger className="h-9 w-[160px]">
+              <SelectTrigger className="h-10 w-[160px] rounded-none border-2 border-border bg-card font-mono text-xs font-bold uppercase tracking-widest text-secondary focus:ring-0 focus:border-primary disabled:opacity-50">
                 <SelectValue placeholder="Semua tahun" />
               </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="semua">Semua tahun</SelectItem>
+              <SelectContent className="rounded-none border-2 border-border">
+                <SelectItem value="semua" className="font-mono text-xs font-bold uppercase tracking-widest">Semua tahun</SelectItem>
                 {(yearsQuery.data?.years ?? []).map((y) => (
-                  <SelectItem key={y} value={y}>
+                  <SelectItem key={y} value={y} className="font-mono text-xs font-bold uppercase tracking-widest">
                     {y}
                   </SelectItem>
                 ))}
@@ -393,11 +390,11 @@ function GlobalSearchClientInner() {
           </div>
         </div>
 
-        <p className="mt-5 text-xs text-muted-foreground">
+        <p className="mt-6 border-b-2 border-border pb-4 font-mono text-xs font-bold uppercase tracking-widest text-muted-foreground">
           {hasQuery ? (
             <>
               Menampilkan hasil untuk{" "}
-              <span className="font-semibold text-foreground">“{q}”</span>
+              <span className="text-secondary">“{q}”</span>
             </>
           ) : (
             "Menampilkan data terbaru dari setiap modul. Gunakan pencarian untuk memfilter."
@@ -405,16 +402,16 @@ function GlobalSearchClientInner() {
         </p>
 
         {emptyAll && !anyLoading && (
-          <div className="mt-8 rounded-2xl border bg-muted/30 p-6">
-            <div className="flex items-start gap-3">
-              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                <FolderSearch className="h-5 w-5" />
+          <div className="mt-8 border-2 border-border bg-muted p-8">
+            <div className="flex items-start gap-4">
+              <span className="mt-1 flex h-12 w-12 shrink-0 items-center justify-center border-2 border-secondary bg-secondary text-secondary-foreground">
+                <FolderSearch className="h-6 w-6" strokeWidth={2.5} />
               </span>
               <div className="min-w-0">
-                <p className="text-sm font-semibold text-secondary">
+                <p className="text-xl font-black uppercase text-secondary">
                   Tidak ada hasil untuk “{q}”
                 </p>
-                <p className="mt-1 text-sm text-muted-foreground">
+                <p className="mt-2 text-base font-medium text-muted-foreground">
                   Coba kata kunci lain atau gunakan istilah yang lebih umum.
                 </p>
               </div>
@@ -423,11 +420,11 @@ function GlobalSearchClientInner() {
         )}
 
         {!emptyAll && (
-          <div className="mt-10 space-y-6">
+          <div className="mt-10 space-y-10">
             {showArticles && (
               <ResultCard
                 title="Berita"
-                icon={<Newspaper className="h-4 w-4" />}
+                icon={<Newspaper className="h-5 w-5" strokeWidth={2.5} />}
                 count={totalArticles}
                 viewAllHref={
                   hasQuery ? `/articles?q=${encodeURIComponent(q)}` : "/articles"
@@ -437,29 +434,29 @@ function GlobalSearchClientInner() {
                 {topArticles.length === 0 ? (
                   <EmptyMini />
                 ) : (
-                  <ul className="space-y-3">
+                  <ul className="space-y-4">
                     {topArticles.map((a) => (
                       <li key={a.id}>
                         <Link
                           href={`/articles/${a.slug}`}
-                          className="group block rounded-xl border bg-background px-4 py-3 transition-colors hover:bg-muted/40"
+                          className="group block border-2 border-border bg-card p-5 transition-colors hover:border-primary"
                         >
-                          <div className="flex items-start justify-between gap-3">
+                          <div className="flex items-start justify-between gap-4">
                             <div className="min-w-0">
-                              <p className="text-sm font-semibold text-secondary line-clamp-2 group-hover:text-primary">
+                              <p className="text-lg font-black leading-snug text-secondary group-hover:text-primary transition-colors">
                                 {a.title}
                               </p>
-                              <p className="mt-1 text-xs text-muted-foreground line-clamp-2">
+                              <p className="mt-2 text-sm font-medium leading-relaxed text-muted-foreground line-clamp-2">
                                 {a.excerpt}
                               </p>
                             </div>
-                            <ArrowUpRight className="h-4 w-4 shrink-0 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
+                            <ArrowUpRight className="h-5 w-5 shrink-0 text-muted-foreground opacity-0 transition-opacity group-hover:text-primary group-hover:opacity-100" strokeWidth={2.5} />
                           </div>
-                          <div className="mt-3 flex flex-wrap items-center gap-2">
-                            <Badge variant="outline" className="text-[10px] capitalize">
+                          <div className="mt-4 flex flex-wrap items-center gap-3">
+                            <span className="bg-primary px-2 py-1 font-mono text-[10px] font-bold uppercase tracking-widest text-primary-foreground">
                               {categoryLabels[a.category] ?? a.category}
-                            </Badge>
-                            <span className="text-[10px] font-mono uppercase tracking-[0.18em] text-muted-foreground">
+                            </span>
+                            <span className="font-mono text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
                               {a.dateLabel}
                             </span>
                           </div>
@@ -474,7 +471,7 @@ function GlobalSearchClientInner() {
             {showDocuments && (
               <ResultCard
                 title="Dokumen & SOP"
-                icon={<FileText className="h-4 w-4" />}
+                icon={<FileText className="h-5 w-5" strokeWidth={2.5} />}
                 count={totalDocuments}
                 viewAllHref={
                   hasQuery ? `/documents?q=${encodeURIComponent(q)}` : "/documents"
@@ -484,16 +481,16 @@ function GlobalSearchClientInner() {
                 {topDocuments.length === 0 ? (
                   <EmptyMini />
                 ) : (
-                  <ul className="space-y-3">
+                  <ul className="space-y-4">
                     {topDocuments.map((d) => (
                       <li key={d.id}>
-                        <div className="rounded-xl border bg-background px-4 py-3 transition-colors hover:bg-muted/40">
-                          <div className="flex items-start justify-between gap-3">
+                        <div className="group border-2 border-border bg-card p-5 transition-colors hover:border-primary">
+                          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                             <div className="min-w-0">
-                              <p className="text-sm font-semibold text-secondary line-clamp-2">
+                              <p className="text-lg font-black leading-snug text-secondary group-hover:text-primary transition-colors">
                                 {d.name}
                               </p>
-                              <p className="mt-1 text-xs text-muted-foreground line-clamp-2">
+                              <p className="mt-2 text-sm font-medium leading-relaxed text-muted-foreground line-clamp-2">
                                 {d.description}
                               </p>
                             </div>
@@ -507,28 +504,31 @@ function GlobalSearchClientInner() {
                                     toast.error((e as Error).message);
                                   }
                                 }}
-                                className="inline-flex h-9 w-9 items-center justify-center rounded-lg border bg-background text-muted-foreground transition-colors hover:bg-muted"
+                                className="flex h-10 w-10 items-center justify-center border-2 border-border bg-card text-secondary transition-colors hover:border-primary hover:bg-primary hover:text-primary-foreground"
                                 aria-label={`Unduh ${d.name}`}
                               >
-                                <Download className="h-4 w-4" />
+                                <Download className="h-4 w-4" strokeWidth={2.5} />
                               </button>
                               <a
                                 href={d.downloadUrl}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="inline-flex h-9 w-9 items-center justify-center rounded-lg border bg-background text-muted-foreground transition-colors hover:bg-muted"
+                                className="flex h-10 w-10 items-center justify-center border-2 border-border bg-card text-secondary transition-colors hover:border-primary hover:bg-primary hover:text-primary-foreground"
                                 aria-label={`Buka ${d.name} di tab baru`}
                               >
-                                <ArrowUpRight className="h-4 w-4" />
+                                <ArrowUpRight className="h-4 w-4" strokeWidth={2.5} />
                               </a>
                             </div>
                           </div>
-                          <div className="mt-3 flex flex-wrap items-center gap-2">
-                            <Badge variant="outline" className="text-[10px] capitalize">
+                          <div className="mt-4 flex flex-wrap items-center gap-3">
+                            <span className="bg-primary px-2 py-1 font-mono text-[10px] font-bold uppercase tracking-widest text-primary-foreground">
                               {d.category}
-                            </Badge>
-                            <span className="text-[10px] font-mono uppercase tracking-[0.18em] text-muted-foreground">
-                              {d.date} · {d.fileSize}
+                            </span>
+                            <span className="font-mono text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+                              {d.date}
+                            </span>
+                            <span className="font-mono text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+                              {d.fileSize}
                             </span>
                           </div>
                         </div>
@@ -542,7 +542,7 @@ function GlobalSearchClientInner() {
             {showArchives && (
               <ResultCard
                 title="Arsip Bencana"
-                icon={<MapPin className="h-4 w-4" />}
+                icon={<MapPin className="h-5 w-5" strokeWidth={2.5} />}
                 count={totalArchives}
                 viewAllHref={
                   hasQuery ? `/archives?q=${encodeURIComponent(q)}` : "/archives"
@@ -556,16 +556,16 @@ function GlobalSearchClientInner() {
                 {topArchives.length === 0 ? (
                   <EmptyMini />
                 ) : (
-                  <ul className="space-y-3">
+                  <ul className="space-y-4">
                     {topArchives.map((d) => (
                       <li key={d.id}>
-                        <div className="rounded-xl border bg-background px-4 py-3 transition-colors hover:bg-muted/40">
-                          <div className="flex items-start justify-between gap-3">
+                        <div className="group border-2 border-border bg-card p-5 transition-colors hover:border-primary">
+                          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                             <div className="min-w-0">
-                              <p className="text-sm font-semibold text-secondary line-clamp-2">
+                              <p className="text-lg font-black leading-snug text-secondary group-hover:text-primary transition-colors">
                                 {d.name}
                               </p>
-                              <p className="mt-1 text-xs text-muted-foreground line-clamp-2">
+                              <p className="mt-2 text-sm font-medium leading-relaxed text-muted-foreground line-clamp-2">
                                 {d.description}
                               </p>
                             </div>
@@ -579,28 +579,31 @@ function GlobalSearchClientInner() {
                                     toast.error((e as Error).message);
                                   }
                                 }}
-                                className="inline-flex h-9 w-9 items-center justify-center rounded-lg border bg-background text-muted-foreground transition-colors hover:bg-muted"
+                                className="flex h-10 w-10 items-center justify-center border-2 border-border bg-card text-secondary transition-colors hover:border-primary hover:bg-primary hover:text-primary-foreground"
                                 aria-label={`Unduh ${d.name}`}
                               >
-                                <Download className="h-4 w-4" />
+                                <Download className="h-4 w-4" strokeWidth={2.5} />
                               </button>
                               <a
                                 href={d.downloadUrl}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="inline-flex h-9 w-9 items-center justify-center rounded-lg border bg-background text-muted-foreground transition-colors hover:bg-muted"
+                                className="flex h-10 w-10 items-center justify-center border-2 border-border bg-card text-secondary transition-colors hover:border-primary hover:bg-primary hover:text-primary-foreground"
                                 aria-label={`Buka ${d.name} di tab baru`}
                               >
-                                <ArrowUpRight className="h-4 w-4" />
+                                <ArrowUpRight className="h-4 w-4" strokeWidth={2.5} />
                               </a>
                             </div>
                           </div>
-                          <div className="mt-3 flex flex-wrap items-center gap-2">
-                            <Badge variant="outline" className="text-[10px]">
+                          <div className="mt-4 flex flex-wrap items-center gap-3">
+                            <span className="bg-primary px-2 py-1 font-mono text-[10px] font-bold uppercase tracking-widest text-primary-foreground">
                               {d.year}
-                            </Badge>
-                            <span className="text-[10px] font-mono uppercase tracking-[0.18em] text-muted-foreground">
-                              {d.dateLabel} · {d.fileSize}
+                            </span>
+                            <span className="font-mono text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+                              {d.dateLabel}
+                            </span>
+                            <span className="font-mono text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+                              {d.fileSize}
                             </span>
                           </div>
                         </div>
@@ -615,7 +618,7 @@ function GlobalSearchClientInner() {
 
         {(articlesQuery.isError || documentsQuery.isError || archivesQuery.isError) &&
           (
-            <div className="mt-8 rounded-2xl border border-destructive/20 bg-destructive/5 p-6 text-sm text-destructive">
+            <div className="mt-8 border-2 border-destructive bg-destructive/5 p-6 font-mono text-xs font-bold uppercase tracking-widest text-destructive">
               Terjadi kesalahan saat memuat hasil pencarian. Silakan coba lagi.
             </div>
           )}
@@ -626,7 +629,7 @@ function GlobalSearchClientInner() {
 
 function EmptyMini() {
   return (
-    <div className="rounded-xl border bg-muted/20 p-4 text-sm text-muted-foreground">
+    <div className="border-2 border-border bg-muted p-6 font-mono text-xs font-bold uppercase tracking-widest text-muted-foreground">
       Tidak ada hasil.
     </div>
   );
@@ -648,29 +651,32 @@ function ResultCard({
   children: React.ReactNode;
 }) {
   return (
-    <Card className="py-5">
-      <CardHeader className="px-5 pb-0">
-        <div className="flex items-start justify-between gap-4">
+    <div className="border-2 border-border bg-card">
+      <div className="border-b-2 border-border bg-muted px-6 py-4">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="min-w-0">
-            <CardTitle className="text-sm flex items-center gap-2">
+            <h2 className="flex items-center gap-3 text-xl font-black uppercase text-secondary">
               {icon}
               {title}
-            </CardTitle>
-            <p className="mt-2 text-xs text-muted-foreground">
+            </h2>
+            <p className="mt-1 font-mono text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
               {subtitle ? `${subtitle} · ` : ""}
-              {count} hasil
+              {count} Hasil
             </p>
           </div>
-          <Button asChild size="sm" variant="outline" className="shrink-0">
+          <Button 
+            asChild 
+            variant="outline" 
+            className="shrink-0 rounded-none border-2 border-border bg-card font-mono text-xs font-bold uppercase tracking-widest text-secondary transition-colors hover:border-primary hover:bg-primary hover:text-primary-foreground"
+          >
             <Link href={viewAllHref}>
-              Lihat semua
-              <ArrowUpRight className="ml-2 h-4 w-4" />
+              Lihat Semua
+              <ArrowUpRight className="ml-2 h-4 w-4" strokeWidth={2.5} />
             </Link>
           </Button>
         </div>
-      </CardHeader>
-      <CardContent className={cn("px-5 pt-4")}>{children}</CardContent>
-    </Card>
+      </div>
+      <div className="p-6">{children}</div>
+    </div>
   );
 }
-

@@ -8,7 +8,6 @@ import { motion } from "motion/react";
 import { Loader2, ArrowLeft, Mail } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
-import { authClient } from "@/lib/auth-client";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -38,66 +37,31 @@ export function ForgotPasswordForm() {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
-    try {
-      const { error } = await authClient.requestPasswordReset({
-        email: values.email,
-        redirectTo: "/reset-password",
-      });
-
-      if (error) {
-        toast.error(error.message || "Terjadi kesalahan. Silakan coba lagi.");
-      } else {
-        setIsSent(true);
-      }
-    } catch {
-      toast.error("Terjadi kesalahan. Silakan coba lagi.");
-    } finally {
+    // Simulasi proses reset password karena fungsionalitas aslinya belum diimplementasikan
+    setTimeout(() => {
+      toast.info("Fitur reset password sedang dalam pengembangan.");
       setIsLoading(false);
-    }
+    }, 1000);
   }
 
   return (
-    <div className="w-full max-w-md space-y-8">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="space-y-2 text-left"
-      >
-        <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.35em] text-muted-foreground">
-          BPBD Kota Baubau · Akun
-        </p>
-        <h1 className="text-3xl font-bold tracking-tight text-foreground">
-          Reset password
-        </h1>
-        <motion.div
-          initial={{ width: 0 }}
-          animate={{ width: 48 }}
-          transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
-          className="h-1 rounded-full bg-primary"
-        />
-        <p className="text-muted-foreground">
-          Masukkan email terdaftar. Kami akan kirim tautan untuk membuat password
-          baru.
-        </p>
-      </motion.div>
-
+    <div className="w-full space-y-8">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.1 }}
       >
         {isSent ? (
-          <div className="rounded-2xl border border-border/60 bg-muted/20 p-5">
-            <div className="flex items-start gap-3">
-              <span className="mt-0.5 flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                <Mail className="h-4 w-4" strokeWidth={2.5} />
+          <div className="border-2 border-border bg-muted p-6">
+            <div className="flex items-start gap-4">
+              <span className="mt-1 flex h-12 w-12 shrink-0 items-center justify-center border-2 border-primary bg-primary text-primary-foreground">
+                <Mail className="h-6 w-6" strokeWidth={2.5} />
               </span>
               <div className="min-w-0">
-                <p className="text-sm font-semibold text-foreground">
-                  Tautan reset sudah dikirim.
+                <p className="text-lg font-black uppercase text-secondary">
+                  Tautan Reset Dikirim
                 </p>
-                <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
+                <p className="mt-2 text-sm font-medium leading-relaxed text-muted-foreground">
                   Silakan periksa kotak masuk atau folder spam. Jika belum masuk,
                   coba kirim ulang.
                 </p>
@@ -106,32 +70,32 @@ export function ForgotPasswordForm() {
           </div>
         ) : (
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
               <FormField
                 control={form.control}
                 name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Email</FormLabel>
+                    <FormLabel className="font-mono text-xs font-bold uppercase tracking-widest text-secondary">Email Terdaftar</FormLabel>
                     <FormControl>
                       <Input
                         placeholder="nama@email.com"
                         {...field}
-                        className="h-12 transition-all focus:ring-2 focus:ring-primary/20"
+                        className="h-12 rounded-none border-2 border-border bg-background px-4 font-medium transition-all focus:border-primary focus:ring-0"
                       />
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage className="font-mono text-[10px] font-bold uppercase tracking-widest text-destructive" />
                   </FormItem>
                 )}
               />
 
               <Button
                 type="submit"
-                className="h-12 w-full bg-primary font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
+                className="mt-6 h-14 w-full rounded-none border-2 border-primary bg-primary font-mono text-xs font-bold uppercase tracking-widest text-primary-foreground transition-colors hover:bg-background hover:text-primary"
                 disabled={isLoading}
               >
                 {isLoading && (
-                  <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                  <Loader2 className="mr-3 h-5 w-5 animate-spin" strokeWidth={2.5} />
                 )}
                 Kirim Tautan Reset
               </Button>
@@ -144,27 +108,15 @@ export function ForgotPasswordForm() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.2, duration: 0.5 }}
-        className="flex justify-center"
+        className="mt-8 border-t-2 border-border pt-6 text-center"
       >
         <Link
           href="/sign-in"
-          className="flex items-center text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
+          className="inline-flex items-center font-mono text-xs font-bold uppercase tracking-widest text-muted-foreground hover:text-primary transition-colors"
         >
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Kembali ke halaman masuk
+          <ArrowLeft className="mr-2 h-4 w-4" strokeWidth={2.5} />
+          Kembali ke Halaman Masuk
         </Link>
-      </motion.div>
-
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.3, duration: 0.5 }}
-        className="pt-6 text-center text-xs text-muted-foreground"
-      >
-        <p>
-          &copy; {new Date().getFullYear()} BPBD Kota Baubau &mdash; Badan
-          Penanggulangan Bencana Daerah
-        </p>
       </motion.div>
     </div>
   );

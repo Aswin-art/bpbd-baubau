@@ -127,20 +127,20 @@ function NewsClientInner() {
 
   return (
     <Wrapper className="pt-24 pb-10 md:pt-28 xl:pt-32">
-      <header>
+      <header className="border-b-2 border-border pb-8">
         <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
           <div className="max-w-2xl">
-            <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.35em] text-muted-foreground">
+            <p className="font-mono text-sm font-bold uppercase tracking-widest text-primary">
               BPBD Kota Baubau · Publikasi
             </p>
-            <h1 className="mt-4 text-4xl font-bold leading-[0.95] tracking-[-0.03em] text-secondary sm:text-5xl md:text-[3.25rem]">
+            <h1 className="mt-4 text-4xl font-black leading-none tracking-tight text-secondary sm:text-5xl md:text-[3.5rem] uppercase">
               Berita
-              <span className="mt-1 block text-2xl font-semibold tracking-tight text-muted-foreground sm:text-3xl">
-                &amp; kegiatan
+              <span className="mt-2 block text-2xl font-black tracking-tight text-muted-foreground sm:text-3xl">
+                &amp; Kegiatan
               </span>
             </h1>
           </div>
-          <p className="max-w-md text-sm leading-relaxed text-muted-foreground lg:max-w-xs lg:text-right">
+          <p className="max-w-md text-base font-medium leading-relaxed text-muted-foreground lg:max-w-xs lg:text-right">
             Arsip informasi resmi: kegiatan lapangan, edukasi masyarakat, dan
             siaran pers penanggulangan bencana.
           </p>
@@ -159,8 +159,8 @@ function NewsClientInner() {
                   onClick={() => setTagAndReset(opt.value)}
                   className={
                     active
-                      ? "rounded-full bg-secondary px-3.5 py-2 font-mono text-[11px] font-semibold uppercase tracking-[0.2em] text-secondary-foreground"
-                      : "rounded-full border border-border/60 bg-background px-3.5 py-2 font-mono text-[11px] font-semibold uppercase tracking-[0.2em] text-muted-foreground transition-colors hover:text-secondary"
+                      ? "border-2 border-secondary bg-secondary px-4 py-2 font-mono text-xs font-bold uppercase tracking-widest text-secondary-foreground transition-colors"
+                      : "border-2 border-border bg-card px-4 py-2 font-mono text-xs font-bold uppercase tracking-widest text-muted-foreground transition-colors hover:border-primary hover:bg-primary hover:text-primary-foreground"
                   }
                   aria-pressed={active}
                 >
@@ -170,38 +170,38 @@ function NewsClientInner() {
             })}
           </div>
 
-          <div className="flex items-center gap-2 rounded-2xl border border-border/60 bg-background px-3.5 py-2">
+          <div className="flex items-center gap-2 border-2 border-border bg-card px-4 py-2 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 transition-all">
             <input
               value={qInput}
               onChange={(e) => setQInput(e.target.value)}
               placeholder="Cari berita…"
-              className="w-full bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground"
+              className="w-full bg-transparent text-sm font-medium text-foreground outline-none placeholder:text-muted-foreground"
               aria-label="Cari berita"
             />
             {qInput.trim() ? (
               <button
                 type="button"
                 onClick={clearSearch}
-                className="shrink-0 font-mono text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground transition-colors hover:text-primary"
+                className="shrink-0 font-mono text-[10px] font-bold uppercase tracking-widest text-muted-foreground transition-colors hover:text-primary"
               >
-                hapus
+                Hapus
               </button>
             ) : null}
           </div>
         </div>
 
-        <div className="mb-10 flex flex-wrap items-baseline justify-between gap-4">
-          <p className="text-sm text-muted-foreground">
-            {data ? `${data.total} artikel` : "Memuat…"}
+        <div className="mb-10 flex flex-wrap items-baseline justify-between gap-4 border-b-2 border-border pb-4">
+          <p className="font-mono text-xs font-bold uppercase tracking-widest text-muted-foreground">
+            {data ? `${data.total} Artikel` : "Memuat…"}
             {totalPages > 1 ? (
               <span className="text-muted-foreground/70">
                 {" "}
-                · halaman {String(current)} dari {String(totalPages)}
+                · Halaman {String(current)} dari {String(totalPages)}
               </span>
             ) : null}
             {isFetching && !isLoading ? (
-              <span className="ml-2 font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground/70">
-                memuat
+              <span className="ml-2 font-mono text-[10px] uppercase tracking-[0.2em] text-primary animate-pulse">
+                (Memuat)
               </span>
             ) : null}
           </p>
@@ -215,58 +215,63 @@ function NewsClientInner() {
         ) : isLoading ? (
           <NewsSkeleton />
         ) : items.length === 0 ? (
-          <div className="rounded-2xl bg-muted/40 px-6 py-20 text-center">
-            <p className="text-lg font-semibold tracking-tight text-secondary">
-              Belum ada artikel
+          <div className="border-2 border-border bg-muted px-6 py-20 text-center">
+            <p className="text-xl font-black tracking-tight text-secondary uppercase">
+              Belum Ada Artikel
             </p>
-            <p className="mt-2 text-sm text-muted-foreground">
-                Tidak ada hasil untuk filter/pencarian ini.
+            <p className="mt-2 text-base font-medium text-muted-foreground">
+              Tidak ada hasil untuk filter/pencarian ini.
             </p>
           </div>
         ) : (
-          <ul className="flex flex-col gap-12 lg:gap-16">
+          <ul className="flex flex-col gap-8">
             {items.map((news, i) => {
               const idx = (current - 1) * (data?.perPage ?? 4) + i + 1;
               return (
                 <li key={news.slug}>
                   <Link
                     href={`/articles/${news.slug}`}
-                    className="group block rounded-2xl outline-none transition-colors focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2"
+                    className="group block border-2 border-border bg-card p-6 transition-colors hover:border-primary focus-visible:border-primary focus-visible:outline-none"
                   >
                     <article className="flex flex-col gap-6 md:grid md:grid-cols-12 md:items-start md:gap-8 lg:gap-10">
-                      <span className="text-xs tabular-nums text-muted-foreground md:col-span-1 md:pt-1">
-                        {String(idx).padStart(2, "0")}
-                      </span>
+                      <div className="hidden md:col-span-1 md:flex md:pt-1">
+                        <span className="font-mono text-xl font-black text-muted-foreground/50 group-hover:text-primary transition-colors">
+                          {String(idx).padStart(2, "0")}
+                        </span>
+                      </div>
 
-                      <div className="relative aspect-video w-full overflow-hidden rounded-xl bg-muted md:col-span-3 md:aspect-4/3">
+                      <div className="relative aspect-video w-full overflow-hidden border-2 border-border bg-muted md:col-span-4 md:aspect-4/3">
                         <Image
                           src={news.imageUrl}
                           alt=""
                           fill
-                          sizes="(max-width: 768px) 100vw, 25vw"
-                          className="object-cover transition-transform duration-500 group-hover:scale-[1.02]"
+                          sizes="(max-width: 768px) 100vw, 33vw"
+                          className="object-cover transition-transform duration-500 group-hover:scale-105"
                         />
                       </div>
 
-                      <div className="min-w-0 space-y-3 md:col-span-6 lg:col-span-7">
-                        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
-                          <span className="font-medium text-primary">
+                      <div className="min-w-0 space-y-4 md:col-span-7">
+                        <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+                          <span className="bg-primary px-2 py-1 font-mono text-[10px] font-bold uppercase tracking-widest text-primary-foreground">
                             {news.category}
                           </span>
-                          <span>{news.dateLabel}</span>
+                          <span className="font-mono text-xs font-bold uppercase tracking-widest text-muted-foreground">
+                            {news.dateLabel}
+                          </span>
                         </div>
-                        <h2 className="text-xl font-bold leading-snug tracking-[-0.02em] text-secondary transition-colors group-hover:text-primary md:text-2xl">
+                        <h2 className="text-2xl font-black leading-snug tracking-tight text-secondary transition-colors group-hover:text-primary md:text-3xl">
                           {news.title}
                         </h2>
-                        <p className="max-w-2xl text-pretty text-sm leading-relaxed text-muted-foreground sm:text-[15px]">
+                        <p className="max-w-2xl text-pretty text-base font-medium leading-relaxed text-muted-foreground">
                           {news.excerpt}
                         </p>
-                      </div>
-
-                      <div className="hidden justify-end md:col-span-2 md:flex lg:col-span-1">
-                        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-muted/80 text-secondary transition-colors group-hover:bg-primary/10 group-hover:text-primary">
-                          <ArrowUpRight className="h-4 w-4" strokeWidth={2} />
-                        </span>
+                        
+                        <div className="pt-4">
+                          <span className="inline-flex items-center gap-2 font-mono text-xs font-bold uppercase tracking-widest text-secondary group-hover:text-primary transition-colors">
+                            Baca Selengkapnya
+                            <ArrowUpRight className="h-4 w-4" strokeWidth={2.5} />
+                          </span>
+                        </div>
                       </div>
                     </article>
                   </Link>
@@ -278,7 +283,7 @@ function NewsClientInner() {
 
         {totalPages > 1 ? (
           <nav
-            className="mt-16 flex flex-wrap items-center justify-end gap-3 sm:gap-4"
+            className="mt-16 flex flex-wrap items-center justify-between gap-4 border-t-2 border-border pt-8"
             aria-label="Paginasi berita"
           >
             <button
@@ -287,15 +292,15 @@ function NewsClientInner() {
               disabled={current <= 1}
               className={
                 current > 1
-                  ? "inline-flex items-center gap-2 text-sm font-medium text-secondary transition-colors hover:text-primary"
-                  : "inline-flex items-center gap-2 text-sm text-muted-foreground/50"
+                  ? "inline-flex items-center gap-2 border-2 border-border bg-card px-4 py-2 font-mono text-xs font-bold uppercase tracking-widest text-secondary transition-colors hover:border-primary hover:bg-primary hover:text-primary-foreground"
+                  : "inline-flex items-center gap-2 border-2 border-border bg-muted px-4 py-2 font-mono text-xs font-bold uppercase tracking-widest text-muted-foreground/50 cursor-not-allowed"
               }
             >
-              <ChevronLeft className="h-4 w-4" />
+              <ChevronLeft className="h-4 w-4" strokeWidth={2.5} />
               Sebelumnya
             </button>
 
-            <div className="flex flex-wrap items-center justify-end gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
                 <button
                   key={p}
@@ -303,8 +308,8 @@ function NewsClientInner() {
                   onClick={() => goTo(p)}
                   className={
                     p === current
-                      ? "flex min-h-9 min-w-9 items-center justify-center rounded-md bg-secondary text-sm font-semibold text-secondary-foreground"
-                      : "flex min-h-9 min-w-9 items-center justify-center rounded-md text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                      ? "flex h-10 w-10 items-center justify-center border-2 border-secondary bg-secondary font-mono text-xs font-bold text-secondary-foreground"
+                      : "flex h-10 w-10 items-center justify-center border-2 border-border bg-card font-mono text-xs font-bold text-muted-foreground transition-colors hover:border-primary hover:bg-primary hover:text-primary-foreground"
                   }
                   aria-current={p === current ? "page" : undefined}
                 >
@@ -319,12 +324,12 @@ function NewsClientInner() {
               disabled={current >= totalPages}
               className={
                 current < totalPages
-                  ? "inline-flex items-center gap-2 text-sm font-medium text-secondary transition-colors hover:text-primary"
-                  : "inline-flex items-center gap-2 text-sm text-muted-foreground/50"
+                  ? "inline-flex items-center gap-2 border-2 border-border bg-card px-4 py-2 font-mono text-xs font-bold uppercase tracking-widest text-secondary transition-colors hover:border-primary hover:bg-primary hover:text-primary-foreground"
+                  : "inline-flex items-center gap-2 border-2 border-border bg-muted px-4 py-2 font-mono text-xs font-bold uppercase tracking-widest text-muted-foreground/50 cursor-not-allowed"
               }
             >
               Selanjutnya
-              <ChevronRight className="h-4 w-4" />
+              <ChevronRight className="h-4 w-4" strokeWidth={2.5} />
             </button>
           </nav>
         ) : null}
@@ -332,4 +337,3 @@ function NewsClientInner() {
     </Wrapper>
   );
 }
-

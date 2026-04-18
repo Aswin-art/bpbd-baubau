@@ -65,15 +65,19 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           <SidebarMenu>
             <SidebarMenuItem>
               <SidebarMenuButton size="lg" asChild>
-                <Link href="/dashboard">
-                  <div className="flex items-center justify-center py-4">
+                <Link href="/dashboard/profiles">
+                  <div className="flex items-center gap-3 py-4">
                     <Image
-                      src="/logo.png"
-                      alt="SIMARS Logo"
-                      width={160}
-                      height={160}
-                      className="h-12 xl:h-20 w-auto object-contain"
+                      src="/logo-bpbd.avif"
+                      alt="BPBD Kota Baubau"
+                      width={40}
+                      height={40}
+                      className="h-8 w-auto object-contain"
                     />
+                    <div className="flex flex-col gap-0.5 leading-none">
+                      <span className="font-semibold text-sm">BPBD Baubau</span>
+                      <span className="text-xs text-muted-foreground">Dashboard</span>
+                    </div>
                   </div>
                 </Link>
               </SidebarMenuButton>

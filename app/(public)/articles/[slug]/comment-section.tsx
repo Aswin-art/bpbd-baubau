@@ -523,7 +523,7 @@ export function CommentSection({ slug }: { slug: string }) {
         <p className="mb-4 font-mono text-[10px] font-semibold uppercase tracking-[0.3em] text-muted-foreground">
           Tanggapan baru
         </p>
-        {!isLoggedIn && (
+        {!isLoggedIn ? (
           <div className="mb-4 rounded-xl border border-border bg-muted/30 px-4 py-3 text-sm text-muted-foreground">
             Untuk berkomentar, silakan{" "}
             <Link
@@ -534,14 +534,13 @@ export function CommentSection({ slug }: { slug: string }) {
             </Link>
             .
           </div>
+        ) : (
+          <SlateCommentEditor
+            onSubmitHtml={handleSubmitHtml}
+            submitting={submitting}
+            intentLabel="Tulis tanggapan Anda di sini…"
+          />
         )}
-        <SlateCommentEditor
-          onSubmitHtml={handleSubmitHtml}
-          submitting={submitting || !isLoggedIn}
-          intentLabel={
-            isLoggedIn ? "Tulis tanggapan Anda di sini…" : "Masuk untuk menulis komentar…"
-          }
-        />
       </div>
     </section>
   );

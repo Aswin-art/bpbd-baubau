@@ -561,7 +561,9 @@ export default function ProfilePage() {
                     name="currentPassword"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Kata sandi saat ini</FormLabel>
+                        <FormLabel>
+                          Kata sandi saat ini <span className="text-destructive">*</span>
+                        </FormLabel>
                         <FormControl>
                           <Input
                             type="password"
@@ -582,7 +584,9 @@ export default function ProfilePage() {
                     name="newPassword"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Kata sandi baru</FormLabel>
+                        <FormLabel>
+                          Kata sandi baru <span className="text-destructive">*</span>
+                        </FormLabel>
                         <FormControl>
                           <Input
                             type="password"
@@ -602,7 +606,9 @@ export default function ProfilePage() {
                     name="confirmPassword"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Konfirmasi kata sandi</FormLabel>
+                        <FormLabel>
+                          Konfirmasi kata sandi <span className="text-destructive">*</span>
+                        </FormLabel>
                         <FormControl>
                           <Input
                             type="password"

@@ -4,8 +4,8 @@ import Image from "next/image";
 import { useCallback, useEffect, useState } from "react";
 import { motion } from "motion/react";
 
-const SPLASH_MS = 1600;
-const REVEAL_MS = 900;
+const SPLASH_MS = 1200;
+const REVEAL_MS = 600;
 
 export default function SplashScreen() {
   const [isChecking, setIsChecking] = useState(true);
@@ -79,16 +79,16 @@ export default function SplashScreen() {
 
   return (
     <motion.div
-      className="fixed inset-0 z-9999 overflow-hidden bg-background"
+      className="fixed inset-0 z-9999 overflow-hidden bg-background flex flex-col items-center justify-center"
       initial={false}
       animate={
         phase === "reveal"
-          ? { y: "-100%", borderBottomLeftRadius: 28, borderBottomRightRadius: 28 }
-          : { y: "0%", borderBottomLeftRadius: 0, borderBottomRightRadius: 0 }
+          ? { y: "-100%" }
+          : { y: "0%" }
       }
       transition={{
         duration: phase === "reveal" ? REVEAL_MS / 1000 : 0,
-        ease: [0.22, 1, 0.36, 1],
+        ease: [0.76, 0, 0.24, 1], // Snappy brutalist ease
       }}
       onAnimationComplete={() => {
         if (phase === "reveal") {
@@ -97,85 +97,49 @@ export default function SplashScreen() {
         }
       }}
     >
-      {/* Swiss grid + subtle grain */}
-      <div className="pointer-events-none absolute inset-0 opacity-[0.06] mix-blend-multiply">
-        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
-      </div>
-      <div className="pointer-events-none absolute inset-0 opacity-[0.55]">
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(15,23,42,0.07)_1px,transparent_1px),linear-gradient(to_bottom,rgba(15,23,42,0.07)_1px,transparent_1px)] bg-size-[64px_64px]" />
-      </div>
+      <motion.div
+        className="flex flex-col items-center gap-8"
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{
+          opacity: phase === "reveal" ? 0 : 1,
+          scale: phase === "reveal" ? 0.95 : 1,
+        }}
+        transition={{
+          duration: 0.4,
+          ease: "easeOut",
+        }}
+      >
+        <div className="relative h-24 w-24 sm:h-32 sm:w-32">
+          <Image
+            src="/logo-bpbd.avif"
+            alt="BPBD Kota Baubau"
+            fill
+            className="object-contain"
+            priority
+          />
+        </div>
+        
+        <div className="flex flex-col items-center text-center gap-2">
+          <h1 className="font-black text-3xl sm:text-5xl uppercase tracking-tight text-secondary">
+            BPBD Kota Baubau
+          </h1>
+          <p className="font-mono text-xs sm:text-sm font-bold uppercase tracking-widest text-primary">
+            Siaga • Tanggap • Pulih
+          </p>
+        </div>
 
-      <div className="relative flex h-full w-full items-center justify-center px-6">
-        <motion.div
-          className="w-full max-w-5xl"
-          initial={{ opacity: 0, y: 10 }}
-          animate={{
-            opacity: 1,
-            y: 0,
-            scale: phase === "reveal" ? 0.985 : 1,
-            filter: phase === "reveal" ? "blur(2px)" : "blur(0px)",
-          }}
-          transition={{
-            duration: phase === "reveal" ? 0.55 : 0.45,
-            ease: [0.22, 1, 0.36, 1],
-          }}
-        >
-          <div className="grid grid-cols-12 items-center gap-y-10">
-            {/* left: identity */}
-            <div className="col-span-12 md:col-span-7">
-              <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.35em] text-muted-foreground">
-                Portal Informasi &amp; Kesiapsiagaan Bencana
-              </p>
-              <h1 className="mt-4 text-balance font-heading text-4xl font-black uppercase tracking-[-0.03em] text-secondary sm:text-6xl">
-                BPBD Kota Baubau
-              </h1>
-              <div className="mt-6 flex items-center gap-4">
-                <div className="h-px w-16 bg-border" aria-hidden />
-                <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.3em] text-muted-foreground">
-                  Siaga • Tanggap • Pulih
-                </p>
-              </div>
-            </div>
-
-            {/* right: mark */}
-            <div className="col-span-12 md:col-span-5 md:justify-self-end">
-              <div className="flex items-center gap-6 md:flex-col md:items-end md:gap-4">
-                <div className="relative h-14 w-14 sm:h-16 sm:w-16">
-                  <Image
-                    src="/logo-bpbd.avif"
-                    alt="BPBD Kota Baubau"
-                    fill
-                    className="object-contain"
-                    priority
-                  />
-                </div>
-                <div className="w-full md:w-64">
-                  <div className="flex items-center justify-between">
-                    <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.28em] text-muted-foreground">
-                      Memuat
-                    </span>
-                    <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.22em] text-muted-foreground">
-                      {String(Math.round((SPLASH_MS / (SPLASH_MS + REVEAL_MS)) * 100)).padStart(2, "0")}
-                      %
-                    </span>
-                  </div>
-                  <div className="mt-2 h-[2px] w-full overflow-hidden rounded-full bg-border">
-                    <motion.div
-                      className="h-full w-full origin-left bg-secondary"
-                      initial={{ scaleX: 0 }}
-                      animate={{ scaleX: phase === "reveal" ? 1 : 0.92 }}
-                      transition={{
-                        duration: phase === "reveal" ? 0.25 : SPLASH_MS / 1000,
-                        ease: [0.22, 1, 0.36, 1],
-                      }}
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </motion.div>
-      </div>
+        <div className="mt-4 w-48 border-2 border-border bg-muted p-1">
+          <motion.div
+            className="h-2 w-full origin-left bg-primary"
+            initial={{ scaleX: 0 }}
+            animate={{ scaleX: phase === "reveal" ? 1 : 0.9 }}
+            transition={{
+              duration: phase === "reveal" ? 0.2 : SPLASH_MS / 1000,
+              ease: "linear",
+            }}
+          />
+        </div>
+      </motion.div>
     </motion.div>
   );
 }

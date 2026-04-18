@@ -156,14 +156,11 @@ export function NewsSection() {
             </h2>
           </div>
           <div className="flex shrink-0 flex-col items-start gap-3 sm:items-end">
-            <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.38em] text-muted-foreground">
-              {String(items.length).padStart(2, "0")} entri
-            </p>
             <Link
               href="/articles"
               className="inline-flex items-center gap-2 font-mono text-[11px] font-semibold uppercase tracking-[0.24em] text-foreground underline decoration-foreground/25 underline-offset-4 transition-colors hover:text-primary hover:decoration-primary/40"
             >
-              Arsip
+              Semua Berita
               <ArrowRight className="h-3.5 w-3.5" strokeWidth={2} />
             </Link>
           </div>
