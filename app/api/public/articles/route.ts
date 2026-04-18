@@ -1,6 +1,19 @@
 import { NextResponse } from "next/server";
 import db from "@/lib/db";
 
+function parseYearParam(raw: string): number | null {
+  const t = raw.trim();
+  if (!t || t === "semua") return null;
+  const n = Number(t);
+  return Number.isFinite(n) && n >= 1900 && n <= 2100 ? n : null;
+}
+
+function yearRangeUtc(year: number) {
+  const start = new Date(Date.UTC(year, 0, 1, 0, 0, 0, 0));
+  const end = new Date(Date.UTC(year + 1, 0, 1, 0, 0, 0, 0));
+  return { start, end };
+}
+
 function formatDateLabel(date: Date) {
   return date.toLocaleDateString("id-ID", {
     day: "numeric",
@@ -17,18 +30,39 @@ export async function GET(request: Request) {
 
   const tag = (url.searchParams.get("tag") || "").trim();
   const q = (url.searchParams.get("q") || "").trim();
+  const tahun = parseYearParam(url.searchParams.get("tahun") || "");
+
+  const yearFilter =
+    tahun != null
+      ? (() => {
+          const { start, end } = yearRangeUtc(tahun);
+          return {
+            OR: [
+              { publishedAt: { gte: start, lt: end } },
+              {
+                AND: [{ publishedAt: null }, { createdAt: { gte: start, lt: end } }],
+              },
+            ],
+          };
+        })()
+      : null;
 
   const where = {
-    status: "PUBLISHED" as const,
-    ...(tag ? { category: tag } : {}),
-    ...(q
-      ? {
-          OR: [
-            { title: { contains: q, mode: "insensitive" as const } },
-            { excerpt: { contains: q, mode: "insensitive" as const } },
-          ],
-        }
-      : {}),
+    AND: [
+      { status: "PUBLISHED" as const },
+      ...(tag ? [{ category: tag }] : []),
+      ...(q
+        ? [
+            {
+              OR: [
+                { title: { contains: q, mode: "insensitive" as const } },
+                { excerpt: { contains: q, mode: "insensitive" as const } },
+              ],
+            },
+          ]
+        : []),
+      ...(yearFilter ? [yearFilter] : []),
+    ],
   };
 
   const [total, rows] = await Promise.all([
@@ -70,6 +104,7 @@ export async function GET(request: Request) {
     totalPages,
     ...(tag ? { tag } : {}),
     ...(q ? { q } : {}),
+    ...(tahun != null ? { tahun: String(tahun) } : {}),
   });
 }
 

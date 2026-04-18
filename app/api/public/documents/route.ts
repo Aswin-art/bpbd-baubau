@@ -1,6 +1,13 @@
 import { NextResponse } from "next/server";
 import db from "@/lib/db";
 
+function parseYearParam(raw: string): number | null {
+  const t = raw.trim();
+  if (!t || t === "semua") return null;
+  const n = Number(t);
+  return Number.isFinite(n) && n >= 1900 && n <= 2100 ? n : null;
+}
+
 type PublicDocumentItem = {
   id: string;
   name: string;
@@ -19,18 +26,29 @@ export async function GET(request: Request) {
 
   const kategori = (url.searchParams.get("kategori") || "").trim();
   const q = (url.searchParams.get("q") || "").trim();
+  const tahun = parseYearParam(url.searchParams.get("tahun") || "");
 
-  const where = {
-    ...(kategori ? { category: kategori } : {}),
+  const yearDateLabel =
+    tahun != null
+      ? { dateLabel: { contains: String(tahun), mode: "insensitive" as const } }
+      : null;
+
+  const andParts = [
+    ...(kategori ? [{ category: kategori }] : []),
     ...(q
-      ? {
-          OR: [
-            { name: { contains: q, mode: "insensitive" as const } },
-            { description: { contains: q, mode: "insensitive" as const } },
-          ],
-        }
-      : {}),
-  };
+      ? [
+          {
+            OR: [
+              { name: { contains: q, mode: "insensitive" as const } },
+              { description: { contains: q, mode: "insensitive" as const } },
+            ],
+          },
+        ]
+      : []),
+    ...(yearDateLabel ? [yearDateLabel] : []),
+  ];
+
+  const where = andParts.length > 0 ? { AND: andParts } : {};
 
   const [total, rows] = await Promise.all([
     db.document.count({ where }),
@@ -70,6 +88,7 @@ export async function GET(request: Request) {
     totalPages,
     ...(kategori ? { kategori } : {}),
     ...(q ? { q } : {}),
+    ...(tahun != null ? { tahun: String(tahun) } : {}),
   });
 }
 
