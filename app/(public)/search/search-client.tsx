@@ -121,10 +121,11 @@ function GlobalSearchErrorFallback({ error }: { error: Error }) {
   );
 }
 
-async function fetchArticles(q: string): Promise<NewsApiResponse> {
+async function fetchArticles(q: string, tahun: string): Promise<NewsApiResponse> {
   const qs = new URLSearchParams();
   qs.set("hal", "1");
   if (q) qs.set("q", q);
+  if (tahun && tahun !== "semua") qs.set("tahun", tahun);
   const res = await fetch(`/api/public/articles?${qs.toString()}`, {
     cache: "no-store",
   });
@@ -132,10 +133,11 @@ async function fetchArticles(q: string): Promise<NewsApiResponse> {
   return res.json();
 }
 
-async function fetchDocuments(q: string): Promise<DocumentsApiResponse> {
+async function fetchDocuments(q: string, tahun: string): Promise<DocumentsApiResponse> {
   const qs = new URLSearchParams();
   qs.set("hal", "1");
   if (q) qs.set("q", q);
+  if (tahun && tahun !== "semua") qs.set("tahun", tahun);
   const res = await fetch(`/api/public/documents?${qs.toString()}`, {
     cache: "no-store",
   });
@@ -155,10 +157,10 @@ async function fetchArchives(params: { q: string; tahun: string }): Promise<Arch
   return res.json();
 }
 
-type ArchiveYearsResponse = { years: string[] };
-async function fetchArchiveYears(): Promise<ArchiveYearsResponse> {
-  const res = await fetch("/api/public/archives/years", { cache: "no-store" });
-  if (!res.ok) throw new Error("Gagal memuat tahun arsip.");
+type SearchYearsResponse = { years: string[] };
+async function fetchSearchYears(): Promise<SearchYearsResponse> {
+  const res = await fetch("/api/public/search/years", { cache: "no-store" });
+  if (!res.ok) throw new Error("Gagal memuat daftar tahun.");
   return res.json();
 }
 
@@ -251,27 +253,20 @@ function GlobalSearchClientInner() {
   const showArchives = normalizedType === "semua" || normalizedType === "arsip";
 
   const yearsQuery = useQuery({
-    queryKey: ["global-search", "archives-years"],
-    queryFn: fetchArchiveYears,
+    queryKey: ["global-search", "search-years"],
+    queryFn: fetchSearchYears,
     staleTime: 1000 * 60 * 60,
   });
 
-  // If user switches away from "arsip", clear year filter.
-  useEffect(() => {
-    if (normalizedType !== "arsip" && tahun && tahun !== "semua") {
-      void setTahun(null);
-    }
-  }, [normalizedType, setTahun, tahun]);
-
   const articlesQuery = useQuery({
-    queryKey: ["global-search", "articles", q],
-    queryFn: () => fetchArticles(q),
+    queryKey: ["global-search", "articles", q, tahun],
+    queryFn: () => fetchArticles(q, tahun || "semua"),
     enabled: showArticles,
   });
 
   const documentsQuery = useQuery({
-    queryKey: ["global-search", "documents", q],
-    queryFn: () => fetchDocuments(q),
+    queryKey: ["global-search", "documents", q, tahun],
+    queryFn: () => fetchDocuments(q, tahun || "semua"),
     enabled: showDocuments,
   });
 
@@ -308,8 +303,26 @@ function GlobalSearchClientInner() {
   const totalArchives = showArchives ? (archivesQuery.data?.total ?? 0) : 0;
 
   const hasQuery = q.trim().length > 0;
+  const hasActiveYear = Boolean(tahun && tahun !== "semua");
   const emptyAll =
-    hasQuery && totalArticles === 0 && totalDocuments === 0 && totalArchives === 0;
+    (hasQuery || hasActiveYear) &&
+    totalArticles === 0 &&
+    totalDocuments === 0 &&
+    totalArchives === 0;
+
+  const resultListSubtitle = `${hasQuery ? "Hasil pencarian" : "Terbaru"}${
+    tahun && tahun !== "semua" ? ` · ${tahun}` : ""
+  }`;
+
+  /** Tahun dari API + tahun terpilih di URL (agar item tetap valid jika belum ada di cache). */
+  const yearOptions = useMemo(() => {
+    const fromApi = yearsQuery.data?.years ?? [];
+    const merged = new Set(fromApi);
+    if (tahun && tahun !== "semua" && /^\d{4}$/.test(tahun)) merged.add(tahun);
+    return Array.from(merged).sort((a, b) =>
+      b.localeCompare(a, undefined, { numeric: true }),
+    );
+  }, [yearsQuery.data?.years, tahun]);
 
   return (
     <Wrapper className="pt-24 pb-10 md:pt-28 xl:pt-32">
@@ -376,14 +389,17 @@ function GlobalSearchClientInner() {
             <Select
               value={tahun || "semua"}
               onValueChange={(v) => void setTahun(v === "semua" ? null : v)}
-              disabled={normalizedType !== "arsip"}
             >
-              <SelectTrigger className="h-9 w-[160px]">
-                <SelectValue placeholder="Semua tahun" />
+              <SelectTrigger className="h-9 min-w-[160px] max-w-[220px]">
+                <SelectValue
+                  placeholder={
+                    yearsQuery.isLoading ? "Memuat tahun…" : "Semua tahun"
+                  }
+                />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="semua">Semua tahun</SelectItem>
-                {(yearsQuery.data?.years ?? []).map((y) => (
+                {yearOptions.map((y) => (
                   <SelectItem key={y} value={y}>
                     {y}
                   </SelectItem>
@@ -393,14 +409,39 @@ function GlobalSearchClientInner() {
           </div>
         </div>
 
+        {yearsQuery.isSuccess && yearOptions.length === 0 && (
+          <p className="mt-2 text-xs text-muted-foreground">
+            Belum ada tahun di data publik (tambah berita, dokumen, atau arsip
+            terlebih dahulu).
+          </p>
+        )}
+        {yearsQuery.isError && (
+          <p className="mt-2 text-xs text-destructive">
+            Tidak bisa memuat daftar tahun. Coba muat ulang halaman.
+          </p>
+        )}
+
         <p className="mt-5 text-xs text-muted-foreground">
           {hasQuery ? (
             <>
               Menampilkan hasil untuk{" "}
               <span className="font-semibold text-foreground">“{q}”</span>
+              {hasActiveYear ? (
+                <>
+                  {" "}
+                  (tahun <span className="font-semibold text-foreground">{tahun}</span>)
+                </>
+              ) : null}
+            </>
+          ) : hasActiveYear ? (
+            <>
+              Menyaring berdasarkan tahun{" "}
+              <span className="font-semibold text-foreground">{tahun}</span>
+              {" "}
+              pada modul yang ditampilkan.
             </>
           ) : (
-            "Menampilkan data terbaru dari setiap modul. Gunakan pencarian untuk memfilter."
+            "Menampilkan data terbaru dari setiap modul. Gunakan pencarian atau filter tahun untuk memfilter."
           )}
         </p>
 
@@ -412,10 +453,19 @@ function GlobalSearchClientInner() {
               </span>
               <div className="min-w-0">
                 <p className="text-sm font-semibold text-secondary">
-                  Tidak ada hasil untuk “{q}”
+                  {hasQuery ? (
+                    <>
+                      Tidak ada hasil untuk “{q}”
+                      {hasActiveYear ? ` · ${tahun}` : ""}
+                    </>
+                  ) : (
+                    <>Tidak ada data untuk tahun {tahun}.</>
+                  )}
                 </p>
                 <p className="mt-1 text-sm text-muted-foreground">
-                  Coba kata kunci lain atau gunakan istilah yang lebih umum.
+                  {hasQuery
+                    ? "Coba kata kunci lain, tahun lain, atau istilah yang lebih umum."
+                    : "Coba tahun lain atau ubah tipe konten (Berita / Dokumen / Arsip)."}
                 </p>
               </div>
             </div>
@@ -432,7 +482,7 @@ function GlobalSearchClientInner() {
                 viewAllHref={
                   hasQuery ? `/articles?q=${encodeURIComponent(q)}` : "/articles"
                 }
-                subtitle={hasQuery ? "Hasil pencarian" : "Terbaru"}
+                subtitle={resultListSubtitle}
               >
                 {topArticles.length === 0 ? (
                   <EmptyMini />
@@ -547,11 +597,7 @@ function GlobalSearchClientInner() {
                 viewAllHref={
                   hasQuery ? `/archives?q=${encodeURIComponent(q)}` : "/archives"
                 }
-                subtitle={
-                  hasQuery
-                    ? `Hasil pencarian${tahun && tahun !== "semua" ? ` · ${tahun}` : ""}`
-                    : `Terbaru${tahun && tahun !== "semua" ? ` · ${tahun}` : ""}`
-                }
+                subtitle={resultListSubtitle}
               >
                 {topArchives.length === 0 ? (
                   <EmptyMini />
