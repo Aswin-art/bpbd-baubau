@@ -98,7 +98,10 @@ async function readApiJson<T>(res: Response): Promise<T> {
 }
 
 async function fetchProfile(): Promise<UserProfileResponse> {
-  const res = await fetch("/api/dashboard/profiles");
+  const res = await fetch("/api/dashboard/profiles", {
+    cache: "no-store",
+    credentials: "include",
+  });
   const json = await readApiJson<UserProfileResponse>(res);
 
   if (!res.ok || json.status !== "success") {
@@ -120,6 +123,8 @@ async function patchProfile(
     headers: {
       "Content-Type": "application/json",
     },
+    credentials: "include",
+    cache: "no-store",
     body: JSON.stringify(input),
   });
   const json = await readApiJson<UserProfileResponse>(res);
@@ -138,9 +143,16 @@ async function patchProfile(
 export default function ProfilePage() {
   const router = useRouter();
   const queryClient = useQueryClient();
+  const { data: session, isPending: isSessionPending } = authClient.useSession();
+  const profileUserKey =
+    (session?.user as { id?: string } | undefined)?.id ??
+    session?.user?.email ??
+    null;
+
   const { data, isLoading, isError, error } = useQuery({
-    queryKey: ["myProfile"],
+    queryKey: ["myProfile", profileUserKey],
     queryFn: fetchProfile,
+    enabled: !isSessionPending && Boolean(profileUserKey),
     retry: false,
   });
 
@@ -156,6 +168,13 @@ export default function ProfilePage() {
       router.replace("/sign-in");
     }
   }, [error, router]);
+
+  useEffect(() => {
+    if (isSessionPending) return;
+    if (!profileUserKey) {
+      router.replace("/sign-in");
+    }
+  }, [isSessionPending, profileUserKey, router]);
 
   const uploadMutation = useUpload({
     scope: "general",
@@ -231,7 +250,9 @@ export default function ProfilePage() {
         return;
       }
       toast.success("Profil berhasil diperbarui.");
-      await queryClient.invalidateQueries({ queryKey: ["myProfile"] });
+      await queryClient.invalidateQueries({
+        queryKey: ["myProfile", profileUserKey],
+      });
       form.setValue("currentPassword", "");
       form.setValue("newPassword", "");
       form.setValue("confirmPassword", "");
@@ -249,7 +270,7 @@ export default function ProfilePage() {
     await mutateAsync(values);
   }
 
-  if (isLoading) {
+  if (isSessionPending || !profileUserKey || isLoading) {
     return (
       <div className="flex-1 p-4 pt-6 md:p-8 flex items-center justify-center min-h-[50vh]">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />

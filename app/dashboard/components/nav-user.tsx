@@ -20,6 +20,7 @@ import {
 import { authClient } from "@/lib/auth-client";
 import { useMemo } from "react";
 import { useRouter } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
 
 export function NavUser({
   user,
@@ -32,6 +33,7 @@ export function NavUser({
 }) {
   const { isMobile } = useSidebar();
   const router = useRouter();
+  const queryClient = useQueryClient();
   const { data: session } = authClient.useSession();
 
   const resolvedUser = useMemo(
@@ -47,6 +49,7 @@ export function NavUser({
     await authClient.signOut({
       fetchOptions: {
         onSuccess: () => {
+          queryClient.clear();
           router.push("/sign-in");
         },
       },
