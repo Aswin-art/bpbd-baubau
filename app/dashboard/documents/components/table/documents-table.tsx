@@ -11,6 +11,7 @@ import { useQueryState, parseAsInteger, parseAsString } from "nuqs";
 import { useState } from "react";
 import { DeleteDialog } from "../dialogs/delete-dialog";
 import { SearchSelect } from "@/components/ui/search-select";
+import { unwrapApiArrayPayload } from "@/lib/unwrap-api-response";
 
 export type DocumentItem = {
   id: string;
@@ -114,8 +115,8 @@ export function DocumentsTable() {
           value={category || null}
           onChange={(v) => setCategory(v || "")}
           creatable
-          responseMapper={(data) => {
-            const arr = Array.isArray(data) ? data : [];
+          responseMapper={(payload) => {
+            const arr = unwrapApiArrayPayload(payload);
             return arr
               .map((c) => String(c))
               .filter(Boolean)
