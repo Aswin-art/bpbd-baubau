@@ -26,6 +26,7 @@ import { useUpload } from "@/modules/upload";
 import { formatFileSize } from "@/helpers/compress";
 import { SearchSelect } from "@/components/ui/search-select";
 import { DatePicker } from "@/components/ui/date-picker";
+import { unwrapApiArrayPayload } from "@/lib/unwrap-api-response";
 
 type Mode = "create" | "edit";
 
@@ -144,8 +145,8 @@ export function DocumentForm(props: {
                         value={field.value || null}
                         onChange={(v) => field.onChange(v || "")}
                         creatable
-                        responseMapper={(data) => {
-                          const arr = Array.isArray(data) ? data : [];
+                        responseMapper={(payload) => {
+                          const arr = unwrapApiArrayPayload(payload);
                           return arr
                             .map((c) => String(c))
                             .filter(Boolean)
