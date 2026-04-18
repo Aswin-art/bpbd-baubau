@@ -167,35 +167,6 @@ export function ProfilesClient() {
               </div>
             </div>
 
-            <div className="mt-8 border-2 border-border bg-card">
-              <div className="border-b-2 border-border bg-muted px-5 py-3">
-                <p className="font-mono text-xs font-bold uppercase tracking-widest text-secondary">
-                  Lokasi (Peta)
-                </p>
-              </div>
-              <div className="relative aspect-video bg-muted">
-                {mapEmbedUrl ? (
-                  <iframe
-                    src={mapEmbedUrl}
-                    className="absolute inset-0 h-full w-full"
-                    loading="lazy"
-                    referrerPolicy="no-referrer-when-downgrade"
-                    allowFullScreen
-                    title="Peta kantor BPBD Kota Baubau"
-                  />
-                ) : (
-                  <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center">
-                    <MapPin className="mb-4 h-12 w-12 text-muted-foreground/50" strokeWidth={1.5} />
-                    <p className="font-mono text-sm font-bold uppercase tracking-widest text-muted-foreground">
-                      Peta Belum Tersedia
-                    </p>
-                    <p className="mt-2 max-w-sm text-sm font-medium text-muted-foreground">
-                      Data lokasi peta belum diatur. Silakan tambahkan URL embed peta melalui dashboard pengaturan.
-                    </p>
-                  </div>
-                )}
-              </div>
-            </div>
           </div>
         </section>
 
@@ -294,48 +265,34 @@ export function ProfilesClient() {
             </div>
 
             <div className="space-y-6">
-              <div className="border-2 border-border bg-card p-6">
-                <p className="mb-4 border-b-2 border-border pb-3 font-mono text-xs font-bold uppercase tracking-widest text-secondary">
-                  Navigasi Cepat
-                </p>
-                <ul className="space-y-3 text-base font-black text-secondary">
-                  <li>
-                    <a
-                      className="hover:text-primary hover:underline underline-offset-4 transition-colors"
-                      href="#tujuan-sasaran"
-                    >
-                      Tujuan &amp; Sasaran
-                    </a>
-                  </li>
-                  <li>
-                    <a
-                      className="hover:text-primary hover:underline underline-offset-4 transition-colors"
-                      href="#struktur"
-                    >
-                      Struktur Organisasi
-                    </a>
-                  </li>
-                  <li>
-                    <a 
-                      className="hover:text-primary hover:underline underline-offset-4 transition-colors" 
-                      href="#kontak"
-                    >
-                      Kontak &amp; Layanan
-                    </a>
-                  </li>
-                </ul>
-              </div>
-
-              <div className="border-2 border-border bg-muted p-6">
-                <p className="font-mono text-xs font-bold uppercase tracking-widest text-secondary">
-                  Informasi Sistem
-                </p>
-                <p className="mt-3 text-base font-medium leading-relaxed text-muted-foreground">
-                  Konten halaman ini dikelola melalui Dashboard &rarr; Settings.
-                  Gunakan field <span className="font-black text-secondary">Objective</span>,{" "}
-                  <span className="font-black text-secondary">Goals</span>, gambar diagram struktur,
-                  dan map embed untuk memperbarui data.
-                </p>
+              <div className="border-2 border-border bg-card">
+                <div className="border-b-2 border-border bg-muted px-5 py-3">
+                  <p className="font-mono text-xs font-bold uppercase tracking-widest text-secondary">
+                    Lokasi (Peta)
+                  </p>
+                </div>
+                <div className="relative aspect-video bg-muted">
+                  {mapEmbedUrl ? (
+                    <iframe
+                      src={mapEmbedUrl}
+                      className="absolute inset-0 h-full w-full"
+                      loading="lazy"
+                      referrerPolicy="no-referrer-when-downgrade"
+                      allowFullScreen
+                      title="Peta kantor BPBD Kota Baubau"
+                    />
+                  ) : (
+                    <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center">
+                      <MapPin className="mb-4 h-12 w-12 text-muted-foreground/50" strokeWidth={1.5} />
+                      <p className="font-mono text-sm font-bold uppercase tracking-widest text-muted-foreground">
+                        Peta Belum Tersedia
+                      </p>
+                      <p className="mt-2 max-w-sm text-sm font-medium text-muted-foreground">
+                        Data lokasi peta belum diatur. Silakan tambahkan URL embed peta melalui dashboard pengaturan.
+                      </p>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </div>

@@ -36,7 +36,9 @@ export async function getCachedPermissions(
 
   const permissions: Record<string, string[]> = {};
   for (const p of dbPermissions) {
-    permissions[p.resource] = p.actions as string[];
+    const actions = (p.actions as string[]) ?? [];
+    if (actions.length === 0) continue;
+    permissions[p.resource] = actions;
   }
 
   // Update nav cache

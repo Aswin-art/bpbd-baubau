@@ -7,6 +7,13 @@ import { useQuery } from "@tanstack/react-query";
 import { parseAsInteger, parseAsString, useQueryState } from "nuqs";
 import { ArrowUpRight, ChevronLeft, ChevronRight } from "lucide-react";
 import { ErrorBoundary } from "react-error-boundary";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { NewsErrorFallback, NewsSkeleton } from "./news-fallback";
 import Wrapper from "@/components/wrapper";
 
@@ -150,27 +157,28 @@ function NewsClientInner() {
       <div className="mt-12 lg:mt-16">
         <div className="mb-10 grid gap-5 lg:grid-cols-[minmax(0,1fr)_340px] lg:items-end">
           <div className="flex flex-wrap items-center gap-2.5">
-            {tagOptions.map((opt) => {
-              const active = (tag || "semua") === opt.value;
-              return (
-                <button
-                  key={opt.value}
-                  type="button"
-                  onClick={() => setTagAndReset(opt.value)}
-                  className={
-                    active
-                      ? "border-2 border-secondary bg-secondary px-4 py-2 font-mono text-xs font-bold uppercase tracking-widest text-secondary-foreground transition-colors"
-                      : "border-2 border-border bg-card px-4 py-2 font-mono text-xs font-bold uppercase tracking-widest text-muted-foreground transition-colors hover:border-primary hover:bg-primary hover:text-primary-foreground"
-                  }
-                  aria-pressed={active}
-                >
-                  {opt.label}
-                </button>
-              );
-            })}
+            <Select
+              value={tag || "semua"}
+              onValueChange={setTagAndReset}
+            >
+              <SelectTrigger className="h-10 w-[200px] border-2 border-border bg-card font-mono text-xs font-bold uppercase tracking-widest text-muted-foreground focus:border-primary focus:ring-2 focus:ring-primary/20">
+                <SelectValue placeholder="Pilih Kategori" />
+              </SelectTrigger>
+              <SelectContent>
+                {tagOptions.map((opt) => (
+                  <SelectItem
+                    key={opt.value}
+                    value={opt.value}
+                    className="font-mono text-xs font-bold uppercase tracking-widest"
+                  >
+                    {opt.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
-          <div className="flex items-center gap-2 border-2 border-border bg-card px-4 py-2 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 transition-all">
+          <div className="flex items-center gap-2 border-2 border-border bg-card px-4 py-2 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 transition-all h-10">
             <input
               value={qInput}
               onChange={(e) => setQInput(e.target.value)}

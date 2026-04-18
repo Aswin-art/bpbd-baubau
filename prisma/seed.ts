@@ -1,6 +1,7 @@
 import { auth } from "@/lib/auth";
 import db from "../lib/db";
 import type { MapDisasterPointDTO } from "@/lib/map-disaster-types";
+import { getDefaultMapTypeColor, normalizeMapColor } from "@/lib/map-disaster-colors";
 
 // ---------------------------------------------------------------------------
 // Seed data (moved from data/dummy-data.ts)
@@ -689,6 +690,8 @@ async function seedMapDisasterPoints() {
       where: { id: p.id },
       update: {
         type: p.type,
+        typeColor:
+          normalizeMapColor(p.typeColor) ?? getDefaultMapTypeColor(p.type),
         location: p.location,
         kecamatan: p.kecamatan,
         date: p.date,
@@ -704,6 +707,8 @@ async function seedMapDisasterPoints() {
       create: {
         id: p.id,
         type: p.type,
+        typeColor:
+          normalizeMapColor(p.typeColor) ?? getDefaultMapTypeColor(p.type),
         location: p.location,
         kecamatan: p.kecamatan,
         date: p.date,
@@ -840,6 +845,9 @@ async function seedRolePermissions() {
   for (const r of roles) {
     for (const resource of resources) {
       const actions = r.permissions[resource] ?? [];
+      if (actions.length === 0) {
+        continue;
+      }
       await db.rolePermission.upsert({
         where: { role_resource: { role: r.role, resource } },
         update: { actions },

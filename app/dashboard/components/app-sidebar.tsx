@@ -21,6 +21,7 @@ import { Separator } from "@/components/ui/separator";
 import { authClient } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { Home } from "lucide-react";
 
 function SidebarErrorFallback({
   resetErrorBoundary,
@@ -115,6 +116,16 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           )}
         </SidebarContent>
         <SidebarFooter>
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <SidebarMenuButton asChild tooltip="Halaman Awal">
+                <Link href="/">
+                  <Home className="size-4" />
+                  <span>Halaman Awal</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
           <NavUser user={user} />
         </SidebarFooter>
       </motion.div>

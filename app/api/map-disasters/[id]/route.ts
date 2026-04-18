@@ -6,6 +6,7 @@ import { getServerSession } from "@/lib/server";
 import { checkPermission } from "@/lib/permission-cache";
 import db from "@/lib/db";
 import { parsePgInt32Count } from "@/lib/pg-int32";
+import { normalizeMapColor } from "@/lib/map-disaster-colors";
 
 function toIso(v: Date | string) {
   return v instanceof Date ? v.toISOString() : v;
@@ -59,6 +60,9 @@ export const PATCH = apiHandler(async (req: NextRequest, context) => {
     where: { id },
     data: {
       ...(body.type !== undefined ? { type: String(body.type).trim() } : {}),
+      ...(body.typeColor !== undefined
+        ? { typeColor: normalizeMapColor(body.typeColor) }
+        : {}),
       ...(body.location !== undefined
         ? { location: String(body.location).trim() }
         : {}),

@@ -5,15 +5,8 @@ import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { DataTableColumnHeader } from "@/components/datatable/table-header";
 import type { MapDisasterPointDTO } from "@/lib/map-disaster-types";
+import { getMapTypeColor } from "@/lib/map-disaster-colors";
 import { CellAction } from "./cell-action";
-
-const typeBadgeColor: Record<string, string> = {
-  Banjir: "bg-blue-100 text-blue-800",
-  "Tanah Longsor": "bg-amber-100 text-amber-800",
-  "Angin Puting Beliung": "bg-violet-100 text-violet-800",
-  Kebakaran: "bg-red-100 text-red-800",
-  "Gelombang Tinggi": "bg-cyan-100 text-cyan-800",
-};
 
 export const columns: ColumnDef<MapDisasterPointDTO, unknown>[] = [
   {
@@ -45,8 +38,14 @@ export const columns: ColumnDef<MapDisasterPointDTO, unknown>[] = [
     ),
     cell: ({ row }) => (
       <Badge
-        className={`text-[10px] font-semibold ${typeBadgeColor[row.original.type] ?? ""}`}
-        variant="secondary"
+        className="border-transparent text-[10px] font-semibold text-white"
+        style={{
+          backgroundColor: getMapTypeColor(
+            row.original.type,
+            row.original.typeColor,
+          ),
+        }}
+        variant="outline"
       >
         {row.original.type}
       </Badge>

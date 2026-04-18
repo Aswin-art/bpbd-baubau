@@ -99,7 +99,7 @@ export const navStructureData: NavGroup[] = [
         title: "Permissions",
         url: "/dashboard/permissions",
         icon: ShieldCheck,
-        permission: "users",
+        permission: "permissions",
       },
       {
         title: "Settings",

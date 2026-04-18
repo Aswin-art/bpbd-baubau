@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { ExternalLink, MapPin, Plus } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
+import { parseAsString, useQueryState } from "nuqs";
 import { DataTable } from "@/components/datatable/table-data";
 import { Button } from "@/components/ui/button";
 import { TableSkeleton } from "@/app/dashboard/components/skeletons/table-skeleton";
@@ -29,25 +30,32 @@ export function MapTable() {
     queryFn: fetchDisasterPoints,
     staleTime: 1000 * 60 * 5,
   });
+  const [q] = useQueryState("q", parseAsString.withDefault(""));
 
   const rows = data ?? [];
+  const normalizedQuery = q.trim().toLowerCase();
+  const visibleRows = normalizedQuery
+    ? rows.filter((row) => row.location.toLowerCase().includes(normalizedQuery))
+    : rows;
   const [rowSelection, setRowSelection] = useState<Record<string, boolean>>({});
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
   const selectedIds = Object.keys(rowSelection)
-    .map((index) => rows[parseInt(index)]?.id)
+    .map((index) => visibleRows[parseInt(index)]?.id)
     .filter(Boolean);
 
   const selectedItemName =
     selectedIds.length === 1
-      ? rows.find((r) => r.id === selectedIds[0])?.location
+      ? visibleRows.find((r) => r.id === selectedIds[0])?.location
       : undefined;
 
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <p className="text-sm text-muted-foreground">
-          {rows.length} titik di peta
+          {normalizedQuery
+            ? `${visibleRows.length} dari ${rows.length} titik di peta`
+            : `${rows.length} titik di peta`}
         </p>
         <div className="flex flex-wrap gap-2">
           <Button size="sm" variant="outline" className="gap-1.5" asChild>
@@ -75,7 +83,7 @@ export function MapTable() {
             Pratinjau marker pada peta publik berdasarkan data di tabel.
           </p>
           <div className="rounded-xl border border-border/60 bg-card p-4 shadow-sm">
-            <DisasterMap records={rows} />
+            <DisasterMap records={visibleRows} />
           </div>
         </div>
       )}
@@ -102,7 +110,7 @@ export function MapTable() {
           )}
           <DataTable
             columns={columns}
-            data={rows}
+            data={visibleRows}
             searchKey="location"
             isLoading={isLoading}
             rowSelection={rowSelection}

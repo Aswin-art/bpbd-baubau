@@ -36,6 +36,7 @@ import { DisasterMap } from "@/app/(public)/archives/disaster-map";
 import { PG_INT32_MAX } from "@/lib/pg-int32";
 import type { MapDisasterPointDTO } from "@/lib/map-disaster-types";
 import type { MapDisasterCreateInput } from "@/lib/map-disaster-zod";
+import { getDefaultMapTypeColor, normalizeMapColor } from "@/lib/map-disaster-colors";
 import { DataTable } from "@/components/datatable/table-data";
 
 const TYPE_OPTIONS = [
@@ -49,6 +50,7 @@ const TYPE_OPTIONS = [
 function emptyForm(): MapDisasterCreateInput {
   return {
     type: "Banjir",
+    typeColor: getDefaultMapTypeColor("Banjir"),
     location: "",
     kecamatan: "",
     date: "",
@@ -94,6 +96,7 @@ export function DisasterMapClient() {
     setEditingId(row.id);
     setForm({
       type: row.type,
+      typeColor: normalizeMapColor(row.typeColor) ?? getDefaultMapTypeColor(row.type),
       location: row.location,
       kecamatan: row.kecamatan,
       date: row.date,

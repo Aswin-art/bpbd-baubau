@@ -6,6 +6,7 @@ import { getServerSession } from "@/lib/server";
 import { checkPermission } from "@/lib/permission-cache";
 import db from "@/lib/db";
 import { parsePgInt32Count } from "@/lib/pg-int32";
+import { getDefaultMapTypeColor, normalizeMapColor } from "@/lib/map-disaster-colors";
 
 function toIso(v: Date | string) {
   return v instanceof Date ? v.toISOString() : v;
@@ -59,6 +60,9 @@ export const POST = apiHandler(async (req: NextRequest) => {
   const created = await db.mapDisasterPoint.create({
     data: {
       type: String(body.type || "").trim(),
+      typeColor:
+        normalizeMapColor(body.typeColor) ??
+        getDefaultMapTypeColor(String(body.type || "").trim()),
       location: String(body.location || "").trim(),
       kecamatan: String(body.kecamatan || "").trim(),
       date: String(body.date || "").trim(),

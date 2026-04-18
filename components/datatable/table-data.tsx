@@ -63,7 +63,7 @@ export function DataTable<TData, TValue>({
   filter,
   rowSelection,
   onRowSelectionChange,
-  withViewOptions = true,
+  withViewOptions = false,
 }: DataTableProps<TData, TValue>) {
   const [page, setPage] = useQueryState("page", parseAsInteger.withDefault(1));
   const [limit, setLimit] = useQueryState(

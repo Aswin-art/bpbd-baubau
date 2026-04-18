@@ -213,6 +213,7 @@ model Aspiration {
 model MapDisasterPoint {
   id          String @id @default(cuid())
   type        String
+  typeColor   String? @map("type_color")
   location    String
   kecamatan   String
   date        String

@@ -296,7 +296,7 @@ export default function DashboardPage() {
                     <Link
                       key={disaster.id}
                       href={`/arsip/${disaster.id}`}
-                      className="flex items-center gap-4 rounded-xl border border-border/60 p-3.5 transition-all hover:border-primary/20 hover:bg-primary/[0.02] hover:shadow-sm group"
+                      className="flex items-center gap-4 rounded-xl border border-border/60 p-3.5 transition-all hover:border-primary/20 hover:bg-primary/2 hover:shadow-sm group"
                     >
                       <div className="relative h-14 w-20 shrink-0 overflow-hidden rounded-lg bg-muted">
                         <Image
@@ -524,7 +524,7 @@ export default function DashboardPage() {
                         </Badge>
                       </div>
                       <p className="text-[12px] text-muted-foreground line-clamp-1">
-                        {item.description}
+                        {item.description.text}
                       </p>
                       <p className="text-[10px] text-muted-foreground/70 mt-1">
                         {new Date(item.createdAt).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" })}

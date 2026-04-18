@@ -4,6 +4,7 @@ import { PG_INT32_MAX } from "@/lib/pg-int32";
 
 export const mapDisasterCreateSchema = z.object({
   type: z.string().min(1),
+  typeColor: z.string().regex(/^#[0-9a-fA-F]{6}$/).optional().nullable(),
   location: z.string().min(1),
   kecamatan: z.string().min(1),
   date: z.string().min(1),

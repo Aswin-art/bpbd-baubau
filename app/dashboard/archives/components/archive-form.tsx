@@ -104,7 +104,7 @@ export function ArchiveForm(props: {
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Judul laporan</FormLabel>
+                  <FormLabel>Judul laporan <span className="text-destructive">*</span></FormLabel>
                   <FormControl>
                     <Input placeholder="Judul dokumen arsip" {...field} />
                   </FormControl>
@@ -118,7 +118,7 @@ export function ArchiveForm(props: {
               name="description"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Deskripsi</FormLabel>
+                  <FormLabel>Deskripsi <span className="text-destructive">*</span></FormLabel>
                   <FormControl>
                     <Textarea
                       placeholder="Deskripsi singkat dokumen"
@@ -141,7 +141,7 @@ export function ArchiveForm(props: {
                 name="year"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Tahun</FormLabel>
+                    <FormLabel>Tahun <span className="text-destructive">*</span></FormLabel>
                     <FormControl>
                       <Input placeholder="2026" {...field} inputMode="numeric" />
                     </FormControl>
@@ -155,7 +155,7 @@ export function ArchiveForm(props: {
                 name="dateLabel"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Tanggal dokumen</FormLabel>
+                    <FormLabel>Tanggal dokumen <span className="text-destructive">*</span></FormLabel>
                     <FormControl>
                       <DatePicker
                         date={
@@ -180,7 +180,7 @@ export function ArchiveForm(props: {
                 name="downloadUrl"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>File PDF</FormLabel>
+                    <FormLabel>File PDF <span className="text-destructive">*</span></FormLabel>
                     <FormControl>
                       <FileUpload
                         value={field.value}

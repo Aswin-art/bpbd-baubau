@@ -1614,6 +1614,7 @@ export type AspirationScalarFieldEnum = (typeof AspirationScalarFieldEnum)[keyof
 export const MapDisasterPointScalarFieldEnum = {
   id: 'id',
   type: 'type',
+  typeColor: 'typeColor',
   location: 'location',
   kecamatan: 'kecamatan',
   date: 'date',

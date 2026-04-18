@@ -2,6 +2,7 @@
 export interface MapDisasterPointDTO {
   id: string;
   type: string;
+  typeColor?: string | null;
   location: string;
   kecamatan: string;
   date: string;

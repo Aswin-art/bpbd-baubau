@@ -97,7 +97,7 @@ export function DocumentForm(props: {
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Nama dokumen</FormLabel>
+                  <FormLabel>Nama dokumen <span className="text-destructive">*</span></FormLabel>
                   <FormControl>
                     <Input placeholder="Masukkan nama dokumen" {...field} />
                   </FormControl>
@@ -111,7 +111,7 @@ export function DocumentForm(props: {
               name="description"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Deskripsi</FormLabel>
+                  <FormLabel>Deskripsi <span className="text-destructive">*</span></FormLabel>
                   <FormControl>
                     <Textarea
                       placeholder="Deskripsi singkat dokumen"
@@ -136,7 +136,7 @@ export function DocumentForm(props: {
                 name="category"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Kategori</FormLabel>
+                    <FormLabel>Kategori <span className="text-destructive">*</span></FormLabel>
                     <FormControl>
                       <SearchSelect
                         apiEndpoint="/api/dashboard/documents/categories"
@@ -163,7 +163,7 @@ export function DocumentForm(props: {
                 name="dateLabel"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Tanggal dokumen</FormLabel>
+                    <FormLabel>Tanggal dokumen <span className="text-destructive">*</span></FormLabel>
                     <FormControl>
                       <DatePicker
                         date={
@@ -188,7 +188,7 @@ export function DocumentForm(props: {
                 name="downloadUrl"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>File PDF</FormLabel>
+                    <FormLabel>File PDF <span className="text-destructive">*</span></FormLabel>
                     <FormControl>
                       <FileUpload
                         value={field.value}

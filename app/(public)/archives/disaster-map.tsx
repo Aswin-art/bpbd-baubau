@@ -1,26 +1,24 @@
 "use client";
 
 import { useState, useMemo, useCallback, useEffect } from "react";
-import Map, { Marker, NavigationControl } from "react-map-gl/maplibre";
+import MapLibreMap, { Marker, NavigationControl } from "react-map-gl/maplibre";
 import type { MapLayerMouseEvent } from "react-map-gl/maplibre";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { AnimatePresence, motion } from "motion/react";
 import Link from "next/link";
 import { X, ArrowRight } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import type { MapDisasterPointDTO } from "@/lib/map-disaster-types";
+import { DEFAULT_MAP_TYPE_COLORS, getMapTypeColor } from "@/lib/map-disaster-colors";
 import { cn } from "@/lib/utils";
 
 const BAUBAU_CENTER = { latitude: -5.48, longitude: 122.6, zoom: 12 };
-
-const tahunList = ["semua", "2026", "2025"];
-
-const typeColors: Record<string, string> = {
-  Banjir: "#3b82f6",
-  "Tanah Longsor": "#f59e0b",
-  "Angin Puting Beliung": "#8b5cf6",
-  Kebakaran: "#ef4444",
-  "Gelombang Tinggi": "#06b6d4",
-};
 
 type DisasterMapProps = {
   /** Jika diisi, data tidak di-fetch (untuk dashboard). */
@@ -69,6 +67,15 @@ export function DisasterMap({
 
   const disasterRecords = remote ?? [];
 
+  const tahunList = useMemo(() => {
+    const years = new Set<string>();
+    disasterRecords.forEach((r) => {
+      const match = r.date.match(/\b(20\d{2})\b/);
+      if (match) years.add(match[1]);
+    });
+    return ["semua", ...Array.from(years).sort((a, b) => b.localeCompare(a))];
+  }, [disasterRecords]);
+
   const [selectedTahun, setSelectedTahun] = useState("semua");
   const [popupInfo, setPopupInfo] = useState<MapDisasterPointDTO | null>(null);
 
@@ -76,6 +83,20 @@ export function DisasterMap({
     if (selectedTahun === "semua") return disasterRecords;
     return disasterRecords.filter((r) => r.date.includes(selectedTahun));
   }, [selectedTahun, disasterRecords]);
+
+  const legendItems = useMemo<[string, string][]>(() => {
+    const items = new globalThis.Map<string, string>();
+
+    for (const [type, color] of Object.entries(DEFAULT_MAP_TYPE_COLORS)) {
+      items.set(type, color);
+    }
+
+    disasterRecords.forEach((record) => {
+      items.set(record.type, getMapTypeColor(record.type, record.typeColor));
+    });
+
+    return Array.from(items.entries());
+  }, [disasterRecords]);
 
   const handleMarkerClick = useCallback((record: MapDisasterPointDTO) => {
     setPopupInfo(record);
@@ -104,24 +125,24 @@ export function DisasterMap({
         <span className="text-xs font-medium text-muted-foreground mr-1">
           Tahun:
         </span>
-        {tahunList.map((t) => (
-          <button
-            key={t}
-            type="button"
-            onClick={() => {
-              setSelectedTahun(t);
-              setPopupInfo(null);
-            }}
-            className={cn(
-              "rounded-md px-3 py-1.5 text-xs font-medium transition-all",
-              selectedTahun === t
-                ? "bg-primary text-white shadow-sm"
-                : "bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground"
-            )}
-          >
-            {t === "semua" ? "Semua" : t}
-          </button>
-        ))}
+        <Select
+          value={selectedTahun}
+          onValueChange={(val) => {
+            setSelectedTahun(val);
+            setPopupInfo(null);
+          }}
+        >
+          <SelectTrigger className="h-8 w-[120px] text-xs">
+            <SelectValue placeholder="Pilih Tahun" />
+          </SelectTrigger>
+          <SelectContent>
+            {tahunList.map((t) => (
+              <SelectItem key={t} value={t} className="text-xs">
+                {t === "semua" ? "Semua Tahun" : t}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
 
         <span className="ml-auto text-[11px] text-muted-foreground">
           {filtered.length} kejadian
@@ -140,7 +161,7 @@ export function DisasterMap({
           pickCoordinateMode && "ring-2 ring-primary/30 cursor-crosshair"
         )}
       >
-        <Map
+        <MapLibreMap
           initialViewState={BAUBAU_CENTER}
           style={{ width: "100%", height: "100%" }}
           mapStyle="https://basemaps.cartocdn.com/gl/positron-gl-style/style.json"
@@ -166,19 +187,19 @@ export function DisasterMap({
                 <span
                   className="absolute h-6 w-6 rounded-full opacity-30 animate-ping"
                   style={{
-                    backgroundColor: typeColors[record.type] || "#6b7280",
+                    backgroundColor: getMapTypeColor(record.type, record.typeColor),
                   }}
                 />
                 <span
                   className="relative h-4 w-4 rounded-full border-2 border-white shadow-md"
                   style={{
-                    backgroundColor: typeColors[record.type] || "#6b7280",
+                    backgroundColor: getMapTypeColor(record.type, record.typeColor),
                   }}
                 />
               </div>
             </Marker>
           ))}
-        </Map>
+        </MapLibreMap>
 
         <AnimatePresence>
           {popupInfo && !pickCoordinateMode && (
@@ -220,8 +241,10 @@ export function DisasterMap({
                       <span
                         className="rounded px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white"
                         style={{
-                          backgroundColor:
-                            typeColors[popupInfo.type] || "#6b7280",
+                          backgroundColor: getMapTypeColor(
+                            popupInfo.type,
+                            popupInfo.typeColor,
+                          ),
                         }}
                       >
                         {popupInfo.type}
@@ -258,7 +281,7 @@ export function DisasterMap({
       </div>
 
       <div className="flex flex-wrap gap-x-3 gap-y-1.5 text-[10px] text-muted-foreground">
-        {Object.entries(typeColors).map(([type, color]) => (
+        {legendItems.map(([type, color]) => (
           <span key={type} className="inline-flex items-center gap-1">
             <span
               className="h-2 w-2 shrink-0 rounded-full"

@@ -187,7 +187,7 @@ export function ArticleForm({
               name="title"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Judul</FormLabel>
+                  <FormLabel>Judul <span className="text-destructive">*</span></FormLabel>
                   <FormControl>
                     <Input
                       placeholder="Masukkan judul artikel"
@@ -219,7 +219,7 @@ export function ArticleForm({
               name="slug"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Slug</FormLabel>
+                  <FormLabel>Slug <span className="text-destructive">*</span></FormLabel>
                   <FormControl>
                     <Input placeholder="article-slug-example" {...field} />
                   </FormControl>
@@ -236,7 +236,7 @@ export function ArticleForm({
               name="content"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Konten</FormLabel>
+                  <FormLabel>Konten <span className="text-destructive">*</span></FormLabel>
                   <FormControl>
                     <div className="min-h-[500px] border dark:bg-[#1f1f1f] rounded-md">
                       <Editor
@@ -356,7 +356,7 @@ export function ArticleForm({
                 name="category"
                 render={({ field }) => (
                   <FormItem className="flex flex-col">
-                    <FormLabel>Kategori</FormLabel>
+                    <FormLabel>Kategori <span className="text-destructive">*</span></FormLabel>
                     <Popover open={openCategory} onOpenChange={setOpenCategory}>
                       <PopoverTrigger asChild>
                         <FormControl>

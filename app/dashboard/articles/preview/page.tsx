@@ -64,11 +64,11 @@ export default function ArticlePreviewPage() {
 
   if (loading) {
     return (
-      <PermissionGuard resource="news" action="create">
-        <div className="h-screen w-full flex items-center justify-center">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        </div>
-      </PermissionGuard>
+    <PermissionGuard resource="articles" action="create">
+      <div className="h-screen w-full flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    </PermissionGuard>
     );
   }
 
@@ -77,7 +77,7 @@ export default function ArticlePreviewPage() {
   }
 
   return (
-    <PermissionGuard resource="news" action="create">
+    <PermissionGuard resource="articles" action="create">
       <div className="min-h-screen bg-background pt-24 pb-20 md:pt-28 xl:pt-32">
         <Wrapper className="max-w-6xl">
           <div className="flex flex-wrap items-center justify-between gap-3">

@@ -6,10 +6,11 @@ import Link from "next/link";
 import Map, { Marker, NavigationControl } from "react-map-gl/maplibre";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { format } from "date-fns";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
+import { ColorPicker } from "@/components/ui/color-picker";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -26,6 +27,11 @@ import { DatePicker } from "@/components/ui/date-picker";
 import FileUpload from "@/components/file-upload";
 import { createMultipleUploadHandler, useMultipleUpload } from "@/modules/upload";
 import { PG_INT32_MAX } from "@/lib/pg-int32";
+import {
+  DEFAULT_MAP_TYPE_COLORS,
+  getDefaultMapTypeColor,
+  normalizeMapColor,
+} from "@/lib/map-disaster-colors";
 
 const BAUBAU_CENTER = { latitude: -5.48, longitude: 122.6, zoom: 12 };
 
@@ -47,6 +53,26 @@ interface MapFormProps {
   initialData?: MapDisasterPointDTO;
 }
 
+type MapCategoryOption = {
+  id: string;
+  label: string;
+  color: string;
+};
+
+async function fetchMapCategories(): Promise<MapCategoryOption[]> {
+  const res = await fetch("/api/dashboard/maps/categories", { cache: "no-store" });
+  if (!res.ok) throw new Error("Gagal memuat kategori map bencana.");
+  const json = await res.json();
+  const items = Array.isArray(json?.data) ? json.data : [];
+  return items
+    .map((item) => ({
+      id: String(item?.id || "").trim(),
+      label: String(item?.label || item?.id || "").trim(),
+      color: normalizeMapColor(item?.color) ?? "#6b7280",
+    }))
+    .filter((item) => item.id && item.label);
+}
+
 export function MapForm({ initialData }: MapFormProps) {
   const router = useRouter();
   const queryClient = useQueryClient();
@@ -54,6 +80,9 @@ export function MapForm({ initialData }: MapFormProps) {
 
   const [form, setForm] = useState({
     type: initialData?.type ?? "Banjir",
+    typeColor:
+      normalizeMapColor(initialData?.typeColor) ??
+      getDefaultMapTypeColor(initialData?.type ?? "Banjir"),
     location: initialData?.location ?? "",
     kecamatan: initialData?.kecamatan ?? "",
     date: initialData?.date ?? "",
@@ -71,6 +100,15 @@ export function MapForm({ initialData }: MapFormProps) {
 
   const uploadMutation = useMultipleUpload({ scope: "maps" });
   const onUpload = createMultipleUploadHandler(uploadMutation);
+  const { data: categoryOptions = [] } = useQuery({
+    queryKey: ["dashboard", "map-categories"],
+    queryFn: fetchMapCategories,
+    staleTime: 1000 * 60 * 5,
+  });
+  const colorPresets = useMemo(
+    () => Array.from(new Set(Object.values(DEFAULT_MAP_TYPE_COLORS))),
+    [],
+  );
 
   /**
    * Hanya digit; nol di depan dibuang (0123 → 123). Dipakai dengan input teks + value String(n)
@@ -119,6 +157,7 @@ export function MapForm({ initialData }: MapFormProps) {
     mutationFn: async () => {
       const payload = {
         ...form,
+        typeColor: normalizeMapColor(form.typeColor) ?? getDefaultMapTypeColor(form.type),
         // keep legacy `image` field filled for existing UI
         image: images[0] || form.image || "",
         images,
@@ -171,7 +210,9 @@ export function MapForm({ initialData }: MapFormProps) {
           className="space-y-6"
         >
           <div className="space-y-2">
-            <Label>Lokasi pin (drag untuk ubah)</Label>
+            <Label>
+              Lokasi pin (drag untuk ubah) <span className="text-destructive">*</span>
+            </Label>
             <div className="rounded-xl border border-border shadow-sm overflow-hidden h-[320px] sm:h-[420px]">
               <Map
                 initialViewState={{
@@ -199,7 +240,10 @@ export function MapForm({ initialData }: MapFormProps) {
                     }));
                   }}
                 >
-                  <div className="h-4 w-4 rounded-full bg-red-500 border-2 border-white shadow-md" />
+                  <div
+                    className="h-4 w-4 rounded-full border-2 border-white shadow-md"
+                    style={{ backgroundColor: form.typeColor }}
+                  />
                 </Marker>
               </Map>
             </div>
@@ -209,24 +253,89 @@ export function MapForm({ initialData }: MapFormProps) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="type">Jenis Bencana</Label>
-            <SearchSelect
+            <Label htmlFor="type">
+              Jenis Bencana <span className="text-destructive">*</span>
+            </Label>
+            <SearchSelect<MapCategoryOption>
               apiEndpoint="/api/dashboard/maps/categories"
               placeholder="Pilih / ketik jenis lain jika tidak ada di daftar"
               value={form.type || null}
-              onChange={(v) => setForm((f) => ({ ...f, type: v || "Banjir" }))}
+              initialOption={{
+                id: form.type,
+                label: form.type,
+                color: form.typeColor,
+              }}
+              onChange={(v) =>
+                setForm((f) => {
+                  const nextType = v || "Banjir";
+                  const matched = categoryOptions.find((option) => option.id === nextType);
+                  return {
+                    ...f,
+                    type: nextType,
+                    typeColor:
+                      matched?.color ?? f.typeColor ?? getDefaultMapTypeColor(nextType),
+                  };
+                })
+              }
               creatable
               responseMapper={(data) =>
                 unwrapApiList(data)
-                  .map((c) => String(c))
-                  .filter(Boolean)
-                  .map((c) => ({ id: c, label: c }))
+                  .map((item) => ({
+                    id: String((item as { id?: unknown }).id || "").trim(),
+                    label: String(
+                      (item as { label?: unknown; id?: unknown }).label ||
+                        (item as { id?: unknown }).id ||
+                        "",
+                    ).trim(),
+                    color:
+                      normalizeMapColor((item as { color?: unknown }).color) ?? "#6b7280",
+                  }))
+                  .filter((item) => item.id && item.label)
               }
+              renderOption={(option) => (
+                <div className="flex items-center gap-2">
+                  <span
+                    className="h-3 w-3 rounded-full border border-border/60"
+                    style={{ backgroundColor: option.color || "#6b7280" }}
+                  />
+                  <span>{option.label}</span>
+                </div>
+              )}
+              renderValue={(option) => (
+                <div className="flex items-center gap-2">
+                  <span
+                    className="h-3 w-3 rounded-full border border-border/60"
+                    style={{ backgroundColor: option.color || form.typeColor }}
+                  />
+                  <span>{option.label}</span>
+                </div>
+              )}
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="location">Lokasi</Label>
+            <Label htmlFor="typeColor">
+              Warna Kategori <span className="text-destructive">*</span>
+            </Label>
+            <ColorPicker
+              value={form.typeColor}
+              presets={colorPresets}
+              onChange={(value) =>
+                setForm((f) => ({
+                  ...f,
+                  typeColor: normalizeMapColor(value) ?? f.typeColor,
+                }))
+              }
+            />
+            <p className="text-xs text-muted-foreground">
+              Warna ini dipakai untuk badge dan marker kategori "{form.type}".
+            </p>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="location">
+              Lokasi <span className="text-destructive">*</span>
+            </Label>
             <Input
               id="location"
               name="location"
@@ -239,7 +348,9 @@ export function MapForm({ initialData }: MapFormProps) {
 
           <div className="grid gap-5 sm:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="kecamatan">Kecamatan</Label>
+              <Label htmlFor="kecamatan">
+                Kecamatan <span className="text-destructive">*</span>
+              </Label>
               <Input
                 id="kecamatan"
                 name="kecamatan"
@@ -250,7 +361,9 @@ export function MapForm({ initialData }: MapFormProps) {
               />
             </div>
             <div className="space-y-2">
-              <Label>Tanggal</Label>
+              <Label>
+                Tanggal <span className="text-destructive">*</span>
+              </Label>
               <DatePicker
                 date={selectedDate}
                 setDate={(d) => {
@@ -264,7 +377,9 @@ export function MapForm({ initialData }: MapFormProps) {
 
           <div className="grid gap-5 sm:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="lat">Lintang</Label>
+              <Label htmlFor="lat">
+                Lintang <span className="text-destructive">*</span>
+              </Label>
               <Input
                 id="lat"
                 name="lat"
@@ -275,7 +390,9 @@ export function MapForm({ initialData }: MapFormProps) {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="lng">Bujur</Label>
+              <Label htmlFor="lng">
+                Bujur <span className="text-destructive">*</span>
+              </Label>
               <Input
                 id="lng"
                 name="lng"

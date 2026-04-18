@@ -5,19 +5,11 @@ import { AppError } from "@/lib/app-error";
 import { getServerSession } from "@/lib/server";
 import { checkPermission } from "@/lib/permission-cache";
 import db from "@/lib/db";
-
-/** Default types (same as legend on public disaster map). */
-const DEFAULT_DISASTER_TYPES = [
-  "Banjir",
-  "Tanah Longsor",
-  "Angin Puting Beliung",
-  "Kebakaran",
-  "Gelombang Tinggi",
-] as const;
+import { DEFAULT_MAP_TYPE_COLORS, normalizeMapColor } from "@/lib/map-disaster-colors";
 
 /**
  * GET /api/dashboard/maps/categories
- * Returns predefined types plus any custom types already stored (deduped).
+ * Returns predefined types plus any custom types already stored, including colors.
  */
 export const GET = apiHandler(async (_req: NextRequest) => {
   const session = await getServerSession();
@@ -33,18 +25,26 @@ export const GET = apiHandler(async (_req: NextRequest) => {
   }
 
   const rows = await db.mapDisasterPoint.findMany({
-    select: { type: true },
-    distinct: ["type"],
-    orderBy: [{ type: "asc" }],
+    select: { type: true, typeColor: true, updatedAt: true },
+    orderBy: [{ updatedAt: "desc" }],
   });
 
-  const fromDb = rows
-    .map((r) => (r.type || "").trim())
-    .filter(Boolean);
+  const items = new Map<string, { id: string; label: string; color: string }>();
 
-  const defaultSet = new Set<string>(DEFAULT_DISASTER_TYPES);
-  const extras = fromDb.filter((t) => !defaultSet.has(t));
+  for (const [type, color] of Object.entries(DEFAULT_MAP_TYPE_COLORS)) {
+    items.set(type, { id: type, label: type, color });
+  }
 
-  return apiSuccess([...DEFAULT_DISASTER_TYPES, ...extras]);
+  for (const row of rows) {
+    const type = (row.type || "").trim();
+    if (!type) continue;
+    items.set(type, {
+      id: type,
+      label: type,
+      color: normalizeMapColor(row.typeColor) ?? "#6b7280",
+    });
+  }
+
+  return apiSuccess(Array.from(items.values()));
 });
 

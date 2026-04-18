@@ -43,6 +43,7 @@ export type MapDisasterPointSumAggregateOutputType = {
 export type MapDisasterPointMinAggregateOutputType = {
   id: string | null
   type: string | null
+  typeColor: string | null
   location: string | null
   kecamatan: string | null
   date: string | null
@@ -58,6 +59,7 @@ export type MapDisasterPointMinAggregateOutputType = {
 export type MapDisasterPointMaxAggregateOutputType = {
   id: string | null
   type: string | null
+  typeColor: string | null
   location: string | null
   kecamatan: string | null
   date: string | null
@@ -73,6 +75,7 @@ export type MapDisasterPointMaxAggregateOutputType = {
 export type MapDisasterPointCountAggregateOutputType = {
   id: number
   type: number
+  typeColor: number
   location: number
   kecamatan: number
   date: number
@@ -105,6 +108,7 @@ export type MapDisasterPointSumAggregateInputType = {
 export type MapDisasterPointMinAggregateInputType = {
   id?: true
   type?: true
+  typeColor?: true
   location?: true
   kecamatan?: true
   date?: true
@@ -120,6 +124,7 @@ export type MapDisasterPointMinAggregateInputType = {
 export type MapDisasterPointMaxAggregateInputType = {
   id?: true
   type?: true
+  typeColor?: true
   location?: true
   kecamatan?: true
   date?: true
@@ -135,6 +140,7 @@ export type MapDisasterPointMaxAggregateInputType = {
 export type MapDisasterPointCountAggregateInputType = {
   id?: true
   type?: true
+  typeColor?: true
   location?: true
   kecamatan?: true
   date?: true
@@ -238,6 +244,7 @@ export type MapDisasterPointGroupByArgs<ExtArgs extends runtime.Types.Extensions
 export type MapDisasterPointGroupByOutputType = {
   id: string
   type: string
+  typeColor: string | null
   location: string
   kecamatan: string
   date: string
@@ -277,6 +284,7 @@ export type MapDisasterPointWhereInput = {
   NOT?: Prisma.MapDisasterPointWhereInput | Prisma.MapDisasterPointWhereInput[]
   id?: Prisma.StringFilter<"MapDisasterPoint"> | string
   type?: Prisma.StringFilter<"MapDisasterPoint"> | string
+  typeColor?: Prisma.StringNullableFilter<"MapDisasterPoint"> | string | null
   location?: Prisma.StringFilter<"MapDisasterPoint"> | string
   kecamatan?: Prisma.StringFilter<"MapDisasterPoint"> | string
   date?: Prisma.StringFilter<"MapDisasterPoint"> | string
@@ -294,6 +302,7 @@ export type MapDisasterPointWhereInput = {
 export type MapDisasterPointOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   type?: Prisma.SortOrder
+  typeColor?: Prisma.SortOrderInput | Prisma.SortOrder
   location?: Prisma.SortOrder
   kecamatan?: Prisma.SortOrder
   date?: Prisma.SortOrder
@@ -314,6 +323,7 @@ export type MapDisasterPointWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.MapDisasterPointWhereInput[]
   NOT?: Prisma.MapDisasterPointWhereInput | Prisma.MapDisasterPointWhereInput[]
   type?: Prisma.StringFilter<"MapDisasterPoint"> | string
+  typeColor?: Prisma.StringNullableFilter<"MapDisasterPoint"> | string | null
   location?: Prisma.StringFilter<"MapDisasterPoint"> | string
   kecamatan?: Prisma.StringFilter<"MapDisasterPoint"> | string
   date?: Prisma.StringFilter<"MapDisasterPoint"> | string
@@ -331,6 +341,7 @@ export type MapDisasterPointWhereUniqueInput = Prisma.AtLeast<{
 export type MapDisasterPointOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   type?: Prisma.SortOrder
+  typeColor?: Prisma.SortOrderInput | Prisma.SortOrder
   location?: Prisma.SortOrder
   kecamatan?: Prisma.SortOrder
   date?: Prisma.SortOrder
@@ -355,6 +366,7 @@ export type MapDisasterPointScalarWhereWithAggregatesInput = {
   NOT?: Prisma.MapDisasterPointScalarWhereWithAggregatesInput | Prisma.MapDisasterPointScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"MapDisasterPoint"> | string
   type?: Prisma.StringWithAggregatesFilter<"MapDisasterPoint"> | string
+  typeColor?: Prisma.StringNullableWithAggregatesFilter<"MapDisasterPoint"> | string | null
   location?: Prisma.StringWithAggregatesFilter<"MapDisasterPoint"> | string
   kecamatan?: Prisma.StringWithAggregatesFilter<"MapDisasterPoint"> | string
   date?: Prisma.StringWithAggregatesFilter<"MapDisasterPoint"> | string
@@ -371,6 +383,7 @@ export type MapDisasterPointScalarWhereWithAggregatesInput = {
 export type MapDisasterPointCreateInput = {
   id?: string
   type: string
+  typeColor?: string | null
   location: string
   kecamatan: string
   date: string
@@ -388,6 +401,7 @@ export type MapDisasterPointCreateInput = {
 export type MapDisasterPointUncheckedCreateInput = {
   id?: string
   type: string
+  typeColor?: string | null
   location: string
   kecamatan: string
   date: string
@@ -405,6 +419,7 @@ export type MapDisasterPointUncheckedCreateInput = {
 export type MapDisasterPointUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
+  typeColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   location?: Prisma.StringFieldUpdateOperationsInput | string
   kecamatan?: Prisma.StringFieldUpdateOperationsInput | string
   date?: Prisma.StringFieldUpdateOperationsInput | string
@@ -422,6 +437,7 @@ export type MapDisasterPointUpdateInput = {
 export type MapDisasterPointUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
+  typeColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   location?: Prisma.StringFieldUpdateOperationsInput | string
   kecamatan?: Prisma.StringFieldUpdateOperationsInput | string
   date?: Prisma.StringFieldUpdateOperationsInput | string
@@ -439,6 +455,7 @@ export type MapDisasterPointUncheckedUpdateInput = {
 export type MapDisasterPointCreateManyInput = {
   id?: string
   type: string
+  typeColor?: string | null
   location: string
   kecamatan: string
   date: string
@@ -455,6 +472,7 @@ export type MapDisasterPointCreateManyInput = {
 export type MapDisasterPointUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
+  typeColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   location?: Prisma.StringFieldUpdateOperationsInput | string
   kecamatan?: Prisma.StringFieldUpdateOperationsInput | string
   date?: Prisma.StringFieldUpdateOperationsInput | string
@@ -471,6 +489,7 @@ export type MapDisasterPointUpdateManyMutationInput = {
 export type MapDisasterPointUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
+  typeColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   location?: Prisma.StringFieldUpdateOperationsInput | string
   kecamatan?: Prisma.StringFieldUpdateOperationsInput | string
   date?: Prisma.StringFieldUpdateOperationsInput | string
@@ -487,6 +506,7 @@ export type MapDisasterPointUncheckedUpdateManyInput = {
 export type MapDisasterPointCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   type?: Prisma.SortOrder
+  typeColor?: Prisma.SortOrder
   location?: Prisma.SortOrder
   kecamatan?: Prisma.SortOrder
   date?: Prisma.SortOrder
@@ -510,6 +530,7 @@ export type MapDisasterPointAvgOrderByAggregateInput = {
 export type MapDisasterPointMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   type?: Prisma.SortOrder
+  typeColor?: Prisma.SortOrder
   location?: Prisma.SortOrder
   kecamatan?: Prisma.SortOrder
   date?: Prisma.SortOrder
@@ -525,6 +546,7 @@ export type MapDisasterPointMaxOrderByAggregateInput = {
 export type MapDisasterPointMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   type?: Prisma.SortOrder
+  typeColor?: Prisma.SortOrder
   location?: Prisma.SortOrder
   kecamatan?: Prisma.SortOrder
   date?: Prisma.SortOrder
@@ -582,6 +604,7 @@ export type MapDisasterPointUpdateOneRequiredWithoutPhotosNestedInput = {
 export type MapDisasterPointCreateWithoutPhotosInput = {
   id?: string
   type: string
+  typeColor?: string | null
   location: string
   kecamatan: string
   date: string
@@ -598,6 +621,7 @@ export type MapDisasterPointCreateWithoutPhotosInput = {
 export type MapDisasterPointUncheckedCreateWithoutPhotosInput = {
   id?: string
   type: string
+  typeColor?: string | null
   location: string
   kecamatan: string
   date: string
@@ -630,6 +654,7 @@ export type MapDisasterPointUpdateToOneWithWhereWithoutPhotosInput = {
 export type MapDisasterPointUpdateWithoutPhotosInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
+  typeColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   location?: Prisma.StringFieldUpdateOperationsInput | string
   kecamatan?: Prisma.StringFieldUpdateOperationsInput | string
   date?: Prisma.StringFieldUpdateOperationsInput | string
@@ -646,6 +671,7 @@ export type MapDisasterPointUpdateWithoutPhotosInput = {
 export type MapDisasterPointUncheckedUpdateWithoutPhotosInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
+  typeColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   location?: Prisma.StringFieldUpdateOperationsInput | string
   kecamatan?: Prisma.StringFieldUpdateOperationsInput | string
   date?: Prisma.StringFieldUpdateOperationsInput | string
@@ -693,6 +719,7 @@ export type MapDisasterPointCountOutputTypeCountPhotosArgs<ExtArgs extends runti
 export type MapDisasterPointSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   type?: boolean
+  typeColor?: boolean
   location?: boolean
   kecamatan?: boolean
   date?: boolean
@@ -711,6 +738,7 @@ export type MapDisasterPointSelect<ExtArgs extends runtime.Types.Extensions.Inte
 export type MapDisasterPointSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   type?: boolean
+  typeColor?: boolean
   location?: boolean
   kecamatan?: boolean
   date?: boolean
@@ -727,6 +755,7 @@ export type MapDisasterPointSelectCreateManyAndReturn<ExtArgs extends runtime.Ty
 export type MapDisasterPointSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   type?: boolean
+  typeColor?: boolean
   location?: boolean
   kecamatan?: boolean
   date?: boolean
@@ -743,6 +772,7 @@ export type MapDisasterPointSelectUpdateManyAndReturn<ExtArgs extends runtime.Ty
 export type MapDisasterPointSelectScalar = {
   id?: boolean
   type?: boolean
+  typeColor?: boolean
   location?: boolean
   kecamatan?: boolean
   date?: boolean
@@ -756,7 +786,7 @@ export type MapDisasterPointSelectScalar = {
   updatedAt?: boolean
 }
 
-export type MapDisasterPointOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "type" | "location" | "kecamatan" | "date" | "casualties" | "displaced" | "description" | "image" | "lat" | "lng" | "createdAt" | "updatedAt", ExtArgs["result"]["mapDisasterPoint"]>
+export type MapDisasterPointOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "type" | "typeColor" | "location" | "kecamatan" | "date" | "casualties" | "displaced" | "description" | "image" | "lat" | "lng" | "createdAt" | "updatedAt", ExtArgs["result"]["mapDisasterPoint"]>
 export type MapDisasterPointInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   photos?: boolean | Prisma.MapDisasterPoint$photosArgs<ExtArgs>
   _count?: boolean | Prisma.MapDisasterPointCountOutputTypeDefaultArgs<ExtArgs>
@@ -772,6 +802,7 @@ export type $MapDisasterPointPayload<ExtArgs extends runtime.Types.Extensions.In
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     type: string
+    typeColor: string | null
     location: string
     kecamatan: string
     date: string
@@ -1209,6 +1240,7 @@ export interface Prisma__MapDisasterPointClient<T, Null = never, ExtArgs extends
 export interface MapDisasterPointFieldRefs {
   readonly id: Prisma.FieldRef<"MapDisasterPoint", 'String'>
   readonly type: Prisma.FieldRef<"MapDisasterPoint", 'String'>
+  readonly typeColor: Prisma.FieldRef<"MapDisasterPoint", 'String'>
   readonly location: Prisma.FieldRef<"MapDisasterPoint", 'String'>
   readonly kecamatan: Prisma.FieldRef<"MapDisasterPoint", 'String'>
   readonly date: Prisma.FieldRef<"MapDisasterPoint", 'String'>

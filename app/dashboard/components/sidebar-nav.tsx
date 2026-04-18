@@ -21,11 +21,12 @@ export function SidebarNav() {
     staleTime: 1000 * 60 * 5,
   });
 
-  const hasPermission = React.useCallback(
+  const hasPageAccess = React.useCallback(
     (resource: string) => {
       const resourceActions = permissions[resource];
       if (!resourceActions) return false;
-      return resourceActions.length > 0;
+      // Sidebar items should only appear when the user can open the page itself.
+      return resourceActions.includes("read") || resourceActions.includes("view");
     },
     [permissions],
   );
@@ -41,7 +42,7 @@ export function SidebarNav() {
             // Check if item has sub-items
             if ("items" in item && item.items) {
               const filteredSubItems = item.items.filter((subItem) =>
-                hasPermission(subItem.permission),
+                hasPageAccess(subItem.permission),
               );
               // Only include parent if it has accessible sub-items
               if (filteredSubItems.length === 0) return null;
@@ -49,7 +50,7 @@ export function SidebarNav() {
             }
 
             // Check permission for single item
-            if (item.permission && !hasPermission(item.permission)) return null;
+            if (item.permission && !hasPageAccess(item.permission)) return null;
             return item;
           })
           .filter((item): item is NonNullable<typeof item> => item !== null);
@@ -59,7 +60,7 @@ export function SidebarNav() {
         return { ...group, items: filteredItems };
       })
       .filter((group): group is NonNullable<typeof group> => group !== null);
-  }, [hasPermission]);
+  }, [hasPageAccess]);
 
   return (
     <>

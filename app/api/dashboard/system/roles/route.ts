@@ -81,11 +81,13 @@ export const GET = apiHandler(async (req: NextRequest) => {
     });
 
     for (const row of rows) {
+      const actions = (row.actions as string[]) ?? [];
+      if (actions.length === 0) continue;
       const key = String(row.role).toLowerCase();
       const current = permsByRole.get(key) ?? [];
       current.push({
         resource: row.resource,
-        actions: (row.actions as string[]) ?? [],
+        actions,
       });
       permsByRole.set(key, current);
     }
