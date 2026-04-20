@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+import { isSafeHttpOrRelativeAssetUrl } from "@/lib/asset-url";
+
 // ============================================
 // Constants
 // ============================================
@@ -68,7 +70,11 @@ export const createDocumentSchema = z.object({
   description: z.string().trim().min(5, "Description must be at least 5 characters"),
   category: documentCategorySchema,
   dateLabel: z.string().trim().min(2, "Date label is required"),
-  downloadUrl: z.string().trim().min(1, "Download URL is required"),
+  downloadUrl: z
+    .string()
+    .trim()
+    .min(1, "Download URL is required")
+    .refine(isSafeHttpOrRelativeAssetUrl, "Download URL tidak valid"),
   /**
    * Dihitung otomatis (biasanya dari file upload).
    * Tetap opsional untuk kompatibilitas, backend bisa mengisi jika kosong.

@@ -9,7 +9,41 @@ import {
   MAX_FILE_SIZE,
   ALLOWED_EXTENSIONS,
   uploadScopeSchema,
+  type UploadScope,
 } from "@/modules/upload/upload.dto";
+import { checkPermission } from "@/lib/permission-cache";
+
+const uploadScopePermissions: Partial<
+  Record<UploadScope, { resource: string; actions: string[] }>
+> = {
+  articles: { resource: "articles", actions: ["create", "update"] },
+  archives: { resource: "archives", actions: ["create", "update"] },
+  documents: { resource: "documents", actions: ["create", "update"] },
+  maps: { resource: "maps", actions: ["create", "update"] },
+  settings: { resource: "settings", actions: ["update"] },
+  aspirations: { resource: "aspirations", actions: ["create", "update"] },
+};
+
+async function assertUploadScopePermission(
+  role: string | null | undefined,
+  scope: UploadScope,
+) {
+  const requiredPermission = uploadScopePermissions[scope];
+  if (!requiredPermission) return;
+
+  const hasScopeAccess = await Promise.all(
+    requiredPermission.actions.map((action) =>
+      checkPermission(role, requiredPermission.resource, action),
+    ),
+  );
+
+  if (!hasScopeAccess.some(Boolean)) {
+    throw AppError.forbidden(
+      "You don't have permission to upload files for this scope",
+      "FORBIDDEN",
+    );
+  }
+}
 
 /**
  * POST /api/upload - Upload a file
@@ -28,6 +62,7 @@ export const POST = apiHandler(async (req: NextRequest) => {
     req.nextUrl.searchParams.get("scope") ?? formData.get("scope");
   const parsedScope = uploadScopeSchema.safeParse(rawScope);
   const safeScope = parsedScope.success ? parsedScope.data : "general";
+  await assertUploadScopePermission(session.user.role, safeScope);
 
   if (!file) {
     throw AppError.badRequest("No file uploaded", "NO_FILE");

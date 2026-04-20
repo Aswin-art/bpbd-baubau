@@ -11,15 +11,15 @@ import { articleService } from "@/modules/articles/articles.service";
  */
 export const GET = apiHandler(async (req: NextRequest) => {
   const session = await getServerSession();
+  if (!session?.user) {
+    throw AppError.unauthorized("Authentication required", "UNAUTHORIZED");
+  }
 
-  // Check if user has permission to read articles (reusing article:read for categories)
-  if (session?.user) {
-    if (!(await checkPermission(session.user.role, "articles", "read"))) {
-      throw AppError.forbidden(
-        "You don't have permission to view article categories",
-        "FORBIDDEN",
-      );
-    }
+  if (!(await checkPermission(session.user.role, "articles", "read"))) {
+    throw AppError.forbidden(
+      "You don't have permission to view article categories",
+      "FORBIDDEN",
+    );
   }
 
   const categories = await articleService.getCategories();

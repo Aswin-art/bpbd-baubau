@@ -13,6 +13,7 @@ interface ProvidersProps {
 }
 
 export function Providers({ children }: ProvidersProps) {
+  const isDev = process.env.NODE_ENV === "development";
   const [queryClient] = useState(
     () =>
       new QueryClient({
@@ -45,7 +46,7 @@ export function Providers({ children }: ProvidersProps) {
         </ProgressProvider>
         <Toaster richColors position="top-right" />
       </NuqsAdapter>
-      <ReactQueryDevtools initialIsOpen={false} />
+      {isDev ? <ReactQueryDevtools initialIsOpen={false} /> : null}
     </QueryClientProvider>
   );
 }

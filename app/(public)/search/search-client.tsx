@@ -391,9 +391,8 @@ function GlobalSearchClientInner() {
             <Select
               value={tahun || "semua"}
               onValueChange={(v) => void setTahun(v === "semua" ? null : v)}
-              disabled={normalizedType !== "arsip"}
             >
-              <SelectTrigger className="h-10 w-[160px] rounded-none border-2 border-border bg-card font-mono text-xs font-bold uppercase tracking-widest text-secondary focus:ring-0 focus:border-primary disabled:opacity-50">
+              <SelectTrigger className="h-10 w-[160px] rounded-none border-2 border-border bg-card font-mono text-xs font-bold uppercase tracking-widest text-secondary focus:ring-0 focus:border-primary">
                 <SelectValue
                   placeholder={
                     yearsQuery.isLoading ? "Memuat tahun…" : "Semua tahun"

@@ -76,7 +76,7 @@ export const PATCH = apiHandler(async (req: NextRequest, context) => {
     }
   });
 
-  invalidatePermissionCache(roleId);
+  await invalidatePermissionCache(roleId);
 
   const updated = await db.rolePermission.findMany({
     where: { role: roleId },

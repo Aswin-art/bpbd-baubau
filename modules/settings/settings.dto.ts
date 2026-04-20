@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+import { isSafeHttpOrRelativeAssetUrl } from "@/lib/asset-url";
+
 // ============================================
 // HeroSlide
 // ============================================
@@ -26,10 +28,22 @@ export type HeroSlideListParams = z.infer<typeof heroSlideListParamsSchema>;
 
 export const createHeroSlideSchema = z.object({
   sortOrder: z.coerce.number().int().optional(),
-  imageUrl: z.string().trim().min(1, "URL gambar wajib diisi"),
+  imageUrl: z
+    .string()
+    .trim()
+    .min(1, "URL gambar wajib diisi")
+    .refine(isSafeHttpOrRelativeAssetUrl, "URL gambar tidak valid"),
   title: z.string().trim().optional().nullable(),
   subtitle: z.string().trim().optional().nullable(),
-  linkUrl: z.string().trim().optional().nullable(),
+  linkUrl: z
+    .string()
+    .trim()
+    .optional()
+    .nullable()
+    .refine(
+      (v) => v == null || v === "" || isSafeHttpOrRelativeAssetUrl(v),
+      "URL tautan tidak valid",
+    ),
   isActive: z.boolean().default(true),
 });
 
@@ -67,19 +81,33 @@ export const siteSettingsSchema = z.object({
 
 export type SiteSettings = z.infer<typeof siteSettingsSchema>;
 
-export const updateSiteSettingsSchema = z.object({
-  aboutDescription: z.string().trim().nullable().optional(),
-  objectives: z.string().trim().nullable().optional(),
-  goals: z.string().trim().nullable().optional(),
-  structurePhotoUrl: z.string().trim().nullable().optional(),
-  officePhotoUrl: z.string().trim().nullable().optional(),
-  mapEmbedUrl: z.string().trim().nullable().optional(),
-  contactEmail: z.string().trim().nullable().optional(),
-  contactPhone: z.string().trim().nullable().optional(),
-  socialInstagram: z.string().trim().nullable().optional(),
-  socialX: z.string().trim().nullable().optional(),
-  socialTiktok: z.string().trim().nullable().optional(),
-});
+export const updateSiteSettingsSchema = z
+  .object({
+    aboutDescription: z.string().trim().nullable().optional(),
+    objectives: z.string().trim().nullable().optional(),
+    goals: z.string().trim().nullable().optional(),
+    structurePhotoUrl: z.string().trim().nullable().optional(),
+    officePhotoUrl: z.string().trim().nullable().optional(),
+    mapEmbedUrl: z.string().trim().nullable().optional(),
+    contactEmail: z.string().trim().nullable().optional(),
+    contactPhone: z.string().trim().nullable().optional(),
+    socialInstagram: z.string().trim().nullable().optional(),
+    socialX: z.string().trim().nullable().optional(),
+    socialTiktok: z.string().trim().nullable().optional(),
+  })
+  .superRefine((val, ctx) => {
+    const urlKeys = ["structurePhotoUrl", "officePhotoUrl", "mapEmbedUrl"] as const;
+    for (const key of urlKeys) {
+      const v = val[key];
+      if (v != null && String(v).trim() !== "" && !isSafeHttpOrRelativeAssetUrl(String(v))) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "URL tidak valid",
+          path: [key],
+        });
+      }
+    }
+  });
 
 export type UpdateSiteSettingsInput = z.infer<typeof updateSiteSettingsSchema>;
 

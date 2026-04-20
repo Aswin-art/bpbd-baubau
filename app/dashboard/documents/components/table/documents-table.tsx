@@ -70,8 +70,8 @@ async function fetchDocuments(params: {
 
 export function DocumentsTable() {
   const columns = useColumns();
-  const [page] = useQueryState("page", parseAsInteger.withDefault(1));
-  const [limit] = useQueryState("limit", parseAsInteger.withDefault(10));
+  const [page, setPage] = useQueryState("page", parseAsInteger.withDefault(1));
+  const [limit, setLimit] = useQueryState("limit", parseAsInteger.withDefault(10));
   const [q] = useQueryState("q", parseAsString.withDefault(""));
   const [category, setCategory] = useQueryState(
     "category",
@@ -113,7 +113,10 @@ export function DocumentsTable() {
           apiEndpoint="/api/dashboard/documents/categories"
           placeholder="Semua kategori"
           value={category || null}
-          onChange={(v) => setCategory(v || "")}
+          onChange={(v) => {
+            void setCategory(v || "");
+            void setPage(1);
+          }}
           creatable
           responseMapper={(payload) => {
             const arr = unwrapApiArrayPayload(payload);
@@ -145,6 +148,13 @@ export function DocumentsTable() {
       <DataTable
         columns={columns}
         data={rows}
+        page={page}
+        limit={limit}
+        onPageChange={setPage}
+        onLimitChange={async (next) => {
+          await setLimit(next);
+          await setPage(1);
+        }}
         searchKey="name"
         isLoading={isLoading}
         pageCount={data.pageCount}

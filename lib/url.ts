@@ -10,6 +10,10 @@ export function getBaseUrl(): string {
     return window.location.origin;
   }
 
-  // Server-side: use environment variable
-  return process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+  // Server-side: align with `getInternalSiteOrigin` / auth `baseURL`
+  return (
+    process.env.NEXT_PUBLIC_BASE_URL ||
+    process.env.NEXT_PUBLIC_APP_URL ||
+    "http://localhost:3000"
+  );
 }

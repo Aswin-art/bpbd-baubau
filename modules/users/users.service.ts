@@ -7,7 +7,6 @@ import type {
   UserListParams,
 } from "./users.dto";
 import { auth } from "@/lib/auth";
-import db from "@/lib/db";
 import { headers } from "next/headers";
 import { AppError } from "@/lib/app-error";
 
@@ -44,14 +43,10 @@ export const usersService = {
       throw AppError.badRequest("Gagal membuat user", "CREATE_USER_FAILED");
     }
 
-    // Ensure additionalFields are set (role + isActive).
-    await db.user.update({
-      where: { id: res.user.id },
-      data: {
-        role: input.role,
-        isActive: input.isActive,
-        photoUrl: input.photoUrl ?? null,
-      },
+    await usersRepository.updateFields(res.user.id, {
+      role: input.role,
+      isActive: input.isActive,
+      photoUrl: input.photoUrl ?? null,
     });
 
     return { id: res.user.id };

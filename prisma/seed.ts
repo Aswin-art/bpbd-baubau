@@ -761,6 +761,9 @@ async function seedSiteSettings() {
 }
 
 async function seedRolePermissions() {
+  // Legacy better-auth resource name was `user`; app uses `users` only.
+  await db.rolePermission.deleteMany({ where: { resource: "user" } });
+
   // Baseline permissions for known roles.
   // NOTE: Only seeds existing role/resource rows; used by dashboard PermissionGuard + API checks.
   const resources = [

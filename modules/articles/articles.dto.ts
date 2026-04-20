@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+import { isSafeHttpOrRelativeAssetUrl } from "@/lib/asset-url";
+
 // ============================================
 // Enums / Constants
 // ============================================
@@ -49,7 +51,13 @@ export const createArticleSchema = z.object({
     ),
   content: z.any(), // BlockNote JSON blocks
   excerpt: z.string().optional(),
-  thumbnailUrl: z.string().optional(),
+  thumbnailUrl: z
+    .string()
+    .optional()
+    .refine(
+      (v) => v === undefined || v.trim() === "" || isSafeHttpOrRelativeAssetUrl(v),
+      "Thumbnail URL tidak valid",
+    ),
   category: articleCategorySchema,
   status: articleStatusSchema.default("DRAFT"),
 });

@@ -7,6 +7,7 @@ import { checkPermission } from "@/lib/permission-cache";
 import db from "@/lib/db";
 import { parsePgInt32Count } from "@/lib/pg-int32";
 import { normalizeMapColor } from "@/lib/map-disaster-colors";
+import { mapDisasterApiPatchSchema } from "@/lib/map-disaster-zod";
 
 function toIso(v: Date | string) {
   return v instanceof Date ? v.toISOString() : v;
@@ -52,42 +53,43 @@ export const PATCH = apiHandler(async (req: NextRequest, context) => {
   const body = await req.json().catch(() => null);
   if (!body) throw AppError.badRequest("Invalid payload", "VALIDATION_ERROR");
 
-  const images: string[] = Array.isArray(body.images)
-    ? body.images.map((x: unknown) => String(x || "").trim()).filter(Boolean)
+  const parsed = mapDisasterApiPatchSchema.safeParse(body);
+  if (!parsed.success) {
+    const msg = parsed.error.issues.map((i) => i.message).join("; ");
+    throw AppError.badRequest(msg || "Validasi payload gagal", "VALIDATION_ERROR");
+  }
+
+  const b = parsed.data;
+  const images: string[] = Array.isArray(b.images)
+    ? b.images.map((x) => String(x || "").trim()).filter(Boolean)
     : [];
 
   const updated = await db.mapDisasterPoint.update({
     where: { id },
     data: {
-      ...(body.type !== undefined ? { type: String(body.type).trim() } : {}),
-      ...(body.typeColor !== undefined
-        ? { typeColor: normalizeMapColor(body.typeColor) }
+      ...(b.type !== undefined ? { type: b.type.trim() } : {}),
+      ...(b.typeColor !== undefined ? { typeColor: normalizeMapColor(b.typeColor) } : {}),
+      ...(b.location !== undefined ? { location: b.location.trim() } : {}),
+      ...(b.kecamatan !== undefined ? { kecamatan: b.kecamatan.trim() } : {}),
+      ...(b.date !== undefined ? { date: b.date.trim() } : {}),
+      ...(b.casualties !== undefined
+        ? { casualties: parsePgInt32Count(b.casualties, "Korban jiwa") }
         : {}),
-      ...(body.location !== undefined
-        ? { location: String(body.location).trim() }
+      ...(b.displaced !== undefined
+        ? { displaced: parsePgInt32Count(b.displaced, "Mengungsi") }
         : {}),
-      ...(body.kecamatan !== undefined
-        ? { kecamatan: String(body.kecamatan).trim() }
-        : {}),
-      ...(body.date !== undefined ? { date: String(body.date).trim() } : {}),
-      ...(body.casualties !== undefined
-        ? { casualties: parsePgInt32Count(body.casualties, "Korban jiwa") }
-        : {}),
-      ...(body.displaced !== undefined
-        ? { displaced: parsePgInt32Count(body.displaced, "Mengungsi") }
-        : {}),
-      ...(body.description !== undefined ? { description: body.description as any } : {}),
-      ...(body.image !== undefined
-        ? { image: String(body.image).trim() }
+      ...(b.description !== undefined ? { description: b.description as unknown } : {}),
+      ...(b.image !== undefined
+        ? { image: String(b.image).trim() }
         : images.length > 0
           ? { image: images[0] }
           : {}),
-      ...(body.lat !== undefined ? { lat: Number(body.lat) } : {}),
-      ...(body.lng !== undefined ? { lng: Number(body.lng) } : {}),
+      ...(b.lat !== undefined ? { lat: b.lat } : {}),
+      ...(b.lng !== undefined ? { lng: b.lng } : {}),
     },
   });
 
-  if (Array.isArray(body.images)) {
+  if (Array.isArray(b.images)) {
     // Replace photos list (best-effort).
     await (db as any).disasterPhoto?.deleteMany?.({ where: { disasterId: id } });
     if (images.length > 0) {

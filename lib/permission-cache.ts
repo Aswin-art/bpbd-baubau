@@ -1,29 +1,33 @@
-import { LRUCache } from "lru-cache";
+import "server-only";
+
 import db from "@/lib/db";
+import { getRedis, permNavCacheKey } from "@/lib/redis";
+
+const PERM_TTL_SEC = 5 * 60;
 
 /**
- * In-memory cache for role permissions
- * TTL: 5 minutes
- */
-const navCache = new LRUCache<string, Record<string, string[]>>({
-  max: 10,
-  ttl: 5 * 60 * 1000, // 5 minutes
-});
-
-/**
- * Get only navigation-related permissions
+ * Navigation permissions cache (Redis). TTL: 5 minutes.
+ * Falls back to database only when Redis is unavailable.
  */
 export async function getCachedPermissions(
   role: string,
 ): Promise<Record<string, string[]>> {
   const normalizedRole = role.toLowerCase();
-  const cached = navCache.get(normalizedRole);
+  const key = permNavCacheKey(normalizedRole);
 
-  if (cached) {
-    return cached;
+  const client = await getRedis();
+  if (client?.isOpen) {
+    try {
+      const raw = await client.get(key);
+      if (raw) {
+        const parsed = JSON.parse(raw) as Record<string, string[]>;
+        if (parsed && typeof parsed === "object") return parsed;
+      }
+    } catch {
+      /* read-through to DB */
+    }
   }
 
-  // Fetch permissions from database
   const dbPermissions = await db.rolePermission.findMany({
     where: {
       role: normalizedRole,
@@ -41,20 +45,38 @@ export async function getCachedPermissions(
     permissions[p.resource] = actions;
   }
 
-  // Update nav cache
-  navCache.set(normalizedRole, permissions);
+  if (client?.isOpen) {
+    try {
+      await client.set(key, JSON.stringify(permissions), { EX: PERM_TTL_SEC });
+    } catch {
+      /* best-effort cache */
+    }
+  }
 
   return permissions;
 }
 
 /**
- * Invalidate cache for a specific role
+ * Invalidate cache for a specific role, or all nav permission keys.
  */
-export function invalidatePermissionCache(role?: string): void {
-  if (role) {
-    navCache.delete(role.toLowerCase());
-  } else {
-    navCache.clear();
+export async function invalidatePermissionCache(role?: string): Promise<void> {
+  const client = await getRedis();
+  if (!client?.isOpen) return;
+
+  try {
+    if (role) {
+      await client.del(permNavCacheKey(role));
+      return;
+    }
+
+    for await (const key of client.scanIterator({
+      MATCH: "bpbd:perm:nav:*",
+      COUNT: 128,
+    })) {
+      await client.del(key);
+    }
+  } catch (e) {
+    console.error("[permission-cache] invalidate failed:", e);
   }
 }
 
@@ -76,7 +98,6 @@ export async function checkPermission(
 
     return resourcePermissions.includes(action);
   } catch {
-    // Fallback to false if database is not available
     return false;
   }
 }

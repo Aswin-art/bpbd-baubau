@@ -29,13 +29,31 @@ import { Progress } from "@/components/ui/progress";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { DashboardHeader } from "./components/dashboard-header";
 import { PermissionGuard } from "./components/permission-guard";
-import {
-  newsArticles,
-  aspirations,
-  aspirationStatusLabels,
-  documents,
-} from "@/data/dummy-data";
+import { aspirations, documents } from "@/data/dummy-data";
 import type { MapDisasterPointDTO } from "@/lib/map-disaster-types";
+
+type DashboardNewsItem = {
+  id: string;
+  title: string;
+  slug: string;
+  excerpt: string | null;
+  thumbnailUrl: string | null;
+  category: string;
+  publishedAt: string | null;
+};
+
+function formatNewsDateLabel(iso: string | null): string {
+  if (!iso) return "";
+  try {
+    return new Date(iso).toLocaleDateString("id-ID", {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    });
+  } catch {
+    return "";
+  }
+}
 
 const disasterTypeIcons: Record<string, typeof Flame> = {
   Banjir: CloudRain,
@@ -101,6 +119,7 @@ function getAspirasiStatusCounts() {
 
 export default function DashboardPage() {
   const [mapPoints, setMapPoints] = useState<MapDisasterPointDTO[]>([]);
+  const [recentNews, setRecentNews] = useState<DashboardNewsItem[]>([]);
 
   useEffect(() => {
     let cancelled = false;
@@ -117,13 +136,27 @@ export default function DashboardPage() {
     };
   }, []);
 
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/public/news?limit=4")
+      .then((r) => (r.ok ? r.json() : Promise.reject(new Error("news"))))
+      .then((data: { items?: DashboardNewsItem[] }) => {
+        if (!cancelled) setRecentNews(data.items ?? []);
+      })
+      .catch(() => {
+        if (!cancelled) setRecentNews([]);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   const typeCounts = useMemo(
     () => getDisasterTypeCounts(mapPoints),
     [mapPoints]
   );
   const aspirasiCounts = getAspirasiStatusCounts();
   const recentDisasters = mapPoints.slice(0, 5);
-  const recentNews = newsArticles.slice(0, 4);
   const totalAspirations = aspirations.length;
 
   const totalMengungsi = useMemo(
@@ -448,30 +481,42 @@ export default function DashboardPage() {
               </div>
             </CardHeader>
             <CardContent className="space-y-3">
-              {recentNews.map((news) => (
-                <Link
-                  key={news.slug}
-                  href={`/articles/${news.slug}`}
-                  className="flex gap-3 group"
-                >
-                  <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-muted">
-                    <Image
-                      src={news.imageUrl}
-                      alt={news.title}
-                      fill
-                      className="object-cover"
-                    />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-[13px] font-medium text-foreground line-clamp-2 leading-snug group-hover:text-primary transition-colors">
-                      {news.title}
-                    </p>
-                    <p className="text-[11px] text-muted-foreground mt-1">
-                      {news.dateLabel}
-                    </p>
-                  </div>
-                </Link>
-              ))}
+              {recentNews.length === 0 ? (
+                <p className="text-sm text-muted-foreground py-2">
+                  Belum ada berita terpublikasi.
+                </p>
+              ) : (
+                recentNews.map((news) => (
+                  <Link
+                    key={news.id}
+                    href={`/articles/${news.slug}`}
+                    className="flex gap-3 group"
+                  >
+                    <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-muted">
+                      {news.thumbnailUrl ? (
+                        <Image
+                          src={news.thumbnailUrl}
+                          alt={news.title}
+                          fill
+                          className="object-cover"
+                          sizes="48px"
+                        />
+                      ) : null}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[13px] font-medium text-foreground line-clamp-2 leading-snug group-hover:text-primary transition-colors">
+                        {news.title}
+                      </p>
+                      <p className="text-[11px] text-muted-foreground mt-1">
+                        {formatNewsDateLabel(news.publishedAt)}
+                        {news.category
+                          ? ` · ${news.category}`
+                          : ""}
+                      </p>
+                    </div>
+                  </Link>
+                ))
+              )}
             </CardContent>
           </Card>
 

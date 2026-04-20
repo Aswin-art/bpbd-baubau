@@ -63,8 +63,8 @@ async function fetchAspirations(params: {
 
 export function AspirationsTable() {
   const columns = useColumns();
-  const [page] = useQueryState("page", parseAsInteger.withDefault(1));
-  const [limit] = useQueryState("limit", parseAsInteger.withDefault(10));
+  const [page, setPage] = useQueryState("page", parseAsInteger.withDefault(1));
+  const [limit, setLimit] = useQueryState("limit", parseAsInteger.withDefault(10));
   const [q] = useQueryState("q", parseAsString.withDefault(""));
   const [status, setStatus] = useQueryState(
     "status",
@@ -141,6 +141,13 @@ export function AspirationsTable() {
       <DataTable
         columns={columns}
         data={rows}
+        page={page}
+        limit={limit}
+        onPageChange={setPage}
+        onLimitChange={async (next) => {
+          await setLimit(next);
+          await setPage(1);
+        }}
         searchKey="submitterName"
         isLoading={isLoading}
         pageCount={data.pageCount}

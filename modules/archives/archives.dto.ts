@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+import { isSafeHttpOrRelativeAssetUrl } from "@/lib/asset-url";
+
 // ============================================
 // Entity Schema
 // ============================================
@@ -61,9 +63,17 @@ export type ArchiveStats = z.infer<typeof archiveStatsSchema>;
 export const createArchiveSchema = z.object({
   name: z.string().trim().min(2, "Name must be at least 2 characters"),
   description: z.string().trim().min(1, "Description is required"),
-  year: z.string().trim().min(4, "Year is required"),
+  year: z
+    .string()
+    .trim()
+    .min(4, "Year is required")
+    .regex(/^\d{4}$/, "Tahun harus 4 digit angka"),
   dateLabel: z.string().trim().min(2, "Date label is required"),
-  downloadUrl: z.string().trim().min(1, "Download URL is required"),
+  downloadUrl: z
+    .string()
+    .trim()
+    .min(1, "Download URL is required")
+    .refine(isSafeHttpOrRelativeAssetUrl, "Download URL tidak valid"),
   /**
    * Dihitung otomatis (biasanya dari file upload).
    * Tetap opsional untuk kompatibilitas data lama.

@@ -13,15 +13,15 @@ import { z } from "zod";
  */
 export const GET = apiHandler(async (req: NextRequest) => {
   const session = await getServerSession();
+  if (!session?.user) {
+    throw AppError.unauthorized("Authentication required", "UNAUTHORIZED");
+  }
 
-  // Check if user has permission to read all articles
-  if (session?.user) {
-    if (!(await checkPermission(session.user.role, "articles", "read"))) {
-      throw AppError.forbidden(
-        "You don't have permission to view articles",
-        "FORBIDDEN",
-      );
-    }
+  if (!(await checkPermission(session.user.role, "articles", "read"))) {
+    throw AppError.forbidden(
+      "You don't have permission to view articles",
+      "FORBIDDEN",
+    );
   }
 
   const { searchParams } = new URL(req.url);

@@ -1,16 +1,10 @@
 import { z } from "zod";
 
+import { isSafeHttpOrRelativeAssetUrl } from "@/lib/asset-url";
+import { sanitizePhoneInput } from "@/lib/phone-input";
+
 const emptyToUndefined = <T extends z.ZodTypeAny>(schema: T) =>
   z.preprocess((v) => (v === "" ? undefined : v), schema);
-
-/** Same-origin upload paths (e.g. /uploads/...) plus http(s) URLs. */
-function isAllowedPhotoUrl(v: string): boolean {
-  const s = v.trim();
-  if (!s) return false;
-  if (/^https?:\/\//i.test(s)) return true;
-  if (s.startsWith("/") && !s.includes("..")) return true;
-  return false;
-}
 
 const optionalPasswordField = z.preprocess(
   (v) => (v === "" || v === undefined || v === null ? undefined : String(v)),
@@ -31,10 +25,21 @@ export const updateMyProfileSchema = z
     email: emptyToUndefined(z.string().trim().email("Email tidak valid")).optional(),
     photoUrl: z
       .preprocess((v) => (v === "" || v === undefined || v === null ? undefined : String(v).trim()), z.string().optional())
-      .refine((v) => (v == null || v === "" ? true : isAllowedPhotoUrl(v)), "URL foto tidak valid"),
+      .refine((v) => (v == null || v === "" ? true : isSafeHttpOrRelativeAssetUrl(v)), "URL foto tidak valid"),
 
     bio: z.any().optional(),
-    phoneNumber: z.preprocess((v) => (v === "" ? undefined : v), z.string().trim()).optional(),
+    phoneNumber: z
+      .preprocess(
+        (v) =>
+          v === "" || v === undefined || v === null
+            ? undefined
+            : sanitizePhoneInput(String(v).trim()),
+        z.string().optional(),
+      )
+      .refine(
+        (v) => v == null || v === "" || /\d/.test(v),
+        "Nomor telepon harus memuat angka",
+      ),
     homeAddress: z.preprocess((v) => (v === "" ? undefined : v), z.string().trim()).optional(),
     dateOfBirth: z
       .preprocess((v) => (v === "" ? undefined : v), z.coerce.date())

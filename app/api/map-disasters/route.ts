@@ -7,6 +7,7 @@ import { checkPermission } from "@/lib/permission-cache";
 import db from "@/lib/db";
 import { parsePgInt32Count } from "@/lib/pg-int32";
 import { getDefaultMapTypeColor, normalizeMapColor } from "@/lib/map-disaster-colors";
+import { mapDisasterApiPostSchema } from "@/lib/map-disaster-zod";
 
 function toIso(v: Date | string) {
   return v instanceof Date ? v.toISOString() : v;
@@ -53,25 +54,33 @@ export const POST = apiHandler(async (req: NextRequest) => {
   const body = await req.json().catch(() => null);
   if (!body) throw AppError.badRequest("Invalid payload", "VALIDATION_ERROR");
 
-  const images: string[] = Array.isArray(body.images)
-    ? body.images.map((x: unknown) => String(x || "").trim()).filter(Boolean)
-    : [];
+  const parsed = mapDisasterApiPostSchema.safeParse(body);
+  if (!parsed.success) {
+    const msg = parsed.error.issues.map((i) => i.message).join("; ");
+    throw AppError.badRequest(msg || "Validasi payload gagal", "VALIDATION_ERROR");
+  }
+
+  const b = parsed.data;
+  const images: string[] = (b.images ?? [])
+    .map((x) => String(x || "").trim())
+    .filter(Boolean);
+  const primaryImage =
+    images[0] || String(b.image || "").trim();
 
   const created = await db.mapDisasterPoint.create({
     data: {
-      type: String(body.type || "").trim(),
+      type: b.type.trim(),
       typeColor:
-        normalizeMapColor(body.typeColor) ??
-        getDefaultMapTypeColor(String(body.type || "").trim()),
-      location: String(body.location || "").trim(),
-      kecamatan: String(body.kecamatan || "").trim(),
-      date: String(body.date || "").trim(),
-      casualties: parsePgInt32Count(body.casualties ?? 0, "Korban jiwa"),
-      displaced: parsePgInt32Count(body.displaced ?? 0, "Mengungsi"),
-      description: body.description as any,
-      image: images[0] || String(body.image || "").trim(),
-      lat: Number(body.lat),
-      lng: Number(body.lng),
+        normalizeMapColor(b.typeColor) ?? getDefaultMapTypeColor(b.type.trim()),
+      location: b.location.trim(),
+      kecamatan: b.kecamatan.trim(),
+      date: b.date.trim(),
+      casualties: parsePgInt32Count(b.casualties ?? 0, "Korban jiwa"),
+      displaced: parsePgInt32Count(b.displaced ?? 0, "Mengungsi"),
+      description: b.description as unknown,
+      image: primaryImage,
+      lat: b.lat,
+      lng: b.lng,
     },
   });
 

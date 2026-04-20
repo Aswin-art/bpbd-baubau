@@ -3,6 +3,7 @@ import { NextRequest } from "next/server";
 import db from "@/lib/db";
 import { apiHandler } from "@/lib/api-handler";
 import { AppError } from "@/lib/app-error";
+import { parseSafeDownloadUrl } from "@/lib/safe-download-url";
 
 function safeFilename(name: string): string {
   const base = name
@@ -33,7 +34,14 @@ export const GET = apiHandler(async (req: NextRequest, context) => {
     throw AppError.badRequest("Missing download url", "MISSING_DOWNLOAD_URL");
   }
 
-  const upstream = await fetch(doc.downloadUrl);
+  const safeUrl = await parseSafeDownloadUrl(doc.downloadUrl);
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 15_000);
+  const upstream = await fetch(safeUrl, {
+    cache: "no-store",
+    redirect: "manual",
+    signal: controller.signal,
+  }).finally(() => clearTimeout(timeout));
   if (!upstream.ok || !upstream.body) {
     throw AppError.badRequest("Failed to fetch document", "UPSTREAM_ERROR");
   }

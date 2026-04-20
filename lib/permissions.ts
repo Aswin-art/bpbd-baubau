@@ -1,8 +1,23 @@
 import { createAccessControl } from "better-auth/plugins/access";
 import { defaultStatements, adminAc } from "better-auth/plugins/admin/access";
 
+/** Admin plugin exposes `user`; app RBAC + seed use `users` only — merge actions here. */
+const { user: defaultUserActions, ...defaultStatementsRest } = defaultStatements;
+const { user: adminPluginUserActions, ...adminStatementsRest } = adminAc.statements;
+
+const usersResourceActions = [
+  ...new Set([
+    ...(defaultUserActions ?? []),
+    "create",
+    "read",
+    "update",
+    "delete",
+    "ban",
+  ]),
+] as const;
+
 export const statement = {
-  ...defaultStatements,
+  ...defaultStatementsRest,
 
   dashboard: ["view"],
   profile: ["view", "update"],
@@ -13,16 +28,27 @@ export const statement = {
   archives: ["create", "read", "update", "delete"],
   maps: ["create", "read", "update", "delete"],
 
-  users: ["create", "read", "update", "delete", "ban"],
+  users: usersResourceActions,
   settings: ["read", "update"],
   permissions: ["read", "update"],
 } as const;
 
 export const ac = createAccessControl(statement);
 
+const adminUsersActions = [
+  ...new Set([
+    ...(adminPluginUserActions ?? []),
+    "create",
+    "read",
+    "update",
+    "delete",
+    "ban",
+  ]),
+] as const;
+
 /** admin – full system access */
 export const adminRole = ac.newRole({
-  ...adminAc.statements,
+  ...adminStatementsRest,
   dashboard: ["view"],
   profile: ["view", "update"],
   articles: ["create", "read", "update", "delete", "publish"],
@@ -30,7 +56,7 @@ export const adminRole = ac.newRole({
   documents: ["create", "read", "update", "delete"],
   archives: ["create", "read", "update", "delete"],
   maps: ["create", "read", "update", "delete"],
-  users: ["create", "read", "update", "delete", "ban"],
+  users: adminUsersActions,
   settings: ["read", "update"],
   permissions: ["read", "update"],
 });

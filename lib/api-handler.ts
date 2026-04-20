@@ -35,12 +35,13 @@ export function apiHandler<T = unknown>(handler: ApiHandler<T>): ApiHandler<T> {
       }
 
       if (error instanceof ZodError) {
+        const isDev = process.env.NODE_ENV !== "production";
         return NextResponse.json(
           {
             status: "error" as const,
             message: "Validation Error",
             code: "VALIDATION_ERROR",
-            errors: error.issues,
+            ...(isDev ? { errors: error.issues } : {}),
           },
           { status: 400 },
         ) as NextResponse<ApiResponse<T>>;

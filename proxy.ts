@@ -1,21 +1,46 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSessionCookie } from "better-auth/cookies";
+import { getAllowedOriginsForRequest } from "@/lib/trusted-origins";
 import { rateLimit } from "@/lib/rate-limit";
+
+const isDev = process.env.NODE_ENV !== "production";
 
 // Rate limiter for general API endpoints
 const apiLimiter = rateLimit({
+  prefix: "api",
+  limit: 100,
   interval: 60 * 1000,
-  uniqueTokenPerInterval: 500,
 });
 
 // Stricter rate limiter for auth operations
 const authApiLimiter = rateLimit({
+  prefix: "auth",
+  limit: 30,
   interval: 60 * 1000,
-  uniqueTokenPerInterval: 200,
+});
+
+const dashboardApiLimiter = rateLimit({
+  prefix: "dashboard",
+  limit: 150,
+  interval: 60 * 1000,
+});
+
+const uploadApiLimiter = rateLimit({
+  prefix: "upload",
+  limit: 20,
+  interval: 60 * 1000,
+});
+
+const publicWriteLimiter = rateLimit({
+  prefix: "public-write",
+  limit: 20,
+  interval: 60 * 1000,
 });
 
 const authUiPaths = ["/sign-in", "/forgot-password"];
 const protectedUiPaths = ["/dashboard"];
+const safeMethods = new Set(["GET", "HEAD", "OPTIONS"]);
+const allowedFetchSites = new Set(["same-origin", "same-site", "none"]);
 
 function getClientIp(request: NextRequest): string {
   const realIp = request.headers.get("x-real-ip");
@@ -42,9 +67,13 @@ function isPathMatching(pathname: string, paths: string[]): boolean {
   return paths.some((path) => pathname === path || pathname.startsWith(`${path}/`));
 }
 
+function getAllowedOrigins(request: NextRequest): Set<string> {
+  return getAllowedOriginsForRequest(request.nextUrl.origin);
+}
+
 function validateCsrfOrigin(request: NextRequest): boolean {
   const method = request.method.toUpperCase();
-  if (["GET", "HEAD", "OPTIONS"].includes(method)) return true;
+  if (safeMethods.has(method)) return true;
 
   const origin = request.headers.get("origin");
   const referer = request.headers.get("referer");
@@ -58,26 +87,23 @@ function validateCsrfOrigin(request: NextRequest): boolean {
     const url = headerValue.startsWith("/")
       ? new URL(headerValue, request.url)
       : new URL(headerValue);
-    const originHost = url.origin;
-
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
-    if (baseUrl && originHost === new URL(baseUrl).origin) {
-      return true;
-    }
-
-    if (process.env.NODE_ENV !== "production") {
-      if (originHost.startsWith("http://localhost:")) return true;
-    }
-
-    const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(",") || [];
-    if (allowedOrigins.includes(originHost)) {
-      return true;
-    }
-
-    return false;
+    return getAllowedOrigins(request).has(url.origin);
   } catch {
     return false;
   }
+}
+
+function validateFetchMetadata(request: NextRequest): boolean {
+  const method = request.method.toUpperCase();
+  if (safeMethods.has(method)) return true;
+
+  const fetchSite = request.headers.get("sec-fetch-site");
+  if (!fetchSite) {
+    // Non-browser clients commonly omit Fetch Metadata headers.
+    return true;
+  }
+
+  return allowedFetchSites.has(fetchSite);
 }
 
 function getRateLimiter(pathname: string): {
@@ -87,10 +113,60 @@ function getRateLimiter(pathname: string): {
   if (pathname.startsWith("/api/auth")) {
     return { limiter: authApiLimiter, limit: 30 };
   }
+  if (pathname.startsWith("/api/upload")) {
+    return { limiter: uploadApiLimiter, limit: 20 };
+  }
+  if (
+    pathname.startsWith("/api/public/aspirations") ||
+    pathname.includes("/comments") ||
+    pathname.startsWith("/api/map-disasters")
+  ) {
+    return { limiter: publicWriteLimiter, limit: 20 };
+  }
   if (pathname.startsWith("/api/dashboard")) {
-    return { limiter: apiLimiter, limit: 150 };
+    return { limiter: dashboardApiLimiter, limit: 150 };
   }
   return { limiter: apiLimiter, limit: 100 };
+}
+
+function createRateLimitHeaders(result: {
+  limit: number;
+  remaining: number;
+  reset: number;
+  retryAfter: number;
+}) {
+  return {
+    "X-RateLimit-Limit": result.limit.toString(),
+    "X-RateLimit-Remaining": result.remaining.toString(),
+    "X-RateLimit-Reset": Math.ceil(result.reset / 1000).toString(),
+    "RateLimit-Limit": result.limit.toString(),
+    "RateLimit-Remaining": result.remaining.toString(),
+    "RateLimit-Reset": result.retryAfter.toString(),
+  };
+}
+
+function buildContentSecurityPolicy(nonce: string) {
+  return [
+    "default-src 'self'",
+    "base-uri 'self'",
+    "form-action 'self'",
+    "frame-ancestors 'none'",
+    "object-src 'none'",
+    `script-src 'self' 'nonce-${nonce}' 'strict-dynamic'${isDev ? " 'unsafe-eval'" : ""}`,
+    // OWASP strict CSP: migrate inline styles to CSS modules / nonce; chart + map still rely on inline today.
+    "style-src 'self' 'unsafe-inline'",
+    "img-src 'self' blob: data: https://picsum.photos https://ui-avatars.com https://grainy-gradients.vercel.app https://basemaps.cartocdn.com",
+    "font-src 'self' data:",
+    "connect-src 'self' https://basemaps.cartocdn.com https://fonts.openmaptiles.org",
+    "worker-src 'self' blob:",
+    "child-src 'self' blob:",
+    "frame-src 'self' https://www.google.com https://maps.google.com https://www.openstreetmap.org",
+    "manifest-src 'self'",
+    "media-src 'self' blob: data:",
+    !isDev ? "upgrade-insecure-requests" : "",
+  ]
+    .filter(Boolean)
+    .join("; ");
 }
 
 export default async function proxy(request: NextRequest) {
@@ -100,6 +176,20 @@ export default async function proxy(request: NextRequest) {
   if (pathname.startsWith("/api")) {
     // Skip for /api/auth/* — better-auth handles its own CSRF
     if (!pathname.startsWith("/api/auth")) {
+      if (!validateFetchMetadata(request)) {
+        return new NextResponse(
+          JSON.stringify({
+            status: "error",
+            message: "Cross-site unsafe request blocked",
+            code: "FETCH_METADATA_BLOCKED",
+          }),
+          {
+            status: 403,
+            headers: { "Content-Type": "application/json" },
+          },
+        );
+      }
+
       if (!validateCsrfOrigin(request)) {
         return new NextResponse(
           JSON.stringify({
@@ -116,10 +206,10 @@ export default async function proxy(request: NextRequest) {
     }
 
     const ip = getClientIp(request);
-    const { limiter, limit } = getRateLimiter(pathname);
-    const { isRateLimited, remaining } = limiter.check(limit, ip);
+    const { limiter } = getRateLimiter(pathname);
+    const rateLimitResult = await limiter.check(ip);
 
-    if (isRateLimited) {
+    if (rateLimitResult.isRateLimited) {
       return new NextResponse(
         JSON.stringify({
           error: "Too many requests. Please try again later.",
@@ -128,15 +218,19 @@ export default async function proxy(request: NextRequest) {
           status: 429,
           headers: {
             "Content-Type": "application/json",
-            "X-RateLimit-Limit": limit.toString(),
-            "X-RateLimit-Remaining": remaining.toString(),
-            "Retry-After": "60",
+            ...createRateLimitHeaders(rateLimitResult),
+            "Retry-After": rateLimitResult.retryAfter.toString(),
           },
         },
       );
     }
 
-    return NextResponse.next();
+    const response = NextResponse.next();
+    const rateLimitHeaders = createRateLimitHeaders(rateLimitResult);
+    for (const [key, value] of Object.entries(rateLimitHeaders)) {
+      response.headers.set(key, value);
+    }
+    return response;
   }
 
   // Skip proxy for static assets
@@ -161,7 +255,22 @@ export default async function proxy(request: NextRequest) {
     return NextResponse.redirect(new URL("/sign-in", request.url));
   }
 
-  return NextResponse.next();
+  const nonce = Buffer.from(crypto.randomUUID()).toString("base64");
+  const contentSecurityPolicy = buildContentSecurityPolicy(nonce);
+  const requestHeaders = new Headers(request.headers);
+
+  requestHeaders.set("x-nonce", nonce);
+  requestHeaders.set("Content-Security-Policy", contentSecurityPolicy);
+
+  const response = NextResponse.next({
+    request: {
+      headers: requestHeaders,
+    },
+  });
+
+  response.headers.set("Content-Security-Policy", contentSecurityPolicy);
+
+  return response;
 }
 
 export const config = {

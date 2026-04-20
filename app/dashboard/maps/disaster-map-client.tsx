@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { parseAsInteger, useQueryState } from "nuqs";
 import Link from "next/link";
 import type { ColumnDef } from "@tanstack/react-table";
 import { ExternalLink, MapPin, Pencil, Plus, Trash2 } from "lucide-react";
@@ -64,6 +65,8 @@ function emptyForm(): MapDisasterCreateInput {
 }
 
 export function DisasterMapClient() {
+  const [page, setPage] = useQueryState("page", parseAsInteger.withDefault(1));
+  const [limit, setLimit] = useQueryState("limit", parseAsInteger.withDefault(10));
   const [points, setPoints] = useState<MapDisasterPointDTO[]>([]);
   const [loading, setLoading] = useState(true);
   const [sheetOpen, setSheetOpen] = useState(false);
@@ -226,6 +229,18 @@ export function DisasterMapClient() {
     [openEdit]
   );
 
+  const tablePageCount = Math.max(1, Math.ceil(points.length / limit));
+  const effectivePage = Math.min(page, tablePageCount);
+  const pagedPoints = useMemo(
+    () =>
+      points.slice((effectivePage - 1) * limit, effectivePage * limit),
+    [points, effectivePage, limit],
+  );
+
+  useEffect(() => {
+    if (page > tablePageCount) void setPage(tablePageCount);
+  }, [page, tablePageCount, setPage]);
+
   const updateField = <K extends keyof MapDisasterCreateInput>(
     key: K,
     value: MapDisasterCreateInput[K]
@@ -259,7 +274,20 @@ export function DisasterMapClient() {
         </div>
       </div>
 
-      {!loading && <DataTable columns={columns} data={points} />}
+      {!loading && (
+        <DataTable
+          columns={columns}
+          data={pagedPoints}
+          page={effectivePage}
+          limit={limit}
+          onPageChange={setPage}
+          onLimitChange={async (next) => {
+            await setLimit(next);
+            await setPage(1);
+          }}
+          pageCount={tablePageCount}
+        />
+      )}
 
       <div className="mt-8 space-y-3">
         <h2 className="text-sm font-bold text-foreground">Pratinjau peta</h2>

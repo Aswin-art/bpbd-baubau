@@ -12,11 +12,14 @@ import {
   operatorRole,
   masyarakatRole,
 } from "./permissions";
+import { getAuthTrustedOrigins } from "./trusted-origins";
 import { getBaseUrl } from "./url";
 
-const url = getBaseUrl();
+const isProd = process.env.NODE_ENV === "production";
+const baseURL = getBaseUrl();
 
 export const auth = betterAuth({
+  baseURL,
   database: prismaAdapter(db, {
     provider: "postgresql",
   }),
@@ -82,5 +85,12 @@ export const auth = betterAuth({
       minUsernameLength: 5,
     }),
   ],
-  trustedOrigins: [url],
+  trustedOrigins: getAuthTrustedOrigins(),
+  advanced: {
+    useSecureCookies: isProd,
+    defaultCookieAttributes: {
+      sameSite: "lax",
+      secure: isProd,
+    },
+  },
 });

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { ExternalLink, MapPin, Plus } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
-import { parseAsString, useQueryState } from "nuqs";
+import { parseAsInteger, parseAsString, useQueryState } from "nuqs";
 import { DataTable } from "@/components/datatable/table-data";
 import { Button } from "@/components/ui/button";
 import { TableSkeleton } from "@/app/dashboard/components/skeletons/table-skeleton";
@@ -11,7 +11,7 @@ import type { MapDisasterPointDTO } from "@/lib/map-disaster-types";
 import { columns } from "./columns";
 import { DisasterMap } from "@/app/(public)/archives/disaster-map";
 import { MapPreviewSkeleton } from "@/app/dashboard/components/skeletons/map-preview-skeleton";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { DeleteDialog } from "../dialogs/delete-dialog";
 
 async function fetchDisasterPoints(): Promise<MapDisasterPointDTO[]> {
@@ -31,22 +31,37 @@ export function MapTable() {
     staleTime: 1000 * 60 * 5,
   });
   const [q] = useQueryState("q", parseAsString.withDefault(""));
+  const [page, setPage] = useQueryState("page", parseAsInteger.withDefault(1));
+  const [limit, setLimit] = useQueryState("limit", parseAsInteger.withDefault(10));
 
   const rows = data ?? [];
   const normalizedQuery = q.trim().toLowerCase();
   const visibleRows = normalizedQuery
     ? rows.filter((row) => row.location.toLowerCase().includes(normalizedQuery))
     : rows;
+
+  const tablePageCount = Math.max(1, Math.ceil(visibleRows.length / limit));
+  const effectivePage = Math.min(page, tablePageCount);
+  const pagedRows = useMemo(
+    () =>
+      visibleRows.slice((effectivePage - 1) * limit, effectivePage * limit),
+    [visibleRows, effectivePage, limit],
+  );
+
+  useEffect(() => {
+    if (page > tablePageCount) void setPage(tablePageCount);
+  }, [page, tablePageCount, setPage]);
+
   const [rowSelection, setRowSelection] = useState<Record<string, boolean>>({});
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
   const selectedIds = Object.keys(rowSelection)
-    .map((index) => visibleRows[parseInt(index)]?.id)
+    .map((index) => pagedRows[parseInt(index)]?.id)
     .filter(Boolean);
 
   const selectedItemName =
     selectedIds.length === 1
-      ? visibleRows.find((r) => r.id === selectedIds[0])?.location
+      ? pagedRows.find((r) => r.id === selectedIds[0])?.location
       : undefined;
 
   return (
@@ -110,9 +125,17 @@ export function MapTable() {
           )}
           <DataTable
             columns={columns}
-            data={visibleRows}
+            data={pagedRows}
+            page={effectivePage}
+            limit={limit}
+            onPageChange={setPage}
+            onLimitChange={async (next) => {
+              await setLimit(next);
+              await setPage(1);
+            }}
             searchKey="location"
             isLoading={isLoading}
+            pageCount={tablePageCount}
             rowSelection={rowSelection}
             onRowSelectionChange={setRowSelection}
           />

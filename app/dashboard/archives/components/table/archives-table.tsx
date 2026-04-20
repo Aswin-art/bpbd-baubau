@@ -70,8 +70,8 @@ async function fetchYears(): Promise<string[]> {
 
 export function ArchivesTable() {
   const columns = useColumns();
-  const [page] = useQueryState("page", parseAsInteger.withDefault(1));
-  const [limit] = useQueryState("limit", parseAsInteger.withDefault(10));
+  const [page, setPage] = useQueryState("page", parseAsInteger.withDefault(1));
+  const [limit, setLimit] = useQueryState("limit", parseAsInteger.withDefault(10));
   const [q] = useQueryState("q", parseAsString.withDefault(""));
   const [year, setYear] = useQueryState("year", parseAsString.withDefault("all"));
 
@@ -112,7 +112,13 @@ export function ArchivesTable() {
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-2">
-        <Select value={year || "all"} onValueChange={(v) => setYear(v)}>
+        <Select
+          value={year || "all"}
+          onValueChange={(v) => {
+            void setYear(v);
+            void setPage(1);
+          }}
+        >
           <SelectTrigger className="w-[180px]">
             <SelectValue placeholder="Semua tahun" />
           </SelectTrigger>
@@ -162,6 +168,13 @@ export function ArchivesTable() {
       <DataTable
         columns={columns}
         data={rows}
+        page={page}
+        limit={limit}
+        onPageChange={setPage}
+        onLimitChange={async (next) => {
+          await setLimit(next);
+          await setPage(1);
+        }}
         searchKey="name"
         isLoading={isLoading}
         pageCount={data.pageCount}

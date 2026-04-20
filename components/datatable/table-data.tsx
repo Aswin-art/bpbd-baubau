@@ -8,7 +8,6 @@ import {
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
-  getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
@@ -40,6 +39,11 @@ import { PaginationControl } from "@/components/pagination-control";
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
+  /** Server- or parent-controlled pagination (must match URL / fetch in parent). */
+  page: number;
+  limit: number;
+  onPageChange: (page: number) => void | Promise<unknown>;
+  onLimitChange: (limit: number) => void | Promise<unknown>;
   searchKey?: string;
   pageCount?: number;
   rowCount?: number;
@@ -55,6 +59,10 @@ interface DataTableProps<TData, TValue> {
 export function DataTable<TData, TValue>({
   columns,
   data,
+  page,
+  limit,
+  onPageChange,
+  onLimitChange,
   searchKey = "name",
   pageCount = 1,
   isLoading = false,
@@ -65,11 +73,6 @@ export function DataTable<TData, TValue>({
   onRowSelectionChange,
   withViewOptions = false,
 }: DataTableProps<TData, TValue>) {
-  const [page, setPage] = useQueryState("page", parseAsInteger.withDefault(1));
-  const [limit, setLimit] = useQueryState(
-    "limit",
-    parseAsInteger.withDefault(10),
-  );
   const [searchQuery, setSearchQuery] = useQueryState("q", {
     defaultValue: "",
   });
@@ -82,9 +85,9 @@ export function DataTable<TData, TValue>({
   useEffect(() => {
     setSearchQuery(debouncedInputValue || null);
     if (debouncedInputValue !== searchQuery) {
-      setPage(1);
+      void Promise.resolve(onPageChange(1));
     }
-  }, [debouncedInputValue, setSearchQuery, setPage, searchQuery]);
+  }, [debouncedInputValue, setSearchQuery, onPageChange, searchQuery]);
 
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -110,7 +113,6 @@ export function DataTable<TData, TValue>({
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
@@ -121,11 +123,11 @@ export function DataTable<TData, TValue>({
           pageIndex: page - 1,
           pageSize: limit,
         });
-        setPage(newState.pageIndex + 1);
-        setLimit(newState.pageSize);
+        void Promise.resolve(onPageChange(newState.pageIndex + 1));
+        void Promise.resolve(onLimitChange(newState.pageSize));
       } else {
-        setPage(updater.pageIndex + 1);
-        setLimit(updater.pageSize);
+        void Promise.resolve(onPageChange(updater.pageIndex + 1));
+        void Promise.resolve(onLimitChange(updater.pageSize));
       }
     },
   });
@@ -157,8 +159,9 @@ export function DataTable<TData, TValue>({
               <Select
                 value={`${limit}`}
                 onValueChange={(value) => {
-                  setLimit(Number(value));
-                  setPage(1);
+                  const next = Number(value);
+                  void Promise.resolve(onLimitChange(next));
+                  void Promise.resolve(onPageChange(1));
                 }}
               >
                 <SelectTrigger className="h-8 w-[70px]">
@@ -237,7 +240,7 @@ export function DataTable<TData, TValue>({
         <PaginationControl
           currentPage={page}
           totalPages={pageCount}
-          onPageChange={setPage}
+          onPageChange={(p) => void Promise.resolve(onPageChange(p))}
           showSelectionInfo
           selectionInfo={{
             selectedCount: table.getFilteredSelectedRowModel().rows.length,

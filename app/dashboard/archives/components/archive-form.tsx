@@ -24,6 +24,7 @@ import { DatePicker } from "@/components/ui/date-picker";
 import FileUpload from "@/components/file-upload";
 import { useUpload } from "@/modules/upload";
 import { formatFileSize } from "@/helpers/compress";
+import { sanitizeDigitsOnly } from "@/lib/phone-input";
 
 import {
   createArchiveSchema,
@@ -143,8 +144,20 @@ export function ArchiveForm(props: {
                   <FormItem>
                     <FormLabel>Tahun <span className="text-destructive">*</span></FormLabel>
                     <FormControl>
-                      <Input placeholder="2026" {...field} inputMode="numeric" />
+                      <Input
+                        placeholder="2026"
+                        name={field.name}
+                        ref={field.ref}
+                        onBlur={field.onBlur}
+                        value={field.value}
+                        onChange={(e) =>
+                          field.onChange(sanitizeDigitsOnly(e.target.value, 4))
+                        }
+                        inputMode="numeric"
+                        maxLength={4}
+                      />
                     </FormControl>
+                    <FormDescription>Hanya angka (maks. 4 digit).</FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}

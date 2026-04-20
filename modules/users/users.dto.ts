@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+import { isSafeHttpOrRelativeAssetUrl } from "@/lib/asset-url";
+
 export const userRowSchema = z.object({
   id: z.string(),
   name: z.string(),
@@ -51,7 +53,11 @@ export const createUserSchema = z.object({
   email: z.string().trim().email("Email tidak valid"),
   password: z.string().min(6, "Password minimal 6 karakter"),
   role: userRoleSchema.default("masyarakat"),
-  photoUrl: z.string().trim().url("URL foto tidak valid").optional(),
+  photoUrl: z
+    .string()
+    .trim()
+    .optional()
+    .refine((v) => v === undefined || v === "" || isSafeHttpOrRelativeAssetUrl(v), "URL foto tidak valid"),
   isActive: z.boolean().default(true),
 });
 export type CreateUserInput = z.infer<typeof createUserSchema>;
@@ -59,7 +65,11 @@ export type CreateUserInput = z.infer<typeof createUserSchema>;
 export const updateUserSchema = z.object({
   name: z.string().trim().min(2, "Nama minimal 2 karakter").optional(),
   role: userRoleSchema.optional(),
-  photoUrl: z.string().trim().url("URL foto tidak valid").optional(),
+  photoUrl: z
+    .string()
+    .trim()
+    .optional()
+    .refine((v) => v === undefined || v === "" || isSafeHttpOrRelativeAssetUrl(v), "URL foto tidak valid"),
   isActive: z.boolean().optional(),
   newPassword: z.string().min(6, "Password minimal 6 karakter").optional(),
 });

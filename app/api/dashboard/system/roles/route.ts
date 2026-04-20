@@ -81,6 +81,7 @@ export const GET = apiHandler(async (req: NextRequest) => {
     });
 
     for (const row of rows) {
+      if (String(row.resource).toLowerCase() === "user") continue;
       const actions = (row.actions as string[]) ?? [];
       if (actions.length === 0) continue;
       const key = String(row.role).toLowerCase();

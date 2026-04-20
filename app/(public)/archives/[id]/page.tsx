@@ -12,34 +12,38 @@ type PageProps = {
 export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
-  const { id } = await params;
-  const origin = await getInternalSiteOrigin();
-  const res = await fetch(`${origin}/api/public/archives/disasters/${id}`, {
-    cache: "no-store",
-  });
-  if (!res.ok) {
-    return { title: "Data Tidak Ditemukan" };
-  }
-  const json = (await res.json()) as {
-    status?: string;
-    data?: {
-      point?: { type: string; location: string; description?: unknown };
+  try {
+    const { id } = await params;
+    const origin = await getInternalSiteOrigin();
+    const res = await fetch(`${origin}/api/public/archives/disasters/${id}`, {
+      cache: "no-store",
+    });
+    if (!res.ok) {
+      return { title: "Data Tidak Ditemukan" };
+    }
+    const json = (await res.json()) as {
+      status?: string;
+      data?: {
+        point?: { type: string; location: string; description?: unknown };
+      };
     };
-  };
-  const p = json.status === "success" ? json.data?.point : undefined;
-  if (!p) {
+    const p = json.status === "success" ? json.data?.point : undefined;
+    if (!p) {
+      return { title: "Data Tidak Ditemukan" };
+    }
+
+    const desc =
+      typeof p.description === "string" && p.description.trim()
+        ? p.description.trim().slice(0, 160)
+        : undefined;
+
+    return {
+      title: `${p.type} — ${p.location}`,
+      ...(desc ? { description: desc } : {}),
+    };
+  } catch {
     return { title: "Data Tidak Ditemukan" };
   }
-
-  const desc =
-    typeof p.description === "string" && p.description.trim()
-      ? p.description.trim().slice(0, 160)
-      : undefined;
-
-  return {
-    title: `${p.type} — ${p.location}`,
-    ...(desc ? { description: desc } : {}),
-  };
 }
 
 export default async function ArsipDetailPage({ params }: PageProps) {

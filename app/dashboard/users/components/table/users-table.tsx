@@ -51,8 +51,8 @@ async function fetchUsers(params: {
 
 export function UsersTable() {
   const columns = useColumns();
-  const [page] = useQueryState("page", parseAsInteger.withDefault(1));
-  const [limit] = useQueryState("limit", parseAsInteger.withDefault(10));
+  const [page, setPage] = useQueryState("page", parseAsInteger.withDefault(1));
+  const [limit, setLimit] = useQueryState("limit", parseAsInteger.withDefault(10));
   const [q] = useQueryState("q", parseAsString.withDefault(""));
   const [role, setRole] = useQueryState("role", parseAsString.withDefault("all"));
   const [isActive, setIsActive] = useQueryState(
@@ -140,6 +140,13 @@ export function UsersTable() {
       <DataTable
         columns={columns}
         data={rows}
+        page={page}
+        limit={limit}
+        onPageChange={setPage}
+        onLimitChange={async (next) => {
+          await setLimit(next);
+          await setPage(1);
+        }}
         searchKey="name"
         pageCount={data.pageCount}
         isLoading={isLoading}

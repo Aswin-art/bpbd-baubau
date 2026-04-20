@@ -1,4 +1,5 @@
 import { NewsSection } from "@/app/(public)/components/news-section";
+import { headers } from "next/headers";
 import { AboutSection } from "./components/about-section";
 import { CtaSection } from "./components/cta-section";
 import { Jumbotron } from "./components/hero-section";
@@ -30,10 +31,13 @@ const jsonLd = {
   },
 };
 
-export default function Home() {
+export default async function Home() {
+  const nonce = (await headers()).get("x-nonce") ?? undefined;
+
   return (
     <>
       <script
+        nonce={nonce}
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />

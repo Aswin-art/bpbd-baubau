@@ -113,7 +113,10 @@ export function ArticleTable() {
       <div className="flex items-center gap-2">
         <Select
           value={category || "all"}
-          onValueChange={(val) => setCategory(val)}
+          onValueChange={(val) => {
+            void setCategory(val);
+            void setPage(1);
+          }}
         >
           <SelectTrigger className="w-[180px]">
             <SelectValue placeholder="Semua kategori" />
@@ -165,6 +168,13 @@ export function ArticleTable() {
       <DataTable
         columns={columns}
         data={articles.articles}
+        page={page}
+        limit={limit}
+        onPageChange={setPage}
+        onLimitChange={async (next) => {
+          await setLimit(next);
+          await setPage(1);
+        }}
         searchKey="title"
         pageCount={articles.pageCount}
         isLoading={isLoading}

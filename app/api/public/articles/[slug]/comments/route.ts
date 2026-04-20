@@ -42,7 +42,6 @@ export const GET = apiHandler(async (_req: NextRequest, context) => {
     select: {
       id: true,
       articleId: true,
-      userId: true,
       authorName: true,
       parentId: true,
       bodyHtml: true,
@@ -132,7 +131,6 @@ export const POST = apiHandler(async (req: NextRequest, context) => {
     select: {
       id: true,
       articleId: true,
-      userId: true,
       authorName: true,
       parentId: true,
       bodyHtml: true,

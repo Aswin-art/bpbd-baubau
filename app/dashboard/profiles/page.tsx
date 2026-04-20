@@ -23,6 +23,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { cn } from "@/lib/utils";
+import { sanitizePhoneInput } from "@/lib/phone-input";
 import { createUploadHandler, useUpload } from "@/modules/upload";
 import { authClient } from "@/lib/auth-client";
 
@@ -221,7 +222,7 @@ export default function ProfilePage() {
       email: profile.email || "",
       photoUrl: profile.photoUrl || "",
       bio: normalizeProfileBio(profile.bio) as UpdateMyProfileInput["bio"],
-      phoneNumber: profile.phoneNumber || "",
+      phoneNumber: sanitizePhoneInput(profile.phoneNumber || ""),
       homeAddress: profile.homeAddress || "",
       dateOfBirth: parsedDob,
       currentPassword: "",
@@ -496,11 +497,17 @@ export default function ProfilePage() {
                         <FormLabel>Nomor telepon</FormLabel>
                         <FormControl>
                           <Input
-                            {...field}
+                            name={field.name}
+                            ref={field.ref}
+                            onBlur={field.onBlur}
                             value={field.value || ""}
-                            placeholder="Masukkan nomor telepon"
+                            onChange={(e) =>
+                              field.onChange(sanitizePhoneInput(e.target.value))
+                            }
+                            placeholder="Contoh: 081234567890 atau +62 812-3456-7890"
                             className="h-11"
                             inputMode="tel"
+                            autoComplete="tel"
                           />
                         </FormControl>
                         <FormMessage />
