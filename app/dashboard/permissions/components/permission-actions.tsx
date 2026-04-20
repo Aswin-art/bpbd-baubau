@@ -42,12 +42,14 @@ export function RoleActions({ role }: RoleActionsProps) {
       </div>
 
       <ViewPermissionsDialog
+        key={`view-${role.id}`}
         open={viewDialogOpen}
         onOpenChange={setViewDialogOpen}
         role={role}
       />
 
       <EditPermissionsDialog
+        key={`edit-${role.id}`}
         open={editDialogOpen}
         onOpenChange={setEditDialogOpen}
         role={role}

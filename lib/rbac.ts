@@ -1,7 +1,7 @@
 /**
  * Peran aplikasi BPBD (kolom `user.role`).
  * Staf dashboard: admin, kepala_bpbd, operator.
- * Masyarakat: akun portal (aspirasi, komentar berita) tanpa menu staf.
+ * Masyarakat: akun portal (dashboard terbatas, aspirasi sendiri, komentar berita).
  */
 export const DASHBOARD_ROLES = [
   "admin",
@@ -45,11 +45,16 @@ export function isAdmin(role: DashboardRole): boolean {
   return role === "admin";
 }
 
-/** Staf BPBD yang diizinkan mengakses area `/dashboard`. */
+/** Staf BPBD (bukan portal masyarakat). */
 export function isStaffRole(role: DashboardRole): boolean {
   return (
     role === "admin" || role === "kepala_bpbd" || role === "operator"
   );
+}
+
+/** Layout `/dashboard`: staf + pengguna peran masyarakat (portal). */
+export function canAccessDashboard(role: DashboardRole): boolean {
+  return DASHBOARD_ROLES.includes(role);
 }
 
 export function canSeeNavItem(

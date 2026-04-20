@@ -19,6 +19,9 @@ import {
   Wind,
   Waves,
   Mountain,
+  UserCircle,
+  MessagesSquare,
+  Newspaper,
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -29,6 +32,7 @@ import { Progress } from "@/components/ui/progress";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { DashboardHeader } from "./components/dashboard-header";
 import { PermissionGuard } from "./components/permission-guard";
+import { authClient } from "@/lib/auth-client";
 import { aspirations, documents } from "@/data/dummy-data";
 import type { MapDisasterPointDTO } from "@/lib/map-disaster-types";
 
@@ -118,6 +122,7 @@ function getAspirasiStatusCounts() {
 }
 
 export default function DashboardPage() {
+  const { data: session } = authClient.useSession();
   const [mapPoints, setMapPoints] = useState<MapDisasterPointDTO[]>([]);
   const [recentNews, setRecentNews] = useState<DashboardNewsItem[]>([]);
 
@@ -209,6 +214,64 @@ export default function DashboardPage() {
     ],
     [mapPoints.length, totalMengungsi]
   );
+
+  if (session?.user?.role === "masyarakat") {
+    return (
+      <PermissionGuard resource="dashboard" action="view">
+        <DashboardHeader
+          title="Portal layanan"
+          description="Kelola aspirasi dan profil Anda. Informasi kebencanaan tetap dapat diakses dari menu samping."
+        />
+        <div className="grid gap-4 sm:grid-cols-2 max-w-3xl">
+          <Card className="border-border/60 shadow-sm hover:border-primary/30 transition-colors">
+            <Link href="/dashboard/my-aspirations" className="block p-6 space-y-2">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-amber-50 text-amber-700">
+                <MessagesSquare className="h-5 w-5" />
+              </div>
+              <h2 className="font-semibold text-foreground">Aspirasi saya</h2>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                Kirim aspirasi baru, ubah atau hapus saat masih menunggu, pantau status, dan baca
+                balasan BPBD.
+              </p>
+            </Link>
+          </Card>
+          <Card className="border-border/60 shadow-sm hover:border-primary/30 transition-colors">
+            <Link href="/dashboard/profiles" className="block p-6 space-y-2">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-muted text-foreground">
+                <UserCircle className="h-5 w-5" />
+              </div>
+              <h2 className="font-semibold text-foreground">Profil</h2>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                Perbarui data diri dan kontak Anda.
+              </p>
+            </Link>
+          </Card>
+          <Card className="border-border/60 shadow-sm hover:border-primary/30 transition-colors">
+            <Link href="/dashboard/articles" className="block p-6 space-y-2">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-sky-50 text-sky-700">
+                <Newspaper className="h-5 w-5" />
+              </div>
+              <h2 className="font-semibold text-foreground">Berita</h2>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                Baca arsip berita dan informasi resmi BPBD.
+              </p>
+            </Link>
+          </Card>
+          <Card className="border-border/60 shadow-sm hover:border-primary/30 transition-colors">
+            <Link href="/" className="block p-6 space-y-2">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-50 text-emerald-700">
+                <MapPin className="h-5 w-5" />
+              </div>
+              <h2 className="font-semibold text-foreground">Situs publik</h2>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                Kembali ke halaman utama portal BPBD Baubau.
+              </p>
+            </Link>
+          </Card>
+        </div>
+      </PermissionGuard>
+    );
+  }
 
   return (
     <PermissionGuard resource="dashboard" action="view">

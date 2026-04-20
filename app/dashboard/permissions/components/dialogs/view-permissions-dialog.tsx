@@ -12,6 +12,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { permissionUiResources } from "@/lib/permissions";
 type Role = {
   id: string;
   name: string;
@@ -40,7 +41,16 @@ export function ViewPermissionsDialog({
       .trim()
       .replace(/\b\w/g, (c) => c.toUpperCase());
 
-  const filteredPermissions = role.permissions.filter((p) =>
+  const resourceOrder = new Map(
+    permissionUiResources.map((resource, index) => [resource, index]),
+  );
+  const sortedPermissions = [...role.permissions].sort((a, b) => {
+    const ia = resourceOrder.get(a.resource) ?? 999;
+    const ib = resourceOrder.get(b.resource) ?? 999;
+    return ia - ib || a.resource.localeCompare(b.resource);
+  });
+
+  const filteredPermissions = sortedPermissions.filter((p) =>
     labelize(p.resource).toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
@@ -88,7 +98,7 @@ export function ViewPermissionsDialog({
                     {labelize(permission.resource)}
                   </div>
                   <div className="flex flex-wrap gap-1">
-                    {permission.actions.map((action) => (
+                    {[...new Set(permission.actions)].sort().map((action) => (
                       <Badge
                         key={action}
                         variant="secondary"

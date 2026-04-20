@@ -8,6 +8,7 @@ import {
   UserCircle,
   FileText,
   MessageSquareText,
+  MessagesSquare,
   Newspaper,
   LucideIcon,
 } from "lucide-react";
@@ -64,6 +65,12 @@ export const navStructureData: NavGroup[] = [
         url: "/dashboard/documents",
         icon: FileText,
         permission: "documents",
+      },
+      {
+        title: "Aspirasi saya",
+        url: "/dashboard/my-aspirations",
+        icon: MessagesSquare,
+        permission: "my_aspirations",
       },
       {
         title: "Aspirasi",

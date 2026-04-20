@@ -38,6 +38,7 @@ export function RoleGrid() {
     staleTime: 1000 * 60 * 5,
   });
 
+
   return (
     <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
       {roles.roles.map((role) => (

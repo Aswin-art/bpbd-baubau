@@ -105,3 +105,25 @@ export const replyAspirationSchema = z.object({
 
 export type ReplyAspirationInput = z.infer<typeof replyAspirationSchema>;
 
+// ============================================
+// Portal masyarakat — hanya data milik pengguna
+// ============================================
+
+export const myAspirationCreateSchema = z.object({
+  submitterName: z.string().trim().min(2, "Nama minimal 2 karakter"),
+  description: z.string().trim().min(5, "Deskripsi minimal 5 karakter"),
+});
+
+export type MyAspirationCreateInput = z.infer<typeof myAspirationCreateSchema>;
+
+export const myAspirationUpdateSchema = z
+  .object({
+    submitterName: z.string().trim().min(2, "Nama minimal 2 karakter").optional(),
+    description: z.string().trim().min(5, "Deskripsi minimal 5 karakter").optional(),
+  })
+  .refine((v) => v.submitterName !== undefined || v.description !== undefined, {
+    message: "Kirim setidaknya satu field untuk diperbarui",
+  });
+
+export type MyAspirationUpdateInput = z.infer<typeof myAspirationUpdateSchema>;
+

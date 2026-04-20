@@ -1,10 +1,39 @@
 import { AppError } from "@/lib/app-error";
 import { rolePermissionsRepository } from "./role-permissions.repository";
-import type { UpdateRolePermissionInput } from "./role-permissions.dto";
+import {
+  dashboardRolesMeta,
+  type DashboardRoleListItem,
+  type UpdateRolePermissionInput,
+} from "./role-permissions.dto";
 
 export const rolePermissionsService = {
   async listAll() {
     return rolePermissionsRepository.listAll();
+  },
+
+  /**
+   * Daftar role dashboard + jumlah user; opsional sertakan izin per role dari DB.
+   */
+  async listDashboardRoles(
+    includePermissions: boolean,
+  ): Promise<DashboardRoleListItem[]> {
+    const [userCounts, permissionsByRole] = await Promise.all([
+      rolePermissionsRepository.countUsersByRole(),
+      includePermissions
+        ? rolePermissionsRepository.getPermissionsGroupedByRole()
+        : Promise.resolve(null),
+    ]);
+
+    return dashboardRolesMeta.map((meta) => ({
+      id: meta.id,
+      name: meta.name,
+      description: meta.description,
+      userCount: userCounts[meta.id] ?? 0,
+      permissions:
+        includePermissions && permissionsByRole
+          ? (permissionsByRole[meta.id] ?? [])
+          : [],
+    }));
   },
 
   async getPermissionsMapByRole(role: string) {

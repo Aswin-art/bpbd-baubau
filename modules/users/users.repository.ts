@@ -36,6 +36,7 @@ export const usersRepository = {
           role: true,
           photoUrl: true,
           isActive: true,
+          banned: true,
           emailVerified: true,
           lastLoginAt: true,
           createdAt: true,

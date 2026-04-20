@@ -6,6 +6,8 @@ export interface AspirationListParams {
   limit?: number;
   q?: string;
   status?: AspirationStatus;
+  /** Jika diisi, hanya baris milik pengguna ini (portal masyarakat). */
+  userId?: string;
 }
 
 export interface AspirationListResult {
@@ -50,14 +52,18 @@ export const aspirationRepository = {
   async findMany(
     params: AspirationListParams = {},
   ): Promise<AspirationListResult> {
-    const { page = 1, limit = 10, q, status } = params;
+    const { page = 1, limit = 10, q, status, userId } = params;
     const skip = (page - 1) * limit;
 
     const where: Prisma.AspirationWhereInput = {
+      ...(userId ? { userId } : {}),
       ...(status ? { status } : {}),
       ...(q
         ? {
-            OR: [{ submitterName: { contains: q, mode: "insensitive" } }],
+            OR: [
+              { submitterName: { contains: q, mode: "insensitive" } },
+              { description: { contains: q, mode: "insensitive" } },
+            ],
           }
         : {}),
     };
@@ -85,6 +91,13 @@ export const aspirationRepository = {
   async findById(id: string) {
     return db.aspiration.findUnique({
       where: { id },
+      select: aspirationSelect,
+    });
+  },
+
+  async findByIdAndUserId(id: string, userId: string) {
+    return db.aspiration.findFirst({
+      where: { id, userId },
       select: aspirationSelect,
     });
   },
@@ -139,6 +152,25 @@ export const aspirationRepository = {
       db.aspiration.count({ where: { status: "in_progress" } }),
       db.aspiration.count({ where: { status: "completed" } }),
       db.aspiration.count({ where: { status: "rejected" } }),
+    ]);
+
+    return {
+      total,
+      pending,
+      in_progress: inProgress,
+      completed,
+      rejected,
+    };
+  },
+
+  async getStatsForUser(userId: string) {
+    const base: Prisma.AspirationWhereInput = { userId };
+    const [total, pending, inProgress, completed, rejected] = await Promise.all([
+      db.aspiration.count({ where: base }),
+      db.aspiration.count({ where: { ...base, status: "pending" } }),
+      db.aspiration.count({ where: { ...base, status: "in_progress" } }),
+      db.aspiration.count({ where: { ...base, status: "completed" } }),
+      db.aspiration.count({ where: { ...base, status: "rejected" } }),
     ]);
 
     return {

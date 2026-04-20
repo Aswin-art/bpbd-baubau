@@ -19,7 +19,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { statement } from "@/lib/permissions";
+import { permissionUiResources, statement } from "@/lib/permissions";
 
 type RolePermission = { resource: string; actions: string[] };
 type Role = {
@@ -65,16 +65,39 @@ export function EditPermissionsDialog({
   const [permissions, setPermissions] = useState<Record<string, string[]>>({});
   const [searchQuery, setSearchQuery] = useState("");
 
-  // Initialize permissions when dialog opens
+  const permissionsFingerprint = JSON.stringify(
+    [...role.permissions]
+      .map((p) => ({
+        resource: String(p.resource).trim(),
+        actions: [...(Array.isArray(p.actions) ? p.actions : [])].sort(),
+      }))
+      .sort((a, b) => a.resource.localeCompare(b.resource)),
+  );
+
+  // Initialize when dialog opens / ganti role / data izin berubah (tanpa kosongkan state saat tutup — hindari race satu frame).
   useEffect(() => {
-    if (open) {
-      const initial: Record<string, string[]> = {};
-      for (const perm of role.permissions) {
-        initial[perm.resource] = [...perm.actions];
-      }
-      setPermissions(initial);
+    if (!open) return;
+
+    const st = statement as unknown as Record<string, readonly string[]>;
+    const initial: Record<string, string[]> = {};
+    for (const key of permissionUiResources) {
+      initial[key] = [];
     }
-  }, [open, role.permissions]);
+    for (const perm of role.permissions) {
+      const resKey = String(perm.resource).trim();
+      if (!permissionUiResources.includes(resKey)) continue;
+      const allowed = new Set(st[resKey] ?? []);
+      const raw = Array.isArray(perm.actions) ? perm.actions : [];
+      initial[resKey] = [
+        ...new Set(
+          raw
+            .map((a) => String(a).trim())
+            .filter((a) => a.length > 0 && allowed.has(a)),
+        ),
+      ];
+    }
+    setPermissions(initial);
+  }, [open, role.id, permissionsFingerprint]);
 
   const updateMutation = useMutation({
     mutationFn: () => {
@@ -137,8 +160,7 @@ export function EditPermissionsDialog({
       .trim()
       .replace(/\b\w/g, (c) => c.toUpperCase());
 
-  const allResources = Object.keys(statement).sort();
-  const filteredResources = allResources.filter((r) =>
+  const filteredResources = permissionUiResources.filter((r) =>
     labelize(r).toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
@@ -177,16 +199,25 @@ export function EditPermissionsDialog({
               filteredResources.map((resource) => {
                 const availableActions = [...(resourceActions[resource] || [])];
                 const currentActions = permissions[resource] || [];
-                const allSelected = availableActions.every((a) =>
-                  currentActions.includes(a),
-                );
+                const allSelected =
+                  availableActions.length > 0 &&
+                  availableActions.every((a) => currentActions.includes(a));
+                const someSelected =
+                  currentActions.length > 0 &&
+                  !allSelected &&
+                  availableActions.some((a) => currentActions.includes(a));
+                const headerChecked: boolean | "indeterminate" = allSelected
+                  ? true
+                  : someSelected
+                    ? "indeterminate"
+                    : false;
 
                 return (
                   <div key={resource} className="rounded-lg border p-3">
                     <div className="flex items-center justify-between mb-2">
                       <div className="flex items-center gap-2">
                         <Checkbox
-                          checked={allSelected}
+                          checked={headerChecked}
                           onCheckedChange={() => toggleAllActions(resource)}
                           disabled={isLoading}
                         />

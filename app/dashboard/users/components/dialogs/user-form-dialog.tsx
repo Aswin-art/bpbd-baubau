@@ -7,6 +7,9 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { z } from "zod";
 
+import FileUpload from "@/components/file-upload";
+import { createUploadHandler, useUpload } from "@/modules/upload";
+import { isSafeHttpOrRelativeAssetUrl } from "@/lib/asset-url";
 import {
   Dialog,
   DialogContent,
@@ -29,18 +32,27 @@ import type { UserRow } from "../table/columns";
 const roleSchema = z.enum(["admin", "operator", "kepala_bpbd", "masyarakat"]);
 type Role = z.infer<typeof roleSchema>;
 
+const photoUrlSchema = z
+  .string()
+  .trim()
+  .optional()
+  .refine(
+    (v) => v === undefined || v === "" || isSafeHttpOrRelativeAssetUrl(v),
+    "URL foto tidak valid",
+  );
+
 const createSchema = z.object({
   name: z.string().trim().min(2, "Nama minimal 2 karakter"),
   email: z.string().trim().email("Email tidak valid"),
   password: z.string().min(6, "Password minimal 6 karakter"),
-  photoUrl: z.string().trim().url("URL foto tidak valid").optional().or(z.literal("")),
+  photoUrl: photoUrlSchema,
   role: roleSchema,
   isActive: z.enum(["true", "false"]),
 });
 
 const editSchema = z.object({
   name: z.string().trim().min(2, "Nama minimal 2 karakter"),
-  photoUrl: z.string().trim().url("URL foto tidak valid").optional().or(z.literal("")),
+  photoUrl: photoUrlSchema,
   role: roleSchema,
   isActive: z.enum(["true", "false"]),
   newPassword: z.string().min(6, "Password minimal 6 karakter").optional().or(z.literal("")),
@@ -54,6 +66,7 @@ export function UserFormDialog(props: {
 }) {
   const { open, onOpenChange, mode, initial } = props;
   const queryClient = useQueryClient();
+  const uploadMutation = useUpload({ scope: "general" });
 
   const form = useForm<any>({
     resolver: zodResolver(mode === "create" ? createSchema : editSchema),
@@ -218,10 +231,19 @@ export function UserFormDialog(props: {
           )}
 
           <div className="space-y-2">
-            <label className="text-sm font-medium">Photo URL</label>
-            <Input
-              {...form.register("photoUrl")}
-              placeholder="https://..."
+            <label className="text-sm font-medium">Foto profil</label>
+            <FileUpload
+              value={form.watch("photoUrl") || ""}
+              onChange={(url) =>
+                form.setValue("photoUrl", url, { shouldValidate: true, shouldDirty: true })
+              }
+              onUpload={createUploadHandler(uploadMutation)}
+              aspectRatio={1}
+              error={
+                form.formState.errors?.photoUrl?.message
+                  ? String(form.formState.errors.photoUrl.message)
+                  : undefined
+              }
             />
             {form.formState.errors?.photoUrl?.message ? (
               <p className="text-xs text-destructive">

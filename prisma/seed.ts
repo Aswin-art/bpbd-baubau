@@ -628,6 +628,52 @@ async function seedAspirations() {
       },
     });
   }
+
+  const masyId = seededUserIds.masyarakat;
+  if (masyId) {
+    await db.aspiration.upsert({
+      where: { id: "seed-masy-asp-1" },
+      update: {
+        submitterName: "Masyarakat (akun demo)",
+        description:
+          "Contoh aspirasi terhubung ke akun masyarakat — masih menunggu peninjauan BPBD.",
+        status: "pending",
+        userId: masyId,
+      },
+      create: {
+        id: "seed-masy-asp-1",
+        submitterName: "Masyarakat (akun demo)",
+        description:
+          "Contoh aspirasi terhubung ke akun masyarakat — masih menunggu peninjauan BPBD.",
+        status: "pending",
+        userId: masyId,
+      },
+    });
+    await db.aspiration.upsert({
+      where: { id: "seed-masy-asp-2" },
+      update: {
+        submitterName: "Masyarakat (akun demo)",
+        description:
+          "Contoh aspirasi yang sudah ditanggapi: silakan buka detail untuk melihat balasan.",
+        status: "completed",
+        userId: masyId,
+        adminReply:
+          "Terima kasih atas laporannya. Tim kami telah mencatat dan menindaklanjuti ke bidang terkait.",
+        repliedAt: toDate("2026-04-10T10:00:00.000Z"),
+      },
+      create: {
+        id: "seed-masy-asp-2",
+        submitterName: "Masyarakat (akun demo)",
+        description:
+          "Contoh aspirasi yang sudah ditanggapi: silakan buka detail untuk melihat balasan.",
+        status: "completed",
+        userId: masyId,
+        adminReply:
+          "Terima kasih atas laporannya. Tim kami telah mencatat dan menindaklanjuti ke bidang terkait.",
+        repliedAt: toDate("2026-04-10T10:00:00.000Z"),
+      },
+    });
+  }
 }
 
 async function seedArsipDocuments() {
@@ -772,6 +818,7 @@ async function seedRolePermissions() {
     "articles",
     "documents",
     "aspirations",
+    "my_aspirations",
     "archives",
     "maps",
     "users",
@@ -791,6 +838,7 @@ async function seedRolePermissions() {
         articles: ["create", "read", "update", "delete", "publish"],
         documents: ["create", "read", "update", "delete"],
         aspirations: ["create", "read", "update", "delete", "change_status"],
+        my_aspirations: [],
         archives: ["create", "read", "update", "delete"],
         maps: ["create", "read", "update", "delete"],
         users: ["create", "read", "update", "delete", "ban"],
@@ -806,6 +854,7 @@ async function seedRolePermissions() {
         articles: ["create", "read", "update", "delete", "publish"],
         documents: ["create", "read", "update", "delete"],
         aspirations: ["read", "update", "change_status"],
+        my_aspirations: [],
         archives: ["create", "read", "update", "delete"],
         maps: ["create", "read", "update", "delete"],
         users: [],
@@ -821,6 +870,7 @@ async function seedRolePermissions() {
         articles: ["read", "publish"],
         documents: ["read"],
         aspirations: ["read", "change_status"],
+        my_aspirations: [],
         archives: ["read"],
         maps: ["read"],
         users: ["read"],
@@ -831,11 +881,12 @@ async function seedRolePermissions() {
     {
       role: "masyarakat",
       permissions: {
-        dashboard: [],
+        dashboard: ["view"],
         profile: ["view", "update"],
         articles: ["read"],
         documents: ["read"],
-        aspirations: ["create", "read"],
+        aspirations: [],
+        my_aspirations: ["create", "read", "update", "delete"],
         archives: ["read"],
         maps: ["read"],
         users: [],
@@ -858,6 +909,11 @@ async function seedRolePermissions() {
       });
     }
   }
+
+  // Hapus izin staf `aspirations` pada masyarakat (diganti `my_aspirations`).
+  await db.rolePermission.deleteMany({
+    where: { role: "masyarakat", resource: "aspirations" },
+  });
 }
 
 async function createUserWithAuth(data: {

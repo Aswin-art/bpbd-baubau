@@ -19,7 +19,6 @@ import {
 } from "@/components/ui/sidebar";
 import { authClient } from "@/lib/auth-client";
 import { useMemo } from "react";
-import { useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 
 export function NavUser({
@@ -32,7 +31,6 @@ export function NavUser({
   };
 }) {
   const { isMobile } = useSidebar();
-  const router = useRouter();
   const queryClient = useQueryClient();
   const { data: session } = authClient.useSession();
 
@@ -50,7 +48,7 @@ export function NavUser({
       fetchOptions: {
         onSuccess: () => {
           queryClient.clear();
-          router.push("/sign-in");
+          window.location.assign("/sign-in");
         },
       },
     });

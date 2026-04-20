@@ -14,6 +14,7 @@ export type UserRow = {
   role: string;
   photoUrl?: string | null;
   isActive: boolean;
+  banned?: boolean;
   emailVerified: boolean;
   lastLoginAt: string | null;
   createdAt: string;
@@ -98,22 +99,37 @@ export function useColumns(): ColumnDef<UserRow>[] {
       ),
     },
     {
-      accessorKey: "isActive",
+      id: "accountStatus",
+      accessorFn: (row) =>
+        row.banned ? "banned" : row.isActive ? "active" : "inactive",
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Status" />
+        <DataTableColumnHeader column={column} title="Status akun" />
       ),
-      cell: ({ row }) => (
-        <Badge
-          variant="outline"
-          className={
-            row.original.isActive
-              ? "shadow-sm rounded-full px-2.5 py-0.5 text-xs font-medium bg-emerald-50 text-emerald-800 border-emerald-200/60"
-              : "shadow-sm rounded-full px-2.5 py-0.5 text-xs font-medium bg-zinc-50 text-zinc-700 border-zinc-200/60"
-          }
-        >
-          {row.original.isActive ? "Aktif" : "Nonaktif"}
-        </Badge>
-      ),
+      cell: ({ row }) => {
+        const banned = row.original.banned === true;
+        if (banned) {
+          return (
+            <Badge
+              variant="outline"
+              className="shadow-sm rounded-full px-2.5 py-0.5 text-xs font-medium bg-destructive/10 text-destructive border-destructive/30"
+            >
+              Diblokir
+            </Badge>
+          );
+        }
+        return (
+          <Badge
+            variant="outline"
+            className={
+              row.original.isActive
+                ? "shadow-sm rounded-full px-2.5 py-0.5 text-xs font-medium bg-emerald-50 text-emerald-800 border-emerald-200/60"
+                : "shadow-sm rounded-full px-2.5 py-0.5 text-xs font-medium bg-zinc-50 text-zinc-700 border-zinc-200/60"
+            }
+          >
+            {row.original.isActive ? "Aktif" : "Nonaktif"}
+          </Badge>
+        );
+      },
     },
     {
       accessorKey: "emailVerified",

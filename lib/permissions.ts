@@ -24,6 +24,7 @@ export const statement = {
 
   articles: ["create", "read", "update", "delete", "publish"],
   aspirations: ["create", "read", "update", "delete", "change_status"],
+  my_aspirations: ["create", "read", "update", "delete"],
   documents: ["create", "read", "update", "delete"],
   archives: ["create", "read", "update", "delete"],
   maps: ["create", "read", "update", "delete"],
@@ -32,6 +33,26 @@ export const statement = {
   settings: ["read", "update"],
   permissions: ["read", "update"],
 } as const;
+
+const statementRecord = statement as unknown as Record<string, readonly string[]>;
+
+/**
+ * Resource RBAC yang dipakai app + seed `rolePermission` (sama urutan seed).
+ * Daftar statis agar UI izin tidak bergantung urutan evaluasi modul / navigasi.
+ */
+export const permissionUiResources: readonly string[] = [
+  "dashboard",
+  "profile",
+  "articles",
+  "documents",
+  "aspirations",
+  "my_aspirations",
+  "archives",
+  "maps",
+  "users",
+  "settings",
+  "permissions",
+].filter((r) => Array.isArray(statementRecord[r]) && statementRecord[r].length > 0);
 
 export const ac = createAccessControl(statement);
 
@@ -53,6 +74,7 @@ export const adminRole = ac.newRole({
   profile: ["view", "update"],
   articles: ["create", "read", "update", "delete", "publish"],
   aspirations: ["create", "read", "update", "delete", "change_status"],
+  my_aspirations: [],
   documents: ["create", "read", "update", "delete"],
   archives: ["create", "read", "update", "delete"],
   maps: ["create", "read", "update", "delete"],
@@ -67,6 +89,7 @@ export const kepalaBpbdRole = ac.newRole({
   profile: ["view", "update"],
   articles: ["read", "publish"],
   aspirations: ["read", "change_status"],
+  my_aspirations: [],
   documents: ["read"],
   archives: ["read"],
   maps: ["read"],
@@ -81,6 +104,7 @@ export const operatorRole = ac.newRole({
   profile: ["view", "update"],
   articles: ["create", "read", "update", "delete", "publish"],
   aspirations: ["read", "update", "change_status"],
+  my_aspirations: [],
   documents: ["create", "read", "update", "delete"],
   archives: ["create", "read", "update", "delete"],
   maps: ["create", "read", "update", "delete"],
@@ -89,12 +113,13 @@ export const operatorRole = ac.newRole({
   permissions: [],
 });
 
-/** masyarakat – public portal user */
+/** masyarakat – portal pengguna (kelola aspirasi sendiri, baca konten publik) */
 export const masyarakatRole = ac.newRole({
-  dashboard: [],
+  dashboard: ["view"],
   profile: ["view", "update"],
   articles: ["read"],
-  aspirations: ["create", "read"],
+  aspirations: [],
+  my_aspirations: ["create", "read", "update", "delete"],
   documents: ["read"],
   archives: ["read"],
   maps: ["read"],

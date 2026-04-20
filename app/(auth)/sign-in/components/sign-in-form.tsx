@@ -7,7 +7,6 @@ import * as z from "zod";
 import { motion } from "motion/react";
 import { Loader2, Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -30,7 +29,6 @@ const formSchema = z.object({
 });
 
 export function SignInForm() {
-  const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
@@ -46,26 +44,72 @@ export function SignInForm() {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
     try {
-      await authClient.signIn.email(
-        {
-          email: values.email,
-          password: values.password,
-          rememberMe: values.rememberMe,
-        },
-        {
-          onSuccess: () => {
-            toast.success("Berhasil masuk!");
-            router.refresh();
-            router.push("/dashboard/profiles");
+      await new Promise<void>((resolve, reject) => {
+        void authClient.signIn.email(
+          {
+            email: values.email,
+            password: values.password,
+            rememberMe: values.rememberMe,
           },
-          onError: (ctx) => {
-            toast.error(ctx.error.message || "Email atau password salah.");
-            setIsLoading(false);
+          {
+            onSuccess: () => {
+              void (async () => {
+                try {
+                  const r = await fetch("/api/auth/account-status", {
+                    credentials: "include",
+                    cache: "no-store",
+                  });
+                  const json = await r.json().catch(() => null);
+                  const d = json?.data as
+                    | { isActive?: boolean; banned?: boolean }
+                    | undefined;
+
+                  if (json?.status !== "success" || !d) {
+                    await authClient.signOut().catch(() => {});
+                    toast.error(
+                      json?.message ||
+                        "Tidak dapat memverifikasi status akun. Silakan coba lagi.",
+                    );
+                    reject(new Error("account-status"));
+                    return;
+                  }
+
+                  if (d.banned === true) {
+                    await authClient.signOut().catch(() => {});
+                    toast.error("Akun Anda diblokir. Hubungi administrator.");
+                    reject(new Error("banned"));
+                    return;
+                  }
+
+                  if (d.isActive !== true) {
+                    await authClient.signOut().catch(() => {});
+                    toast.error(
+                      "Akun Anda nonaktif. Hubungi administrator untuk mengaktifkan kembali.",
+                    );
+                    reject(new Error("inactive"));
+                    return;
+                  }
+
+                  toast.success("Berhasil masuk!");
+                  window.location.assign("/dashboard/profiles");
+                  resolve();
+                } catch {
+                  await authClient.signOut().catch(() => {});
+                  toast.error("Terjadi kesalahan saat verifikasi akun.");
+                  reject(new Error("verify"));
+                }
+              })();
+            },
+            onError: (ctx) => {
+              toast.error(ctx.error.message || "Email atau password salah.");
+              reject(new Error(ctx.error.message || "sign-in"));
+            },
           },
-        },
-      );
+        );
+      });
     } catch {
-      toast.error("Terjadi kesalahan. Silakan coba lagi.");
+      // Pesan spesifik sudah ditampilkan di callback / inner catch.
+    } finally {
       setIsLoading(false);
     }
   }

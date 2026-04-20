@@ -9,6 +9,7 @@ export const userRowSchema = z.object({
   role: z.string(),
   photoUrl: z.string().nullable().optional(),
   isActive: z.boolean(),
+  banned: z.boolean().optional().default(false),
   emailVerified: z.boolean(),
   lastLoginAt: z.date().or(z.string()).nullable(),
   createdAt: z.date().or(z.string()),
