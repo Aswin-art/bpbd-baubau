@@ -152,12 +152,14 @@ function buildContentSecurityPolicy(nonce: string) {
     "form-action 'self'",
     "frame-ancestors 'none'",
     "object-src 'none'",
-    `script-src 'self' 'nonce-${nonce}' 'strict-dynamic'${isDev ? " 'unsafe-eval'" : ""}`,
+    // Hash: inline script without nonce (e.g. Next runtime chunk / RSC helper). Revisit on major Next upgrades if CSP errors return.
+    `script-src 'self' 'nonce-${nonce}' 'strict-dynamic' 'sha256-UnthrFpGFotkvMOTp/ghVMSXoZZj9Y6epaMsaBAbUtg='${isDev ? " 'unsafe-eval'" : ""}`,
     // OWASP strict CSP: migrate inline styles to CSS modules / nonce; chart + map still rely on inline today.
     "style-src 'self' 'unsafe-inline'",
-    "img-src 'self' blob: data: https://picsum.photos https://ui-avatars.com https://grainy-gradients.vercel.app https://basemaps.cartocdn.com",
+    // Carto shards vector tiles across tiles, tiles-a, tiles-b, … — *.basemaps matches all; apex kept for style.json host.
+    "img-src 'self' blob: data: https://picsum.photos https://ui-avatars.com https://grainy-gradients.vercel.app https://basemaps.cartocdn.com https://*.basemaps.cartocdn.com",
     "font-src 'self' data:",
-    "connect-src 'self' https://basemaps.cartocdn.com https://fonts.openmaptiles.org",
+    "connect-src 'self' https://basemaps.cartocdn.com https://*.basemaps.cartocdn.com https://fonts.openmaptiles.org",
     "worker-src 'self' blob:",
     "child-src 'self' blob:",
     "frame-src 'self' https://www.google.com https://maps.google.com https://www.openstreetmap.org",

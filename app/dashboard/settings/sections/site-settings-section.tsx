@@ -29,6 +29,7 @@ import { createUploadHandler, useUpload } from "@/modules/upload";
 
 type SiteSettings = {
   id: string;
+  officeAddress: string | null;
   aboutDescription: string | null;
   objectives: string | null;
   goals: string | null;
@@ -79,6 +80,7 @@ export function SiteSettingsSection() {
 
   const form = useForm<UpdateSiteSettingsInput>({
     defaultValues: {
+      officeAddress: null,
       aboutDescription: null,
       objectives: null,
       goals: null,
@@ -96,6 +98,7 @@ export function SiteSettingsSection() {
   useEffect(() => {
     if (!data) return;
     form.reset({
+      officeAddress: data.officeAddress ?? null,
       aboutDescription: data.aboutDescription ?? null,
       objectives: data.objectives ?? null,
       goals: data.goals ?? null,
@@ -197,7 +200,31 @@ export function SiteSettingsSection() {
                     />
                   </FormControl>
                   <FormDescription>
-                    Ditampilkan pada bagian “Tentang Kami”.
+                    Ditampilkan di teks pengantar footer.
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="officeAddress"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Alamat kantor</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      className="min-h-[100px]"
+                      placeholder="Alamat beserta kode pos, boleh beberapa baris."
+                      value={field.value ?? ""}
+                      onChange={(e) =>
+                        field.onChange(e.target.value ? e.target.value : null)
+                      }
+                    />
+                  </FormControl>
+                  <FormDescription>
+                    Tampil di footer dan menu mobile (bila alamat tersedia).
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -362,11 +389,16 @@ export function SiteSettingsSection() {
                     <FormLabel>Nomor telepon</FormLabel>
                     <FormControl>
                       <Input
-                        placeholder="08xx..."
+                        inputMode="tel"
+                        autoComplete="tel"
+                        placeholder="0402-2821110"
                         value={field.value ?? ""}
                         onChange={(e) => field.onChange(e.target.value || null)}
                       />
                     </FormControl>
+                    <FormDescription>
+                      Hanya angka, spasi, tanda baca tipe nomor (tanpa huruf a–z).
+                    </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}

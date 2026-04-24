@@ -113,7 +113,7 @@ export function Jumbotron() {
                       : { scale: 1.02, x: 0, y: 0 }
                   }
                   transition={{ duration: 7, ease: [0.16, 1, 0.3, 1] }}
-                  className="h-full w-full"
+                  className="relative h-full w-full"
                 >
                   <Image
                     src={slide.imageUrl}

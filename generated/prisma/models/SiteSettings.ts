@@ -27,6 +27,7 @@ export type AggregateSiteSettings = {
 
 export type SiteSettingsMinAggregateOutputType = {
   id: string | null
+  officeAddress: string | null
   aboutDescription: string | null
   structurePhotoUrl: string | null
   officePhotoUrl: string | null
@@ -44,6 +45,7 @@ export type SiteSettingsMinAggregateOutputType = {
 
 export type SiteSettingsMaxAggregateOutputType = {
   id: string | null
+  officeAddress: string | null
   aboutDescription: string | null
   structurePhotoUrl: string | null
   officePhotoUrl: string | null
@@ -61,6 +63,7 @@ export type SiteSettingsMaxAggregateOutputType = {
 
 export type SiteSettingsCountAggregateOutputType = {
   id: number
+  officeAddress: number
   aboutDescription: number
   structurePhotoUrl: number
   officePhotoUrl: number
@@ -80,6 +83,7 @@ export type SiteSettingsCountAggregateOutputType = {
 
 export type SiteSettingsMinAggregateInputType = {
   id?: true
+  officeAddress?: true
   aboutDescription?: true
   structurePhotoUrl?: true
   officePhotoUrl?: true
@@ -97,6 +101,7 @@ export type SiteSettingsMinAggregateInputType = {
 
 export type SiteSettingsMaxAggregateInputType = {
   id?: true
+  officeAddress?: true
   aboutDescription?: true
   structurePhotoUrl?: true
   officePhotoUrl?: true
@@ -114,6 +119,7 @@ export type SiteSettingsMaxAggregateInputType = {
 
 export type SiteSettingsCountAggregateInputType = {
   id?: true
+  officeAddress?: true
   aboutDescription?: true
   structurePhotoUrl?: true
   officePhotoUrl?: true
@@ -204,6 +210,7 @@ export type SiteSettingsGroupByArgs<ExtArgs extends runtime.Types.Extensions.Int
 
 export type SiteSettingsGroupByOutputType = {
   id: string
+  officeAddress: string | null
   aboutDescription: string | null
   structurePhotoUrl: string | null
   officePhotoUrl: string | null
@@ -242,6 +249,7 @@ export type SiteSettingsWhereInput = {
   OR?: Prisma.SiteSettingsWhereInput[]
   NOT?: Prisma.SiteSettingsWhereInput | Prisma.SiteSettingsWhereInput[]
   id?: Prisma.StringFilter<"SiteSettings"> | string
+  officeAddress?: Prisma.StringNullableFilter<"SiteSettings"> | string | null
   aboutDescription?: Prisma.StringNullableFilter<"SiteSettings"> | string | null
   structurePhotoUrl?: Prisma.StringNullableFilter<"SiteSettings"> | string | null
   officePhotoUrl?: Prisma.StringNullableFilter<"SiteSettings"> | string | null
@@ -259,6 +267,7 @@ export type SiteSettingsWhereInput = {
 
 export type SiteSettingsOrderByWithRelationInput = {
   id?: Prisma.SortOrder
+  officeAddress?: Prisma.SortOrderInput | Prisma.SortOrder
   aboutDescription?: Prisma.SortOrderInput | Prisma.SortOrder
   structurePhotoUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   officePhotoUrl?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -279,6 +288,7 @@ export type SiteSettingsWhereUniqueInput = Prisma.AtLeast<{
   AND?: Prisma.SiteSettingsWhereInput | Prisma.SiteSettingsWhereInput[]
   OR?: Prisma.SiteSettingsWhereInput[]
   NOT?: Prisma.SiteSettingsWhereInput | Prisma.SiteSettingsWhereInput[]
+  officeAddress?: Prisma.StringNullableFilter<"SiteSettings"> | string | null
   aboutDescription?: Prisma.StringNullableFilter<"SiteSettings"> | string | null
   structurePhotoUrl?: Prisma.StringNullableFilter<"SiteSettings"> | string | null
   officePhotoUrl?: Prisma.StringNullableFilter<"SiteSettings"> | string | null
@@ -296,6 +306,7 @@ export type SiteSettingsWhereUniqueInput = Prisma.AtLeast<{
 
 export type SiteSettingsOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
+  officeAddress?: Prisma.SortOrderInput | Prisma.SortOrder
   aboutDescription?: Prisma.SortOrderInput | Prisma.SortOrder
   structurePhotoUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   officePhotoUrl?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -319,6 +330,7 @@ export type SiteSettingsScalarWhereWithAggregatesInput = {
   OR?: Prisma.SiteSettingsScalarWhereWithAggregatesInput[]
   NOT?: Prisma.SiteSettingsScalarWhereWithAggregatesInput | Prisma.SiteSettingsScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"SiteSettings"> | string
+  officeAddress?: Prisma.StringNullableWithAggregatesFilter<"SiteSettings"> | string | null
   aboutDescription?: Prisma.StringNullableWithAggregatesFilter<"SiteSettings"> | string | null
   structurePhotoUrl?: Prisma.StringNullableWithAggregatesFilter<"SiteSettings"> | string | null
   officePhotoUrl?: Prisma.StringNullableWithAggregatesFilter<"SiteSettings"> | string | null
@@ -336,6 +348,7 @@ export type SiteSettingsScalarWhereWithAggregatesInput = {
 
 export type SiteSettingsCreateInput = {
   id?: string
+  officeAddress?: string | null
   aboutDescription?: string | null
   structurePhotoUrl?: string | null
   officePhotoUrl?: string | null
@@ -353,6 +366,7 @@ export type SiteSettingsCreateInput = {
 
 export type SiteSettingsUncheckedCreateInput = {
   id?: string
+  officeAddress?: string | null
   aboutDescription?: string | null
   structurePhotoUrl?: string | null
   officePhotoUrl?: string | null
@@ -370,6 +384,7 @@ export type SiteSettingsUncheckedCreateInput = {
 
 export type SiteSettingsUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  officeAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   aboutDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   structurePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   officePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -387,6 +402,7 @@ export type SiteSettingsUpdateInput = {
 
 export type SiteSettingsUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  officeAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   aboutDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   structurePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   officePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -404,6 +420,7 @@ export type SiteSettingsUncheckedUpdateInput = {
 
 export type SiteSettingsCreateManyInput = {
   id?: string
+  officeAddress?: string | null
   aboutDescription?: string | null
   structurePhotoUrl?: string | null
   officePhotoUrl?: string | null
@@ -421,6 +438,7 @@ export type SiteSettingsCreateManyInput = {
 
 export type SiteSettingsUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  officeAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   aboutDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   structurePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   officePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -438,6 +456,7 @@ export type SiteSettingsUpdateManyMutationInput = {
 
 export type SiteSettingsUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  officeAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   aboutDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   structurePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   officePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -455,6 +474,7 @@ export type SiteSettingsUncheckedUpdateManyInput = {
 
 export type SiteSettingsCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  officeAddress?: Prisma.SortOrder
   aboutDescription?: Prisma.SortOrder
   structurePhotoUrl?: Prisma.SortOrder
   officePhotoUrl?: Prisma.SortOrder
@@ -472,6 +492,7 @@ export type SiteSettingsCountOrderByAggregateInput = {
 
 export type SiteSettingsMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  officeAddress?: Prisma.SortOrder
   aboutDescription?: Prisma.SortOrder
   structurePhotoUrl?: Prisma.SortOrder
   officePhotoUrl?: Prisma.SortOrder
@@ -489,6 +510,7 @@ export type SiteSettingsMaxOrderByAggregateInput = {
 
 export type SiteSettingsMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  officeAddress?: Prisma.SortOrder
   aboutDescription?: Prisma.SortOrder
   structurePhotoUrl?: Prisma.SortOrder
   officePhotoUrl?: Prisma.SortOrder
@@ -508,6 +530,7 @@ export type SiteSettingsMinOrderByAggregateInput = {
 
 export type SiteSettingsSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
+  officeAddress?: boolean
   aboutDescription?: boolean
   structurePhotoUrl?: boolean
   officePhotoUrl?: boolean
@@ -525,6 +548,7 @@ export type SiteSettingsSelect<ExtArgs extends runtime.Types.Extensions.Internal
 
 export type SiteSettingsSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
+  officeAddress?: boolean
   aboutDescription?: boolean
   structurePhotoUrl?: boolean
   officePhotoUrl?: boolean
@@ -542,6 +566,7 @@ export type SiteSettingsSelectCreateManyAndReturn<ExtArgs extends runtime.Types.
 
 export type SiteSettingsSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
+  officeAddress?: boolean
   aboutDescription?: boolean
   structurePhotoUrl?: boolean
   officePhotoUrl?: boolean
@@ -559,6 +584,7 @@ export type SiteSettingsSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.
 
 export type SiteSettingsSelectScalar = {
   id?: boolean
+  officeAddress?: boolean
   aboutDescription?: boolean
   structurePhotoUrl?: boolean
   officePhotoUrl?: boolean
@@ -574,13 +600,17 @@ export type SiteSettingsSelectScalar = {
   updatedAt?: boolean
 }
 
-export type SiteSettingsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "aboutDescription" | "structurePhotoUrl" | "officePhotoUrl" | "mapEmbedUrl" | "objectives" | "goals" | "contactEmail" | "contactPhone" | "socialInstagram" | "socialX" | "socialTiktok" | "createdAt" | "updatedAt", ExtArgs["result"]["siteSettings"]>
+export type SiteSettingsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "officeAddress" | "aboutDescription" | "structurePhotoUrl" | "officePhotoUrl" | "mapEmbedUrl" | "objectives" | "goals" | "contactEmail" | "contactPhone" | "socialInstagram" | "socialX" | "socialTiktok" | "createdAt" | "updatedAt", ExtArgs["result"]["siteSettings"]>
 
 export type $SiteSettingsPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "SiteSettings"
   objects: {}
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
+    /**
+     * Office address, plain multiline.
+     */
+    officeAddress: string | null
     /**
      * About section copy.
      */
@@ -1030,6 +1060,7 @@ export interface Prisma__SiteSettingsClient<T, Null = never, ExtArgs extends run
  */
 export interface SiteSettingsFieldRefs {
   readonly id: Prisma.FieldRef<"SiteSettings", 'String'>
+  readonly officeAddress: Prisma.FieldRef<"SiteSettings", 'String'>
   readonly aboutDescription: Prisma.FieldRef<"SiteSettings", 'String'>
   readonly structurePhotoUrl: Prisma.FieldRef<"SiteSettings", 'String'>
   readonly officePhotoUrl: Prisma.FieldRef<"SiteSettings", 'String'>

@@ -15,6 +15,7 @@ const heroSlideSelect = {
 
 const siteSettingsSelect = {
   id: true,
+  officeAddress: true,
   aboutDescription: true,
   objectives: true,
   goals: true,

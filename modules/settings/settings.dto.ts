@@ -64,6 +64,7 @@ export type ReorderHeroSlidesInput = z.infer<typeof reorderHeroSlidesSchema>;
 
 export const siteSettingsSchema = z.object({
   id: z.string(),
+  officeAddress: z.string().nullable().optional(),
   aboutDescription: z.string().nullable().optional(),
   objectives: z.string().nullable().optional(),
   goals: z.string().nullable().optional(),
@@ -83,6 +84,7 @@ export type SiteSettings = z.infer<typeof siteSettingsSchema>;
 
 export const updateSiteSettingsSchema = z
   .object({
+    officeAddress: z.string().trim().nullable().optional(),
     aboutDescription: z.string().trim().nullable().optional(),
     objectives: z.string().trim().nullable().optional(),
     goals: z.string().trim().nullable().optional(),
@@ -104,6 +106,17 @@ export const updateSiteSettingsSchema = z
           code: z.ZodIssueCode.custom,
           message: "URL tidak valid",
           path: [key],
+        });
+      }
+    }
+
+    const rawPhone = val.contactPhone;
+    if (rawPhone != null && String(rawPhone).trim() !== "") {
+      if (/\p{L}/u.test(String(rawPhone))) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Nomor telepon tidak boleh berisi huruf (angka, spasi, +, tanda baca).",
+          path: ["contactPhone"],
         });
       }
     }

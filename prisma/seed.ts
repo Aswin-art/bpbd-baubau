@@ -1,6 +1,5 @@
 import { auth } from "@/lib/auth";
 import db from "../lib/db";
-import type { MapDisasterPointDTO } from "@/lib/map-disaster-types";
 import { getDefaultMapTypeColor, normalizeMapColor } from "@/lib/map-disaster-colors";
 
 // ---------------------------------------------------------------------------
@@ -798,11 +797,20 @@ async function seedHeroSlides() {
 }
 
 async function seedSiteSettings() {
-  // Keep this simple: ensure singleton row exists.
   await db.siteSettings.upsert({
     where: { id: "default" },
     update: {},
-    create: { id: "default" },
+    create: {
+      id: "default",
+      aboutDescription:
+        "Informasi, layanan, dan kontak resmi untuk kesiapsiagaan dan respons kebencanaan.",
+      officeAddress:
+        "Jl. Betoambari No. 1, Kel. Bataraguru, Kec. Wolio, Kota Baubau\n93721",
+      mapEmbedUrl:
+        "https://www.google.com/maps?q=BPBD%20Kota%20Baubau&output=embed",
+      contactPhone: "0402-2821110",
+      contactEmail: "bpbd@baubaukota.go.id",
+    },
   });
 }
 

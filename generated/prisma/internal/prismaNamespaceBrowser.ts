@@ -282,6 +282,7 @@ export type HeroSlideScalarFieldEnum = (typeof HeroSlideScalarFieldEnum)[keyof t
 
 export const SiteSettingsScalarFieldEnum = {
   id: 'id',
+  officeAddress: 'officeAddress',
   aboutDescription: 'aboutDescription',
   structurePhotoUrl: 'structurePhotoUrl',
   officePhotoUrl: 'officePhotoUrl',

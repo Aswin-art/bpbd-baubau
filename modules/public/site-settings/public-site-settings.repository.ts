@@ -8,6 +8,7 @@ export const publicSiteSettingsRepository = {
       create: { id: "default" },
       select: {
         id: true,
+        officeAddress: true,
         aboutDescription: true,
         objectives: true,
         goals: true,

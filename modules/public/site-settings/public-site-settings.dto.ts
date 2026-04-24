@@ -2,6 +2,7 @@ import { z } from "zod";
 
 export const publicSiteSettingsSchema = z.object({
   id: z.string(),
+  officeAddress: z.string().nullable().optional(),
   aboutDescription: z.string().nullable().optional(),
   objectives: z.string().nullable().optional(),
   goals: z.string().nullable().optional(),

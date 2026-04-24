@@ -321,6 +321,9 @@ model HeroSlide {
 model SiteSettings {
   id String @id @default("default")
 
+  /// Office address, plain multiline.
+  officeAddress String? @map("office_address")
+
   /// About section copy.
   aboutDescription String? @map("about_description")
 

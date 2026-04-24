@@ -8,15 +8,41 @@ import { ArrowRight, X } from "lucide-react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { publicNavItems } from "@/data/dummy-data";
 import { authClient } from "@/lib/auth-client";
+import {
+  EMAIL_FALLBACK,
+  MAP_PLACEHOLDER_TITLE,
+  OFFICE_ADDRESS_FALLBACK,
+  PHONE_FALLBACK,
+  toTelHref,
+} from "@/lib/public-site-fallbacks";
+import {
+  MAP_EMBED_IFRAME_TITLE,
+  PUBLIC_SITE_NAME,
+} from "@/lib/public-site-identity";
 
-const BPBD_CONTACT_PHONE = "04022821110";
-const BPBD_CONTACT_EMAIL = "bpbd@baubaukota.go.id";
-// Approx. Baubau center; adjust to exact BPBD office if needed.
-const BPBD_MAP = { lat: -5.463, lng: 122.607, zoom: 15 };
+const publicNavItems = [
+  { name: "Beranda", href: "/" },
+  { name: "Profil", href: "/profiles" },
+  { name: "Berita", href: "/articles" },
+  { name: "Dokumen & SOP", href: "/dokumen" },
+  { name: "Aspirasi", href: "/aspirasi" },
+  { name: "Arsip Bencana", href: "/arsip" },
+] as const;
 
-const Navbar = () => {
+export type NavbarProps = {
+  mapEmbedUrl: string | null;
+  contactPhone: string | null;
+  contactEmail: string | null;
+  officeAddress: string | null;
+};
+
+const Navbar = ({
+  mapEmbedUrl,
+  contactPhone,
+  contactEmail,
+  officeAddress,
+}: NavbarProps) => {
   const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
@@ -59,6 +85,13 @@ const Navbar = () => {
 
   const shrinkActive = !isDesktop || isScrolled;
 
+  const displayName = PUBLIC_SITE_NAME;
+  const mapUrl = mapEmbedUrl?.trim() || null;
+  const phone = contactPhone?.trim() || null;
+  const email = contactEmail?.trim() || null;
+  const address = officeAddress?.trim() || null;
+  const telHref = toTelHref(phone);
+
   const navLinkActive = (href: string) => {
     if (href === "/") {
       return pathname === "/";
@@ -82,7 +115,7 @@ const Navbar = () => {
             className={cn(
               "relative transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]",
               shrinkActive
-                ? "overflow-hidden rounded-xl bg-white/40 backdrop-blur-2xl backdrop-saturate-200 shadow-[0_8px_30px_rgb(0,0,0,0.06)]"
+                ? "overflow-hidden bg-white/40 backdrop-blur-2xl backdrop-saturate-200 shadow-[0_8px_30px_rgb(0,0,0,0.06)]"
                 : "bg-transparent border-transparent shadow-none"
             )}
             animate={{ borderRadius: shrinkActive ? 12 : 0 }}
@@ -98,7 +131,7 @@ const Navbar = () => {
                 <Link href="/" className="flex items-center gap-3">
                   <Image
                     src="/logo-bpbd.avif"
-                    alt="BPBD Kota Baubau"
+                    alt={displayName}
                     width={160}
                     height={64}
                     className={cn(
@@ -112,7 +145,7 @@ const Navbar = () => {
                       "text-zinc-950/70",
                     )}
                   >
-                    BPBD Kota Baubau
+                    {displayName}
                   </span>
                 </Link>
               </div>
@@ -143,7 +176,7 @@ const Navbar = () => {
                   asChild
                   size="sm"
                   className={cn(
-                    "hidden lg:inline-flex rounded-xl transition-all duration-300",
+                    "hidden lg:inline-flex transition-all duration-300",
                     "bg-zinc-200 text-zinc-950 hover:bg-zinc-300",
                     "h-10 px-6",
                     "font-mono text-[10px] font-semibold uppercase tracking-[0.28em]",
@@ -160,11 +193,8 @@ const Navbar = () => {
                   onClick={toggleMenu}
                   aria-label="Menu"
                   className={cn(
-                    "flex h-11 w-11 items-center justify-center rounded-full border border-black/5 bg-transparent transition-colors",
-                    !shrinkActive && "lg:hidden",
-                    isScrolled
-                      ? "text-zinc-950 hover:bg-black/5"
-                      : "text-zinc-950 hover:bg-black/5",
+                    "flex h-11 w-11 items-center cursor-pointer text-zinc-950 justify-center bg-transparent transition-colors",
+                    !shrinkActive && "lg:hidden"
                   )}
                 >
                   <div className="flex w-5 flex-col items-end gap-1.5">
@@ -210,14 +240,14 @@ const Navbar = () => {
                       >
                         <Image
                           src="/logo-bpbd.avif"
-                          alt="BPBD Kota Baubau"
+                          alt={displayName}
                           width={160}
                           height={64}
                           className="h-9 w-auto object-contain sm:h-10"
                         />
                         <div className="leading-tight">
                           <div className="font-heading text-base font-semibold tracking-tight text-zinc-950 sm:text-lg">
-                            BPBD Kota Baubau
+                            {displayName}
                           </div>
                           <div className="font-mono text-[10px] font-semibold uppercase tracking-[0.32em] text-zinc-950/60">
                             Menu
@@ -315,46 +345,86 @@ const Navbar = () => {
                         exit="closed"
                       >
                         <div className="grid gap-8 border-t border-black/10 pt-6 lg:border-t-0 lg:pt-0">
-                          {/* map */}
-                          <div className="grid gap-3">
-                            <div className="text-[10px] font-mono font-semibold uppercase tracking-[0.32em] text-zinc-950/60">
-                              Lokasi BPBD
+                          {address ? (
+                            <div className="grid gap-2">
+                              <div className="text-[10px] font-mono font-semibold uppercase tracking-[0.32em] text-zinc-950/60">
+                                Alamat kantor
+                              </div>
+                              <p className="whitespace-pre-line text-sm leading-relaxed text-zinc-950/85">
+                                {address}
+                              </p>
                             </div>
-                            <div className="overflow-hidden rounded-2xl border border-black/10 bg-white">
-                              <iframe
-                                title="Peta lokasi BPBD Kota Baubau"
-                                loading="lazy"
-                                className="h-56 w-full sm:h-64 lg:h-72"
-                                referrerPolicy="no-referrer-when-downgrade"
-                                src={`https://www.openstreetmap.org/export/embed.html?layer=mapnik&marker=${BPBD_MAP.lat}%2C${BPBD_MAP.lng}&zoom=${BPBD_MAP.zoom}`}
-                              />
+                          ) : (
+                            <div className="border border-dashed border-black/20 bg-zinc-50 p-3 text-xs leading-relaxed text-zinc-600">
+                              {OFFICE_ADDRESS_FALLBACK}
+                            </div>
+                          )}
+
+                          <div className="grid gap-3">
+                            <div className="overflow-hidden border border-black/10 bg-white">
+                              {mapUrl ? (
+                                <iframe
+                                  title={MAP_EMBED_IFRAME_TITLE}
+                                  loading="lazy"
+                                  className="h-56 w-full sm:h-64 lg:h-72"
+                                  referrerPolicy="no-referrer-when-downgrade"
+                                  src={mapUrl}
+                                />
+                              ) : (
+                                <div
+                                  className="flex h-56 items-center justify-center p-4 text-center sm:h-64 lg:h-72"
+                                  role="img"
+                                  aria-label={MAP_PLACEHOLDER_TITLE}
+                                >
+                                  <span className="text-xs text-zinc-500">
+                                    {MAP_PLACEHOLDER_TITLE}
+                                  </span>
+                                </div>
+                              )}
                             </div>
                           </div>
 
-                          {/* contact */}
                           <div className="grid gap-3">
                             <div className="text-[10px] font-mono font-semibold uppercase tracking-[0.32em] text-zinc-950/60">
                               Kontak
                             </div>
                             <div className="grid gap-2">
-                              <a
-                                href={`tel:${BPBD_CONTACT_PHONE}`}
-                                className="inline-flex items-center justify-between gap-4 border-b border-black/10 py-3 font-heading text-lg font-semibold tracking-tight text-zinc-950 transition-colors hover:border-black/25"
-                              >
-                                <span>Telepon posko</span>
-                                <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.32em] text-zinc-950/55">
-                                  {BPBD_CONTACT_PHONE}
-                                </span>
-                              </a>
-                              <a
-                                href={`mailto:${BPBD_CONTACT_EMAIL}`}
-                                className="inline-flex items-center justify-between gap-4 border-b border-black/10 py-3 font-heading text-lg font-semibold tracking-tight text-zinc-950 transition-colors hover:border-black/25"
-                              >
-                                <span>Email</span>
-                                <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.32em] text-zinc-950/55">
-                                  {BPBD_CONTACT_EMAIL}
-                                </span>
-                              </a>
+                              {telHref && phone ? (
+                                <a
+                                  href={telHref}
+                                  className="inline-flex items-center justify-between gap-4 border-b border-black/10 py-3 font-heading text-lg font-semibold tracking-tight text-zinc-950 transition-colors hover:border-black/25"
+                                >
+                                  <span>Telepon</span>
+                                  <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.32em] text-zinc-950/55">
+                                    {phone}
+                                  </span>
+                                </a>
+                              ) : (
+                                <div className="inline-flex items-center justify-between gap-4 border-b border-dashed border-black/15 py-3 text-sm text-zinc-500">
+                                  <span>Telepon</span>
+                                  <span className="font-mono text-[10px] font-medium uppercase tracking-[0.32em]">
+                                    {PHONE_FALLBACK}
+                                  </span>
+                                </div>
+                              )}
+                              {email ? (
+                                <a
+                                  href={`mailto:${email}`}
+                                  className="inline-flex items-center justify-between gap-4 border-b border-black/10 py-3 font-heading text-lg font-semibold tracking-tight text-zinc-950 transition-colors hover:border-black/25"
+                                >
+                                  <span>Email</span>
+                                  <span className="max-w-[55%] break-all text-right font-mono text-[10px] font-semibold uppercase tracking-[0.32em] text-zinc-950/55">
+                                    {email}
+                                  </span>
+                                </a>
+                              ) : (
+                                <div className="inline-flex items-center justify-between gap-4 border-b border-dashed border-black/15 py-3 text-sm text-zinc-500">
+                                  <span>Email</span>
+                                  <span className="max-w-[55%] text-right text-xs">
+                                    {EMAIL_FALLBACK}
+                                  </span>
+                                </div>
+                              )}
                             </div>
                           </div>
 
@@ -365,7 +435,7 @@ const Navbar = () => {
                             </div>
                             <Button
                               asChild
-                              className="h-12 w-full rounded-full bg-zinc-950 text-white hover:bg-zinc-900"
+                              className="h-12 w-full bg-zinc-950 text-white hover:bg-zinc-900"
                             >
                               <Link
                                 href={session?.user ? "/dashboard/profiles" : "/sign-in"}
