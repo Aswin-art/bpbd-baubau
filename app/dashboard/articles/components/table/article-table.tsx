@@ -17,6 +17,13 @@ import {
 import type { ArticleListResponse } from "@/modules/articles";
 import { TableSkeleton } from "@/app/dashboard/components/skeletons/table-skeleton";
 
+const statusOptions = [
+  { value: "all", label: "Semua status" },
+  { value: "PUBLISHED", label: "Dipublikasikan" },
+  { value: "DRAFT", label: "Draf" },
+  { value: "ARCHIVED", label: "Diarsipkan" },
+] as const;
+
 async function fetchArticles(params: {
   page: number;
   limit: number;
@@ -31,7 +38,7 @@ async function fetchArticles(params: {
   if (params.search) {
     searchParams.set("q", params.search);
   }
-  if (params.status) {
+  if (params.status && params.status !== "all") {
     searchParams.set("status", params.status);
   }
   if (params.category && params.category !== "all") {
@@ -110,11 +117,11 @@ export function ArticleTable() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center gap-2">
+      <div className="flex flex-wrap items-center gap-2">
         <Select
           value={category || "all"}
           onValueChange={(val) => {
-            void setCategory(val);
+            void setCategory(val === "all" ? null : val);
             void setPage(1);
           }}
         >
@@ -128,6 +135,24 @@ export function ArticleTable() {
             {categories?.map((cat) => (
               <SelectItem key={cat} value={cat}>
                 {cat}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <Select
+          value={status || "all"}
+          onValueChange={(val) => {
+            void setStatus(val === "all" ? null : val);
+            void setPage(1);
+          }}
+        >
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="Semua status" />
+          </SelectTrigger>
+          <SelectContent>
+            {statusOptions.map((option) => (
+              <SelectItem key={option.value} value={option.value}>
+                {option.label}
               </SelectItem>
             ))}
           </SelectContent>

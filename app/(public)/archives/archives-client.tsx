@@ -4,7 +4,8 @@ import { Suspense, useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { parseAsInteger, parseAsString, useQueryState } from "nuqs";
 import { ErrorBoundary } from "react-error-boundary";
-import { Download, FileText, BookMarked, MapPin } from "lucide-react";
+import { ArrowUpRight, Download, FileText, BookMarked, MapPin } from "lucide-react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import Wrapper from "@/components/wrapper";
 import { ArsipFilter } from "./arsip-filter";
@@ -35,6 +36,39 @@ type ArchivesApiResponse = {
 type ArchiveYearsResponse = {
   years: string[];
 };
+
+function filenameFromDisposition(header: string | null): string | null {
+  if (!header) return null;
+  const m = /filename\*?=(?:UTF-8''|")?([^\";]+)/i.exec(header);
+  if (!m?.[1]) return null;
+  const raw = m[1].replace(/"/g, "").trim();
+  try {
+    return decodeURIComponent(raw);
+  } catch {
+    return raw;
+  }
+}
+
+async function downloadArchive(doc: PublicArchiveDocumentItem) {
+  const res = await fetch(`/api/public/archives/${doc.id}/download`);
+  if (!res.ok) {
+    const json = await res.json().catch(() => null);
+    throw new Error(json?.message || "Gagal mengunduh arsip.");
+  }
+
+  const blob = await res.blob();
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download =
+    filenameFromDisposition(res.headers.get("content-disposition")) ||
+    doc.name ||
+    "arsip";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
 
 async function fetchArchives(params: {
   page: number;
@@ -276,20 +310,32 @@ function ArchivesClientInner() {
 
                     <div className="mt-6 flex flex-col items-stretch gap-3 md:col-span-2 md:mt-0 md:items-end">
                       <Button
-                        asChild
                         variant="default"
                         className="w-full rounded-none border-2 border-primary bg-primary font-mono text-xs font-bold uppercase tracking-widest text-primary-foreground transition-colors hover:bg-background hover:text-primary disabled:opacity-50 md:w-auto"
+                        disabled={!doc.downloadUrl}
+                        onClick={async () => {
+                          try {
+                            await downloadArchive(doc);
+                          } catch (e) {
+                            toast.error((e as Error).message);
+                          }
+                        }}
+                        aria-label={`Unduh ${doc.name}`}
                       >
-                        <a
-                          href={doc.downloadUrl || "#"}
-                          target={doc.downloadUrl ? "_blank" : undefined}
-                          rel={doc.downloadUrl ? "noopener noreferrer" : undefined}
-                          aria-label={`Unduh ${doc.name}`}
-                        >
-                          <Download className="mr-2 h-4 w-4" strokeWidth={2.5} />
-                          Unduh
-                        </a>
+                        <Download className="mr-2 h-4 w-4" strokeWidth={2.5} />
+                        Unduh
                       </Button>
+                      {doc.downloadUrl ? (
+                        <a
+                          href={doc.downloadUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          aria-label={`Buka ${doc.name} di tab baru`}
+                          className="flex w-full items-center justify-center border-2 border-border bg-card py-2 font-mono text-xs font-bold uppercase tracking-widest text-secondary transition-colors hover:border-primary hover:bg-primary hover:text-primary-foreground md:w-auto md:px-4"
+                        >
+                          Buka <ArrowUpRight className="ml-2 h-4 w-4" strokeWidth={2.5} />
+                        </a>
+                      ) : null}
                     </div>
                   </div>
                 </div>

@@ -42,7 +42,7 @@ const replySchema = z.object({
 /**
  * POST /api/dashboard/articles/:id/comments
  * Reply to a comment as admin/staff.
- * Requires: articles:update
+ * Requires: articles:reply
  */
 export const POST = apiHandler(async (req: NextRequest, context) => {
   const session = await getServerSession();
@@ -50,7 +50,7 @@ export const POST = apiHandler(async (req: NextRequest, context) => {
     throw AppError.unauthorized("Authentication required", "UNAUTHORIZED");
   }
 
-  if (!(await checkPermission(session.user.role, "articles", "update"))) {
+  if (!(await checkPermission(session.user.role, "articles", "reply"))) {
     throw AppError.forbidden(
       "You don't have permission to moderate comments",
       "FORBIDDEN",

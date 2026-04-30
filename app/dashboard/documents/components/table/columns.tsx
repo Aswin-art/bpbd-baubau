@@ -81,11 +81,11 @@ export function useColumns(): ColumnDef<DocumentItem>[] {
     ),
     cell: ({ row }) => {
       const createdAt = row.getValue("createdAt") as string;
-      return (
-        <div className="text-sm text-muted-foreground">
-          {createdAt ? formatDateTime(createdAt) : "-"}
-        </div>
-      );
+        return (
+          <div className="text-sm text-muted-foreground whitespace-nowrap">
+            {createdAt ? formatDateTime(createdAt) : "-"}
+          </div>
+        );
     },
   },
   {

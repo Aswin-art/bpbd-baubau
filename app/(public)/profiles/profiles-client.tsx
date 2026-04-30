@@ -2,10 +2,10 @@
 
 import Image from "next/image";
 import { Mail, MapPin, Phone, Camera, Play, Music2 } from "lucide-react";
-import { useSuspenseQuery } from "@tanstack/react-query";
-import { getBaseUrl } from "@/lib/url";
+import { OFFICE_ADDRESS_FALLBACK } from "@/lib/public-site-fallbacks";
 
 type PublicSiteSettings = {
+  officeAddress?: string | null;
   objectives?: string | null;
   goals?: string | null;
   structurePhotoUrl?: string | null;
@@ -17,27 +17,38 @@ type PublicSiteSettings = {
   socialX?: string | null;
 };
 
-async function fetchPublicSiteSettings(): Promise<{ settings: PublicSiteSettings }> {
-  const res = await fetch(`${getBaseUrl()}/api/public/site-settings`, {
-    cache: "no-store",
-  });
-  if (!res.ok) throw new Error("Failed to fetch site settings");
-  return res.json();
-}
+type ProfilesClientProps = {
+  settings: PublicSiteSettings;
+};
 
-export function ProfilesClient() {
-  const { data } = useSuspenseQuery({
-    queryKey: ["public-site-settings"],
-    queryFn: fetchPublicSiteSettings,
-  });
-
-  const settings = data?.settings || {};
+export function ProfilesClient({ settings }: ProfilesClientProps) {
+  const officeAddress = settings.officeAddress?.trim() || null;
   const phone = settings.contactPhone || "(0402) 2821110";
   const email = settings.contactEmail || "bpbd@baubau.go.id";
   const structureImage = settings.structurePhotoUrl || "/struktur-kepengurusan.svg";
   const mapEmbedUrl = settings.mapEmbedUrl || null;
   const objectives = settings.objectives || null;
   const goals = settings.goals || null;
+  const socialLinks = [
+    {
+      label: "IG",
+      href: settings.socialInstagram?.trim(),
+      icon: Camera,
+      className: "",
+    },
+    {
+      label: "TikTok",
+      href: settings.socialTiktok?.trim(),
+      icon: Music2,
+      className: "",
+    },
+    {
+      label: "X / Twitter",
+      href: settings.socialX?.trim(),
+      icon: Play,
+      className: "sm:col-span-2",
+    },
+  ].filter((link) => link.href);
 
   return (
     <>
@@ -218,50 +229,35 @@ export function ProfilesClient() {
                     <p className="mt-1 text-lg font-black text-secondary">
                       Kantor BPBD Kota Baubau
                     </p>
-                    <p className="mt-1 text-base font-medium text-muted-foreground">
-                      (Isi alamat lengkap di sini)
+                    <p className="mt-1 whitespace-pre-line text-base font-medium text-muted-foreground">
+                      {officeAddress || OFFICE_ADDRESS_FALLBACK}
                     </p>
                   </div>
                 </div>
               </div>
 
-              <div className="border-t-2 border-border pt-8">
-                <p className="font-mono text-xs font-bold uppercase tracking-widest text-secondary">
-                  Media Sosial
-                </p>
-                <div className="mt-4 grid gap-4 sm:grid-cols-2">
-                  <a
-                    href={settings.socialInstagram || "#"}
-                    className="group flex items-center gap-3 border-2 border-border bg-card px-4 py-3 text-base font-black text-secondary transition-colors hover:border-primary hover:bg-primary hover:text-primary-foreground"
-                  >
-                    <Camera className="h-5 w-5 text-primary group-hover:text-primary-foreground" strokeWidth={2} />
-                    IG
-                    <span className="ml-auto font-mono text-xs uppercase tracking-widest text-muted-foreground group-hover:text-primary-foreground/80">
-                      {settings.socialInstagram || "@bpbd"}
-                    </span>
-                  </a>
-                  <a
-                    href={settings.socialTiktok || "#"}
-                    className="group flex items-center gap-3 border-2 border-border bg-card px-4 py-3 text-base font-black text-secondary transition-colors hover:border-primary hover:bg-primary hover:text-primary-foreground"
-                  >
-                    <Music2 className="h-5 w-5 text-primary group-hover:text-primary-foreground" strokeWidth={2} />
-                    TikTok
-                    <span className="ml-auto font-mono text-xs uppercase tracking-widest text-muted-foreground group-hover:text-primary-foreground/80">
-                      {settings.socialTiktok || "@bpbd"}
-                    </span>
-                  </a>
-                  <a
-                    href={settings.socialX || "#"}
-                    className="group flex items-center gap-3 border-2 border-border bg-card px-4 py-3 text-base font-black text-secondary transition-colors hover:border-primary hover:bg-primary hover:text-primary-foreground sm:col-span-2"
-                  >
-                    <Play className="h-5 w-5 text-primary group-hover:text-primary-foreground" strokeWidth={2} />
-                    X / Twitter
-                    <span className="ml-auto font-mono text-xs uppercase tracking-widest text-muted-foreground group-hover:text-primary-foreground/80">
-                      {settings.socialX || "@bpbd"}
-                    </span>
-                  </a>
+              {socialLinks.length > 0 ? (
+                <div className="border-t-2 border-border pt-8">
+                  <p className="font-mono text-xs font-bold uppercase tracking-widest text-secondary">
+                    Media Sosial
+                  </p>
+                  <div className="mt-4 grid gap-4 sm:grid-cols-2">
+                    {socialLinks.map(({ label, href, icon: Icon, className }) => (
+                      <a
+                        key={label}
+                        href={href}
+                        className={`group flex items-center gap-3 border-2 border-border bg-card px-4 py-3 text-base font-black text-secondary transition-colors hover:border-primary hover:bg-primary hover:text-primary-foreground ${className}`}
+                      >
+                        <Icon
+                          className="h-5 w-5 text-primary group-hover:text-primary-foreground"
+                          strokeWidth={2}
+                        />
+                        {label}
+                      </a>
+                    ))}
+                  </div>
                 </div>
-              </div>
+              ) : null}
             </div>
 
             <div className="space-y-6">

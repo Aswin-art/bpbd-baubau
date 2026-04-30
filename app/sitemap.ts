@@ -1,9 +1,9 @@
 import type { MetadataRoute } from "next";
-import { newsArticles } from "@/data/dummy-data";
+import db from "@/lib/db";
 
 const BASE_URL = "https://bpbd.baubaukota.go.id";
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticPages: MetadataRoute.Sitemap = [
     {
       url: BASE_URL,
@@ -37,9 +37,15 @@ export default function sitemap(): MetadataRoute.Sitemap {
     },
   ];
 
-  const newsPages: MetadataRoute.Sitemap = newsArticles.map((news) => ({
-    url: `${BASE_URL}/articles/${news.slug}`,
-    lastModified: new Date(),
+  const articles = await db.article.findMany({
+    where: { status: "PUBLISHED" },
+    select: { slug: true, updatedAt: true, publishedAt: true },
+    orderBy: { publishedAt: "desc" },
+  });
+
+  const newsPages: MetadataRoute.Sitemap = articles.map((a) => ({
+    url: `${BASE_URL}/articles/${a.slug}`,
+    lastModified: a.updatedAt,
     changeFrequency: "monthly" as const,
     priority: 0.6,
   }));

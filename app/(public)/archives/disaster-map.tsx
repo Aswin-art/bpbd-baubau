@@ -23,6 +23,8 @@ const BAUBAU_CENTER = { latitude: -5.48, longitude: 122.6, zoom: 12 };
 type DisasterMapProps = {
   /** Jika diisi, data tidak di-fetch (untuk dashboard). */
   records?: MapDisasterPointDTO[];
+  /** Sembunyikan filter kategori jika parent sudah memfilter data. */
+  showCategoryFilter?: boolean;
   /** Klik peta untuk mengisi koordinat (dashboard). */
   pickCoordinateMode?: boolean;
   onMapClick?: (lng: number, lat: number) => void;
@@ -30,6 +32,7 @@ type DisasterMapProps = {
 
 export function DisasterMap({
   records: recordsProp,
+  showCategoryFilter = true,
   pickCoordinateMode,
   onMapClick,
 }: DisasterMapProps) {
@@ -76,13 +79,28 @@ export function DisasterMap({
     return ["semua", ...Array.from(years).sort((a, b) => b.localeCompare(a))];
   }, [disasterRecords]);
 
+  const categoryList = useMemo(() => {
+    const categories = new Set<string>();
+    disasterRecords.forEach((r) => {
+      const category = r.type.trim();
+      if (category) categories.add(category);
+    });
+    return ["semua", ...Array.from(categories).sort((a, b) => a.localeCompare(b))];
+  }, [disasterRecords]);
+
   const [selectedTahun, setSelectedTahun] = useState("semua");
+  const [selectedCategory, setSelectedCategory] = useState("semua");
   const [popupInfo, setPopupInfo] = useState<MapDisasterPointDTO | null>(null);
 
   const filtered = useMemo(() => {
-    if (selectedTahun === "semua") return disasterRecords;
-    return disasterRecords.filter((r) => r.date.includes(selectedTahun));
-  }, [selectedTahun, disasterRecords]);
+    return disasterRecords.filter((r) => {
+      const matchesYear =
+        selectedTahun === "semua" || r.date.includes(selectedTahun);
+      const matchesCategory =
+        selectedCategory === "semua" || r.type === selectedCategory;
+      return matchesYear && matchesCategory;
+    });
+  }, [selectedTahun, selectedCategory, disasterRecords]);
 
   const legendItems = useMemo<[string, string][]>(() => {
     const items = new globalThis.Map<string, string>();
@@ -143,6 +161,32 @@ export function DisasterMap({
             ))}
           </SelectContent>
         </Select>
+
+        {showCategoryFilter ? (
+          <>
+            <span className="ml-2 text-xs font-medium text-muted-foreground">
+              Kategori:
+            </span>
+            <Select
+              value={selectedCategory}
+              onValueChange={(val) => {
+                setSelectedCategory(val);
+                setPopupInfo(null);
+              }}
+            >
+              <SelectTrigger className="h-8 w-[160px] text-xs">
+                <SelectValue placeholder="Pilih Kategori" />
+              </SelectTrigger>
+              <SelectContent>
+                {categoryList.map((category) => (
+                  <SelectItem key={category} value={category} className="text-xs">
+                    {category === "semua" ? "Semua Kategori" : category}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </>
+        ) : null}
 
         <span className="ml-auto text-[11px] text-muted-foreground">
           {filtered.length} kejadian

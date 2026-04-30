@@ -5,9 +5,21 @@ import { defaultStatements, adminAc } from "better-auth/plugins/admin/access";
 const { user: defaultUserActions, ...defaultStatementsRest } = defaultStatements;
 const { user: adminPluginUserActions, ...adminStatementsRest } = adminAc.statements;
 
+const hiddenUserPermissionActions = new Set([
+  "list",
+  "get",
+  "impersonate",
+  "impersonate-admin",
+  "impersonateAdmin",
+]);
+
+function filterUserPermissionActions(actions: readonly string[] = []) {
+  return actions.filter((action) => !hiddenUserPermissionActions.has(action));
+}
+
 const usersResourceActions = [
   ...new Set([
-    ...(defaultUserActions ?? []),
+    ...filterUserPermissionActions(defaultUserActions ?? []),
     "create",
     "read",
     "update",
@@ -22,7 +34,12 @@ export const statement = {
   dashboard: ["view"],
   profile: ["view", "update"],
 
-  articles: ["create", "read", "update", "delete", "publish"],
+  menu_articles: ["view"],
+  menu_documents: ["view"],
+  menu_archives: ["view"],
+  menu_maps: ["view"],
+
+  articles: ["create", "read", "update", "delete", "publish", "comment", "reply"],
   aspirations: ["create", "read", "update", "delete", "change_status"],
   my_aspirations: ["create", "read", "update", "delete"],
   documents: ["create", "read", "update", "delete"],
@@ -43,6 +60,10 @@ const statementRecord = statement as unknown as Record<string, readonly string[]
 export const permissionUiResources: readonly string[] = [
   "dashboard",
   "profile",
+  "menu_articles",
+  "menu_documents",
+  "menu_archives",
+  "menu_maps",
   "articles",
   "documents",
   "aspirations",
@@ -58,7 +79,7 @@ export const ac = createAccessControl(statement);
 
 const adminUsersActions = [
   ...new Set([
-    ...(adminPluginUserActions ?? []),
+    ...filterUserPermissionActions(adminPluginUserActions ?? []),
     "create",
     "read",
     "update",
@@ -72,7 +93,11 @@ export const adminRole = ac.newRole({
   ...adminStatementsRest,
   dashboard: ["view"],
   profile: ["view", "update"],
-  articles: ["create", "read", "update", "delete", "publish"],
+  menu_articles: ["view"],
+  menu_documents: ["view"],
+  menu_archives: ["view"],
+  menu_maps: ["view"],
+  articles: ["create", "read", "update", "delete", "publish", "comment", "reply"],
   aspirations: ["create", "read", "update", "delete", "change_status"],
   my_aspirations: [],
   documents: ["create", "read", "update", "delete"],
@@ -87,7 +112,11 @@ export const adminRole = ac.newRole({
 export const kepalaBpbdRole = ac.newRole({
   dashboard: ["view"],
   profile: ["view", "update"],
-  articles: ["read", "publish"],
+  menu_articles: ["view"],
+  menu_documents: ["view"],
+  menu_archives: ["view"],
+  menu_maps: ["view"],
+  articles: ["read", "publish", "comment", "reply"],
   aspirations: ["read", "change_status"],
   my_aspirations: [],
   documents: ["read"],
@@ -102,7 +131,11 @@ export const kepalaBpbdRole = ac.newRole({
 export const operatorRole = ac.newRole({
   dashboard: ["view"],
   profile: ["view", "update"],
-  articles: ["create", "read", "update", "delete", "publish"],
+  menu_articles: ["view"],
+  menu_documents: ["view"],
+  menu_archives: ["view"],
+  menu_maps: ["view"],
+  articles: ["create", "read", "update", "delete", "publish", "comment", "reply"],
   aspirations: ["read", "update", "change_status"],
   my_aspirations: [],
   documents: ["create", "read", "update", "delete"],
@@ -117,7 +150,8 @@ export const operatorRole = ac.newRole({
 export const masyarakatRole = ac.newRole({
   dashboard: ["view"],
   profile: ["view", "update"],
-  articles: ["read"],
+  menu_articles: ["view"],
+  articles: ["read", "comment"],
   aspirations: [],
   my_aspirations: ["create", "read", "update", "delete"],
   documents: ["read"],

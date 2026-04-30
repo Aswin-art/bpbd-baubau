@@ -13,6 +13,13 @@ import { DisasterMap } from "@/app/(public)/archives/disaster-map";
 import { MapPreviewSkeleton } from "@/app/dashboard/components/skeletons/map-preview-skeleton";
 import { useEffect, useMemo, useState } from "react";
 import { DeleteDialog } from "../dialogs/delete-dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 async function fetchDisasterPoints(): Promise<MapDisasterPointDTO[]> {
   const res = await fetch("/api/map-disasters");
@@ -31,14 +38,35 @@ export function MapTable() {
     staleTime: 1000 * 60 * 5,
   });
   const [q] = useQueryState("q", parseAsString.withDefault(""));
+  const [category, setCategory] = useQueryState(
+    "category",
+    parseAsString.withDefault("all"),
+  );
   const [page, setPage] = useQueryState("page", parseAsInteger.withDefault(1));
   const [limit, setLimit] = useQueryState("limit", parseAsInteger.withDefault(10));
 
   const rows = data ?? [];
   const normalizedQuery = q.trim().toLowerCase();
-  const visibleRows = normalizedQuery
-    ? rows.filter((row) => row.location.toLowerCase().includes(normalizedQuery))
-    : rows;
+  const selectedCategory = category || "all";
+  const categoryOptions = useMemo(() => {
+    const categories = new Set<string>();
+    rows.forEach((row) => {
+      const value = row.type.trim();
+      if (value) categories.add(value);
+    });
+    return Array.from(categories).sort((a, b) => a.localeCompare(b));
+  }, [rows]);
+  const visibleRows = useMemo(
+    () =>
+      rows.filter((row) => {
+        const matchesQuery =
+          !normalizedQuery || row.location.toLowerCase().includes(normalizedQuery);
+        const matchesCategory =
+          selectedCategory === "all" || row.type.trim() === selectedCategory;
+        return matchesQuery && matchesCategory;
+      }),
+    [rows, normalizedQuery, selectedCategory],
+  );
 
   const tablePageCount = Math.max(1, Math.ceil(visibleRows.length / limit));
   const effectivePage = Math.min(page, tablePageCount);
@@ -98,7 +126,7 @@ export function MapTable() {
             Pratinjau marker pada peta publik berdasarkan data di tabel.
           </p>
           <div className="rounded-xl border border-border/60 bg-card p-4 shadow-sm">
-            <DisasterMap records={visibleRows} />
+            <DisasterMap records={visibleRows} showCategoryFilter={false} />
           </div>
         </div>
       )}
@@ -134,6 +162,28 @@ export function MapTable() {
               await setPage(1);
             }}
             searchKey="location"
+            filter={
+              <Select
+                value={selectedCategory}
+                onValueChange={(value) => {
+                  void setCategory(value === "all" ? null : value);
+                  void setPage(1);
+                  setRowSelection({});
+                }}
+              >
+                <SelectTrigger className="w-full lg:w-[180px]">
+                  <SelectValue placeholder="Semua kategori" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Semua kategori</SelectItem>
+                  {categoryOptions.map((option) => (
+                    <SelectItem key={option} value={option}>
+                      {option}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            }
             isLoading={isLoading}
             pageCount={tablePageCount}
             rowSelection={rowSelection}

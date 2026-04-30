@@ -61,6 +61,9 @@ export const settingsService = {
 
   async updateSiteSettings(input: UpdateSiteSettingsInput) {
     return settingsRepository.updateSiteSettings({
+      ...(input.officeAddress !== undefined
+        ? { officeAddress: input.officeAddress }
+        : {}),
       ...(input.aboutDescription !== undefined
         ? { aboutDescription: input.aboutDescription }
         : {}),

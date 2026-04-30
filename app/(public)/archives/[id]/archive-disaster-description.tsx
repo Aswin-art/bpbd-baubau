@@ -46,6 +46,7 @@ export function ArchiveDisasterDescription({ value }: Props) {
         value={value}
         onChange={() => {}}
         disabled
+        bounded
         scope="maps"
         className="mt-0"
       />

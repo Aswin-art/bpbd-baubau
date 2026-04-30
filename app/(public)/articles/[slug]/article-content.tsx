@@ -19,7 +19,8 @@ export function ArticleContent({ value }: { value: unknown }) {
       onChange={() => {}}
       disabled
       scope="articles"
-      className="mt-8"
+      bounded
+      className="mt-0"
     />
   );
 }

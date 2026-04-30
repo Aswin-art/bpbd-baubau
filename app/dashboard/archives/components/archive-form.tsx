@@ -24,7 +24,6 @@ import { DatePicker } from "@/components/ui/date-picker";
 import FileUpload from "@/components/file-upload";
 import { useUpload } from "@/modules/upload";
 import { formatFileSize } from "@/helpers/compress";
-import { sanitizeDigitsOnly } from "@/lib/phone-input";
 
 import {
   createArchiveSchema,
@@ -139,32 +138,6 @@ export function ArchiveForm(props: {
 
               <FormField
                 control={form.control}
-                name="year"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Tahun <span className="text-destructive">*</span></FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="2026"
-                        name={field.name}
-                        ref={field.ref}
-                        onBlur={field.onBlur}
-                        value={field.value}
-                        onChange={(e) =>
-                          field.onChange(sanitizeDigitsOnly(e.target.value, 4))
-                        }
-                        inputMode="numeric"
-                        maxLength={4}
-                      />
-                    </FormControl>
-                    <FormDescription>Hanya angka (maks. 4 digit).</FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
                 name="dateLabel"
                 render={({ field }) => (
                   <FormItem>
@@ -178,6 +151,11 @@ export function ArchiveForm(props: {
                         }
                         setDate={(d) => {
                           field.onChange(d ? format(d, "yyyy-MM-dd") : "");
+                          if (d) {
+                            form.setValue("year", format(d, "yyyy"), { shouldValidate: true });
+                          } else {
+                            form.setValue("year", "", { shouldValidate: true });
+                          }
                         }}
                         placeholder="Pilih tanggal"
                         className="w-full"

@@ -20,8 +20,21 @@ import {
   Slate,
   withReact,
 } from "slate-react";
-import { Bold, Italic, Send, Underline, Strikethrough, Code, Quote } from "lucide-react";
+import {
+  Bold,
+  Italic,
+  Send,
+  Underline,
+  Strikethrough,
+  Code,
+  Quote,
+  MessageSquareReply,
+  Pencil,
+  Trash2,
+  X,
+} from "lucide-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { slateToSafeCommentHtml, sanitizeCommentHtml } from "@/lib/comment-html";
 import { cn } from "@/lib/utils";
@@ -53,17 +66,83 @@ declare module "slate" {
   }
 }
 
-const EMPTY_DOC: Descendant[] = [
-  { type: "paragraph", children: [{ text: "" }] },
-];
+function createEmptyDoc(): Descendant[] {
+  return [{ type: "paragraph", children: [{ text: "" }] }];
+}
+
+function htmlToSlateDoc(html?: string): Descendant[] {
+  if (!html?.trim() || typeof window === "undefined") return createEmptyDoc();
+
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(sanitizeCommentHtml(html), "text/html");
+  const blocks: Descendant[] = [];
+
+  const readText = (
+    node: globalThis.Node,
+    marks: Omit<CustomText, "text"> = {},
+  ): CustomText[] => {
+    if (node.nodeType === window.Node.TEXT_NODE) {
+      return node.textContent ? [{ text: node.textContent, ...marks }] : [];
+    }
+    if (node.nodeType !== window.Node.ELEMENT_NODE) return [];
+
+    const el = node as HTMLElement;
+    const nextMarks = { ...marks };
+    const tagName = el.tagName.toLowerCase();
+    if (tagName === "strong" || tagName === "b") nextMarks.bold = true;
+    if (tagName === "em" || tagName === "i") nextMarks.italic = true;
+    if (tagName === "u") nextMarks.underline = true;
+    if (tagName === "s") nextMarks.strike = true;
+    if (tagName === "code") nextMarks.code = true;
+    if (tagName === "br") return [{ text: "\n", ...nextMarks }];
+
+    return Array.from(el.childNodes).flatMap((child) =>
+      readText(child, nextMarks),
+    );
+  };
+
+  const paragraphFrom = (node: Element): ParagraphElement => {
+    const children = readText(node);
+    return {
+      type: "paragraph",
+      children: children.length > 0 ? children : [{ text: "" }],
+    };
+  };
+
+  for (const child of Array.from(doc.body.children)) {
+    const tagName = child.tagName.toLowerCase();
+    if (tagName === "blockquote") {
+      const paragraphs = Array.from(child.children).filter(
+        (el) => el.tagName.toLowerCase() === "p",
+      );
+      blocks.push({
+        type: "blockquote",
+        children:
+          paragraphs.length > 0
+            ? paragraphs.map(paragraphFrom)
+            : [paragraphFrom(child)],
+      });
+    } else {
+      blocks.push(paragraphFrom(child));
+    }
+  }
+
+  return blocks.length > 0 ? blocks : createEmptyDoc();
+}
 
 interface Comment {
   id: string;
   author: string;
   date: string;
   html: string;
+  parentId?: string | null;
   isAdmin?: boolean;
+  isOwnComment?: boolean;
 }
+
+type ThreadReply = Comment & {
+  mentionName: string;
+};
 
 const dummyComments: Comment[] = [
   {
@@ -85,6 +164,13 @@ const dummyComments: Comment[] = [
     html: "<blockquote><p>Terima kasih masukannya. Kami akan informasikan jadwal pelatihan berikutnya untuk Betoambari melalui kanal resmi.</p></blockquote>",
   },
 ];
+
+async function getPermissions(): Promise<Record<string, string[]>> {
+  const res = await fetch("/api/dashboard/permissions");
+  if (!res.ok) return {};
+  const json = await res.json().catch(() => null);
+  return json?.data?.permissions ?? {};
+}
 
 function toggleMark(editor: Editor, format: "bold" | "italic"): void {
   const marks = Editor.marks(editor);
@@ -134,16 +220,24 @@ function SlateCommentEditor({
   onSubmitHtml,
   submitting,
   intentLabel,
+  initialHtml,
+  submitLabel = "Kirim",
 }: {
   onSubmitHtml: (html: string) => void | Promise<void>;
   submitting: boolean;
   intentLabel: string;
+  initialHtml?: string;
+  submitLabel?: string;
 }) {
   const [editorKey, setEditorKey] = useState(0);
   const editor = useMemo(
     () => withReact(createEditor()),
     // eslint-disable-next-line react-hooks/exhaustive-deps -- depend on editorKey
     [editorKey],
+  );
+  const initialValue = useMemo(
+    () => htmlToSlateDoc(initialHtml),
+    [editorKey, initialHtml],
   );
 
   const renderElement = useCallback((props: RenderElementProps) => {
@@ -307,7 +401,7 @@ function SlateCommentEditor({
         </span>
       </div>
 
-      <Slate key={editorKey} editor={editor} initialValue={EMPTY_DOC}>
+      <Slate key={editorKey} editor={editor} initialValue={initialValue}>
         <Editable
           renderElement={renderElement}
           renderLeaf={renderLeaf}
@@ -339,7 +433,7 @@ function SlateCommentEditor({
           ) : (
             <span className="flex items-center justify-center gap-2">
               <Send className="h-3.5 w-3.5" strokeWidth={2.5} />
-              Kirim
+              {submitLabel}
             </span>
           )}
         </Button>
@@ -351,6 +445,11 @@ function SlateCommentEditor({
 export function CommentSection({ slug }: { slug: string }) {
   const [submitting, setSubmitting] = useState(false);
   const [visibleCount, setVisibleCount] = useState(8);
+  const [replyingTo, setReplyingTo] = useState<string | null>(null);
+  const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
+  const [expandedReplyIds, setExpandedReplyIds] = useState<Set<string>>(
+    () => new Set(),
+  );
   const pathname = usePathname();
   const queryClient = useQueryClient();
   const articlePath = `/articles/${slug}`;
@@ -367,12 +466,29 @@ export function CommentSection({ slug }: { slug: string }) {
   });
 
   const user = (session as any)?.user ?? null;
+  const userId = typeof user?.id === "string" ? user.id : null;
   const isLoggedIn = !!user;
 
+  const { data: permissions } = useQuery({
+    queryKey: ["permissions"],
+    queryFn: getPermissions,
+    enabled: isLoggedIn,
+    staleTime: 1000 * 60 * 5,
+    retry: false,
+  });
+
+  const articlePermissions = permissions?.articles ?? [];
+  const canComment = articlePermissions.includes("comment");
+  const canReply = articlePermissions.includes("reply");
+  const canEdit = articlePermissions.includes("update");
+  const canDelete = articlePermissions.includes("delete");
+
   const { data: comments = dummyComments } = useQuery({
-    queryKey: ["public-articles", "comments", slug],
+    queryKey: ["public-articles", "comments", slug, userId ?? "guest"],
     queryFn: async () => {
-      const res = await fetch(`/api/public${articlePath}/comments`);
+      const res = await fetch(`/api/public${articlePath}/comments`, {
+        credentials: "same-origin",
+      });
       const json = await res.json().catch(() => null);
       if (!res.ok || json?.status !== "success") {
         throw new Error(json?.message || "Gagal memuat komentar.");
@@ -382,7 +498,9 @@ export function CommentSection({ slug }: { slug: string }) {
         authorName: string;
         createdAt: string;
         bodyHtml: string;
+        parentId: string | null;
         isAdmin: boolean;
+        isOwnComment: boolean;
       }>;
       return rows.map((c) => ({
         id: c.id,
@@ -395,18 +513,20 @@ export function CommentSection({ slug }: { slug: string }) {
           minute: "2-digit",
         }),
         html: c.bodyHtml,
+        parentId: c.parentId,
         isAdmin: c.isAdmin,
+        isOwnComment: c.isOwnComment,
       })) satisfies Comment[];
     },
     staleTime: 1000 * 30,
   });
 
   const postMutation = useMutation({
-    mutationFn: async (bodyHtml: string) => {
+    mutationFn: async (payload: { bodyHtml: string; parentId?: string | null }) => {
       const res = await fetch(`/api/public${articlePath}/comments`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ bodyHtml }),
+        body: JSON.stringify(payload),
       });
       const json = await res.json().catch(() => null);
       if (!res.ok || json?.status !== "success") {
@@ -426,15 +546,408 @@ export function CommentSection({ slug }: { slug: string }) {
     },
   });
 
-  const handleSubmitHtml = useCallback(async (html: string) => {
+  const editMutation = useMutation({
+    mutationFn: async (payload: { commentId: string; bodyHtml: string }) => {
+      const res = await fetch(
+        `/api/public${articlePath}/comments/${payload.commentId}`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ bodyHtml: payload.bodyHtml }),
+        },
+      );
+      const json = await res.json().catch(() => null);
+      if (!res.ok || json?.status !== "success") {
+        throw new Error(json?.message || "Gagal memperbarui komentar.");
+      }
+      return json.data.comment as {
+        id: string;
+        authorName: string;
+        createdAt: string;
+        bodyHtml: string;
+      };
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: ["public-articles", "comments", slug],
+      });
+      setEditingCommentId(null);
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: async (commentId: string) => {
+      const res = await fetch(
+        `/api/public${articlePath}/comments/${commentId}/delete`,
+        { method: "POST" },
+      );
+      const json = await res.json().catch(() => null);
+      if (!res.ok || json?.status !== "success") {
+        throw new Error(json?.message || "Gagal menghapus komentar.");
+      }
+      return json.data as { deleted: true };
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: ["public-articles", "comments", slug],
+      });
+      setEditingCommentId(null);
+      setReplyingTo(null);
+      toast.success("Komentar dihapus.");
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
+
+  const handleSubmitHtml = useCallback(async (html: string, parentId?: string | null) => {
     if (!isLoggedIn) return;
+    if (parentId && !canReply) return;
+    if (!parentId && !canComment) return;
     setSubmitting(true);
     try {
-      await postMutation.mutateAsync(html);
+      await postMutation.mutateAsync({ bodyHtml: html, parentId: parentId ?? null });
+      if (parentId) setReplyingTo(null);
     } finally {
       setSubmitting(false);
     }
-  }, [isLoggedIn, postMutation]);
+  }, [canComment, canReply, isLoggedIn, postMutation]);
+
+  const handleEditHtml = useCallback(async (commentId: string, html: string) => {
+    if (!canEdit) return;
+    setSubmitting(true);
+    try {
+      await editMutation.mutateAsync({ commentId, bodyHtml: html });
+    } catch {
+      // Error feedback is handled by editMutation.onError.
+    } finally {
+      setSubmitting(false);
+    }
+  }, [canEdit, editMutation]);
+
+  const handleDeleteComment = useCallback((commentId: string) => {
+    if (!canDelete || deleteMutation.isPending) return;
+    const confirmed = window.confirm(
+      "Hapus komentar ini? Balasan di bawahnya juga akan terhapus.",
+    );
+    if (!confirmed) return;
+    deleteMutation.mutate(commentId);
+  }, [canDelete, deleteMutation]);
+
+  const { topLevelComments, repliesByParentId } = useMemo(() => {
+    const byId = new Map(comments.map((comment) => [comment.id, comment]));
+    const replies: Record<string, ThreadReply[]> = {};
+    const topLevel: Comment[] = [];
+
+    for (const comment of comments) {
+      if (!comment.parentId) {
+        topLevel.push(comment);
+      }
+    }
+
+    for (const comment of comments) {
+      if (!comment.parentId) continue;
+
+      const parent = byId.get(comment.parentId);
+      if (!parent) {
+        topLevel.push(comment);
+        continue;
+      }
+
+      // Keep the visual structure to 2 levels only. Replies to replies are
+      // flattened under the root comment and get an @mention to preserve context.
+      const rootParentId = parent.parentId ?? parent.id;
+      replies[rootParentId] = replies[rootParentId] ?? [];
+      replies[rootParentId]!.push({
+        ...comment,
+        mentionName: parent.author,
+      });
+    }
+
+    return {
+      topLevelComments: topLevel,
+      repliesByParentId: replies,
+    };
+  }, [comments]);
+
+  const visibleTopLevelComments = topLevelComments.slice(0, visibleCount);
+
+  const toggleReplies = (commentId: string) => {
+    setExpandedReplyIds((current) => {
+      const next = new Set(current);
+      if (next.has(commentId)) {
+        next.delete(commentId);
+      } else {
+        next.add(commentId);
+      }
+      return next;
+    });
+  };
+
+  const renderCommentThread = (comment: Comment, index: number) => {
+    const childReplies = repliesByParentId[comment.id] ?? [];
+    const repliesExpanded = expandedReplyIds.has(comment.id);
+    const canEditComment = canEdit && !!comment.isOwnComment;
+
+    return (
+      <div key={comment.id} className="border-b border-border py-8 first:pt-0 last:border-b-0 sm:py-10">
+        <article
+          className={cn(
+            "grid gap-6 sm:grid-cols-[auto_1fr] sm:gap-8",
+            comment.isAdmin && "rounded-2xl bg-muted/30 px-4 py-5 sm:px-6",
+          )}
+        >
+          <span
+            className="font-mono text-xs tabular-nums text-muted-foreground sm:pt-0.5"
+            aria-hidden
+          >
+            {String(index + 1).padStart(2, "0")}
+          </span>
+          <div className="min-w-0 space-y-4">
+            <div className="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:gap-4">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="text-base font-semibold tracking-tight text-secondary">
+                  {comment.author}
+                </span>
+                {comment.isAdmin && (
+                  <span className="rounded-full border border-border bg-background px-2 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-[0.18em] text-primary">
+                    Admin
+                  </span>
+                )}
+              </div>
+              <span className="font-mono text-[11px] tabular-nums uppercase tracking-wider text-muted-foreground">
+                {comment.date}
+              </span>
+            </div>
+
+            {editingCommentId === comment.id ? (
+              <div className="max-w-2xl space-y-3">
+                <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+                  Edit komentar
+                </p>
+                <SlateCommentEditor
+                  key={comment.id}
+                  initialHtml={comment.html}
+                  onSubmitHtml={(html) => handleEditHtml(comment.id, html)}
+                  submitting={submitting || editMutation.isPending}
+                  intentLabel="Perbarui komentar..."
+                  submitLabel="Simpan"
+                />
+                <button
+                  type="button"
+                  onClick={() => setEditingCommentId(null)}
+                  disabled={submitting || editMutation.isPending}
+                  className="font-mono text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground transition-colors hover:text-foreground disabled:opacity-50"
+                >
+                  Batal edit
+                </button>
+              </div>
+            ) : (
+              <div
+                className={cn(
+                  "max-w-[65ch] text-[15px] leading-[1.7] text-foreground/90 [&_em]:italic [&_p+p]:mt-3 [&_strong]:font-semibold [&_strong]:text-secondary",
+                  comment.isAdmin && "border-l-2 border-primary/40 pl-4",
+                )}
+                dangerouslySetInnerHTML={{
+                  __html: sanitizeCommentHtml(comment.html),
+                }}
+              />
+            )}
+
+            {canReply || canEditComment || canDelete ? (
+              <div className="flex flex-wrap items-center gap-3">
+                {canReply ? (
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setReplyingTo((current) =>
+                        current === comment.id ? null : comment.id,
+                      )
+                    }
+                    className="inline-flex items-center gap-2 font-mono text-[10px] font-semibold uppercase tracking-[0.2em] text-primary transition-colors hover:text-primary/80"
+                    aria-expanded={replyingTo === comment.id}
+                  >
+                    {replyingTo === comment.id ? (
+                      <X className="h-3.5 w-3.5" strokeWidth={2.5} />
+                    ) : (
+                      <MessageSquareReply className="h-3.5 w-3.5" strokeWidth={2.5} />
+                    )}
+                    {replyingTo === comment.id ? "Batal" : "Balas"}
+                  </button>
+                ) : null}
+                {canEditComment ? (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setReplyingTo(null);
+                      setEditingCommentId((current) =>
+                        current === comment.id ? null : comment.id,
+                      );
+                    }}
+                    className="inline-flex items-center gap-2 font-mono text-[10px] font-semibold uppercase tracking-[0.2em] text-primary transition-colors hover:text-primary/80"
+                    aria-expanded={editingCommentId === comment.id}
+                  >
+                    {editingCommentId === comment.id ? (
+                      <X className="h-3.5 w-3.5" strokeWidth={2.5} />
+                    ) : (
+                      <Pencil className="h-3.5 w-3.5" strokeWidth={2.5} />
+                    )}
+                    {editingCommentId === comment.id ? "Batal" : "Edit"}
+                  </button>
+                ) : null}
+                {canDelete ? (
+                  <button
+                    type="button"
+                    onClick={() => handleDeleteComment(comment.id)}
+                    disabled={deleteMutation.isPending}
+                    className="inline-flex items-center gap-2 font-mono text-[10px] font-semibold uppercase tracking-[0.2em] text-destructive transition-colors hover:text-destructive/80 disabled:opacity-50"
+                  >
+                    <Trash2 className="h-3.5 w-3.5" strokeWidth={2.5} />
+                    Hapus
+                  </button>
+                ) : null}
+              </div>
+            ) : null}
+
+            {canReply && replyingTo === comment.id ? (
+              <div className="max-w-2xl">
+                <p className="mb-3 font-mono text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+                  Balas @{comment.author}
+                </p>
+                <SlateCommentEditor
+                  onSubmitHtml={(html) => handleSubmitHtml(html, comment.id)}
+                  submitting={submitting}
+                  intentLabel={`Balas @${comment.author}...`}
+                />
+              </div>
+            ) : null}
+          </div>
+        </article>
+
+        {childReplies.length > 0 ? (
+          <div className="mt-5 sm:ml-12">
+            <button
+              type="button"
+              onClick={() => toggleReplies(comment.id)}
+              className="inline-flex items-center gap-2 font-mono text-[11px] font-semibold uppercase tracking-[0.2em] text-primary transition-colors hover:text-primary/80"
+              aria-expanded={repliesExpanded}
+            >
+              <MessageSquareReply className="h-4 w-4" strokeWidth={2.5} />
+              {repliesExpanded
+                ? `Sembunyikan ${childReplies.length} balasan`
+                : `Lihat ${childReplies.length} balasan`}
+            </button>
+
+            {repliesExpanded ? (
+              <div className="mt-5 space-y-5 border-l-2 border-border pl-4 sm:pl-6">
+                {childReplies.map((reply) => {
+                  const canEditReply = canEdit && !!reply.isOwnComment;
+
+                  return (
+                  <article
+                    key={reply.id}
+                    className={cn(
+                      "rounded-xl bg-muted/30 p-4 sm:p-5",
+                      reply.isAdmin && "bg-primary/5",
+                    )}
+                  >
+                    <div className="space-y-3">
+                      <div className="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:gap-4">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span className="text-sm font-semibold tracking-tight text-secondary">
+                            {reply.author}
+                          </span>
+                          {reply.isAdmin && (
+                            <span className="rounded-full border border-border bg-background px-2 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-[0.18em] text-primary">
+                              Admin
+                            </span>
+                          )}
+                        </div>
+                        <span className="font-mono text-[11px] tabular-nums uppercase tracking-wider text-muted-foreground">
+                          {reply.date}
+                        </span>
+                      </div>
+                      <div className="max-w-[65ch] text-[15px] leading-[1.7] text-foreground/90 [&_em]:italic [&_p+p]:mt-3 [&_strong]:font-semibold [&_strong]:text-secondary">
+                        {editingCommentId === reply.id ? (
+                          <div className="space-y-3">
+                            <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+                              Edit balasan
+                            </p>
+                            <SlateCommentEditor
+                              key={reply.id}
+                              initialHtml={reply.html}
+                              onSubmitHtml={(html) => handleEditHtml(reply.id, html)}
+                              submitting={submitting || editMutation.isPending}
+                              intentLabel="Perbarui balasan..."
+                              submitLabel="Simpan"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => setEditingCommentId(null)}
+                              disabled={submitting || editMutation.isPending}
+                              className="font-mono text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground transition-colors hover:text-foreground disabled:opacity-50"
+                            >
+                              Batal edit
+                            </button>
+                          </div>
+                        ) : (
+                          <>
+                            <span className="mr-1 font-semibold text-primary">
+                              @{reply.mentionName}
+                            </span>
+                            <span
+                              dangerouslySetInnerHTML={{
+                                __html: sanitizeCommentHtml(reply.html),
+                              }}
+                            />
+                          </>
+                        )}
+                      </div>
+                      {canEditReply || canDelete ? (
+                        <div className="flex flex-wrap items-center gap-3">
+                          {canEditReply ? (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setReplyingTo(null);
+                              setEditingCommentId((current) =>
+                                current === reply.id ? null : reply.id,
+                              );
+                            }}
+                            className="inline-flex items-center gap-2 font-mono text-[10px] font-semibold uppercase tracking-[0.2em] text-primary transition-colors hover:text-primary/80"
+                            aria-expanded={editingCommentId === reply.id}
+                          >
+                            {editingCommentId === reply.id ? (
+                              <X className="h-3.5 w-3.5" strokeWidth={2.5} />
+                            ) : (
+                              <Pencil className="h-3.5 w-3.5" strokeWidth={2.5} />
+                            )}
+                            {editingCommentId === reply.id ? "Batal" : "Edit"}
+                          </button>
+                          ) : null}
+                          {canDelete ? (
+                            <button
+                              type="button"
+                              onClick={() => handleDeleteComment(reply.id)}
+                              disabled={deleteMutation.isPending}
+                              className="inline-flex items-center gap-2 font-mono text-[10px] font-semibold uppercase tracking-[0.2em] text-destructive transition-colors hover:text-destructive/80 disabled:opacity-50"
+                            >
+                              <Trash2 className="h-3.5 w-3.5" strokeWidth={2.5} />
+                              Hapus
+                            </button>
+                          ) : null}
+                        </div>
+                      ) : null}
+                    </div>
+                  </article>
+                  );
+                })}
+              </div>
+            ) : null}
+          </div>
+        ) : null}
+      </div>
+    );
+  };
 
   return (
     <section
@@ -461,9 +974,10 @@ export function CommentSection({ slug }: { slug: string }) {
 
       <div className="mb-10 flex items-center justify-between gap-4">
         <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
-          tampil {Math.min(visibleCount, comments.length)} dari {comments.length}
+          tampil {Math.min(visibleCount, topLevelComments.length)} dari{" "}
+          {topLevelComments.length} komentar utama
         </p>
-        {visibleCount < comments.length ? (
+        {visibleCount < topLevelComments.length ? (
           <button
             type="button"
             onClick={() => setVisibleCount((c) => c + 8)}
@@ -474,56 +988,18 @@ export function CommentSection({ slug }: { slug: string }) {
         ) : null}
       </div>
 
-      <div className="mb-12 flex flex-col">
-        {comments.slice(0, visibleCount).map((comment, index) => (
-          <article
-            key={comment.id}
-            className={cn(
-              "grid gap-6 border-b border-border py-8 first:pt-0 last:border-b-0 sm:grid-cols-[auto_1fr] sm:gap-8 sm:py-10",
-              comment.isAdmin && "rounded-2xl bg-muted/30 px-4 sm:px-6",
-            )}
-          >
-            <span
-              className="font-mono text-xs tabular-nums text-muted-foreground sm:pt-0.5"
-              aria-hidden
-            >
-              {String(index + 1).padStart(2, "0")}
-            </span>
-            <div className="min-w-0 space-y-4">
-              <div className="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:gap-4">
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="text-base font-semibold tracking-tight text-secondary">
-                    {comment.author}
-                  </span>
-                  {comment.isAdmin && (
-                    <span className="rounded-full border border-border bg-background px-2 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-[0.18em] text-primary">
-                      Admin
-                    </span>
-                  )}
-                </div>
-                <span className="font-mono text-[11px] tabular-nums uppercase tracking-wider text-muted-foreground">
-                  {comment.date}
-                </span>
-              </div>
-              <div
-                className={cn(
-                  "max-w-[65ch] text-[15px] leading-[1.7] text-foreground/90 [&_em]:italic [&_p+p]:mt-3 [&_strong]:font-semibold [&_strong]:text-secondary",
-                  comment.isAdmin && "border-l-2 border-primary/40 pl-4",
-                )}
-                dangerouslySetInnerHTML={{
-                  __html: sanitizeCommentHtml(comment.html),
-                }}
-              />
-            </div>
-          </article>
-        ))}
+      <div className="mb-12 space-y-6">
+        {visibleTopLevelComments.map((comment, index) =>
+          renderCommentThread(comment, index),
+        )}
       </div>
 
-      <div>
-        <p className="mb-4 font-mono text-[10px] font-semibold uppercase tracking-[0.3em] text-muted-foreground">
-          Tanggapan baru
-        </p>
-        {!isLoggedIn ? (
+      {!isLoggedIn || canComment ? (
+        <div>
+          <p className="mb-4 font-mono text-[10px] font-semibold uppercase tracking-[0.3em] text-muted-foreground">
+            Tanggapan baru
+          </p>
+          {!isLoggedIn ? (
           <div className="mb-4 rounded-xl border border-border bg-muted/30 px-4 py-3 text-sm text-muted-foreground">
             Untuk berkomentar, silakan{" "}
             <Link
@@ -534,14 +1010,15 @@ export function CommentSection({ slug }: { slug: string }) {
             </Link>
             .
           </div>
-        ) : (
-          <SlateCommentEditor
-            onSubmitHtml={handleSubmitHtml}
-            submitting={submitting}
-            intentLabel="Tulis tanggapan Anda di sini…"
-          />
-        )}
-      </div>
+          ) : (
+            <SlateCommentEditor
+              onSubmitHtml={handleSubmitHtml}
+              submitting={submitting}
+              intentLabel="Tulis tanggapan Anda di sini…"
+            />
+          )}
+        </div>
+      ) : null}
     </section>
   );
 }

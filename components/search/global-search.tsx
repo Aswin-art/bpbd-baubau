@@ -18,7 +18,6 @@ import {
   MessageSquare,
   Home,
 } from "lucide-react";
-import { newsArticles, documents } from "@/data/dummy-data";
 import type { MapDisasterPointDTO } from "@/lib/map-disaster-types";
 
 interface GlobalSearchProps {
@@ -26,15 +25,44 @@ interface GlobalSearchProps {
   onOpenChange: (open: boolean) => void;
 }
 
+type LatestNewsItem = {
+  id: string;
+  title: string;
+  slug: string;
+};
+
+type PublicDocumentItem = {
+  id: string;
+  name: string;
+};
+
 export function GlobalSearch({ open, onOpenChange }: GlobalSearchProps) {
   const router = useRouter();
   const [mapPoints, setMapPoints] = useState<MapDisasterPointDTO[]>([]);
+  const [latestNews, setLatestNews] = useState<LatestNewsItem[]>([]);
+  const [latestDocuments, setLatestDocuments] = useState<PublicDocumentItem[]>([]);
 
   useEffect(() => {
     fetch("/api/map-disasters")
       .then((r) => r.json())
       .then((d) => setMapPoints(d.points ?? []))
       .catch(() => setMapPoints([]));
+  }, []);
+
+  useEffect(() => {
+    fetch("/api/public/news?limit=4", { cache: "no-store" })
+      .then((r) => (r.ok ? r.json() : Promise.reject(new Error("news"))))
+      .then((d: { items?: LatestNewsItem[] }) => setLatestNews(d.items ?? []))
+      .catch(() => setLatestNews([]));
+  }, []);
+
+  useEffect(() => {
+    fetch("/api/public/documents?hal=1", { cache: "no-store" })
+      .then((r) => (r.ok ? r.json() : Promise.reject(new Error("documents"))))
+      .then((d: { items?: Array<{ id: string; name: string }> }) =>
+        setLatestDocuments((d.items ?? []).slice(0, 4)),
+      )
+      .catch(() => setLatestDocuments([]));
   }, []);
 
   useEffect(() => {
@@ -85,9 +113,9 @@ export function GlobalSearch({ open, onOpenChange }: GlobalSearchProps) {
         <CommandSeparator />
 
         <CommandGroup heading="Berita Terkini">
-          {newsArticles.slice(0, 4).map((news) => (
+          {latestNews.map((news) => (
             <CommandItem
-              key={news.slug}
+              key={news.id}
               onSelect={() => navigate(`/articles/${news.slug}`)}
             >
               <Newspaper className="mr-2 h-4 w-4 text-muted-foreground" />
@@ -99,7 +127,7 @@ export function GlobalSearch({ open, onOpenChange }: GlobalSearchProps) {
         <CommandSeparator />
 
         <CommandGroup heading="Dokumen">
-          {documents.slice(0, 4).map((doc) => (
+          {latestDocuments.map((doc) => (
             <CommandItem key={doc.id} onSelect={() => navigate("/dokumen")}>
               <FileText className="mr-2 h-4 w-4 text-muted-foreground" />
               <span className="truncate">{doc.name}</span>

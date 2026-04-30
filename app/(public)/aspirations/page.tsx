@@ -2,15 +2,16 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Wrapper from "@/components/wrapper";
 import { Button } from "@/components/ui/button";
+import { getPublicSiteSettings } from "@/lib/get-public-site-settings";
+import { toTelHref } from "@/lib/public-site-fallbacks";
 import {
   MessageSquareText,
   ArrowRight,
   ShieldCheck,
   ListChecks,
-  Clock3,
+  Type,
+  AlignLeft,
   Siren,
-  MapPin,
-  Image as ImageIcon,
   PhoneCall,
 } from "lucide-react";
 
@@ -20,7 +21,11 @@ export const metadata: Metadata = {
     "Sampaikan laporan, masukan, atau aspirasi terkait kebencanaan di Kota Baubau kepada BPBD.",
 };
 
-export default function AspirasiPage() {
+export default async function AspirasiPage() {
+  const { settings } = await getPublicSiteSettings();
+  const poskoPhone = settings.contactPhone?.trim() || null;
+  const poskoTelHref = toTelHref(poskoPhone);
+
   return (
     <Wrapper className="pt-24 pb-20 md:pt-28 xl:pt-32">
       <header className="max-w-3xl border-b-2 border-border pb-8">
@@ -106,7 +111,7 @@ export default function AspirasiPage() {
               asChild 
               className="mt-6 w-full rounded-none border-2 border-primary bg-primary px-6 py-6 font-mono text-xs font-bold uppercase tracking-widest text-primary-foreground transition-colors hover:bg-background hover:text-primary"
             >
-              <Link href="/dashboard/aspirations">
+              <Link href="/dashboard/my-aspirations">
                 Tambah Aspirasi
                 <ArrowRight className="ml-2 h-4 w-4" strokeWidth={2.5} />
               </Link>
@@ -138,34 +143,23 @@ export default function AspirasiPage() {
             <ul className="mt-8 grid gap-6">
               <li className="flex gap-4 border-2 border-border bg-muted p-5">
                 <span className="mt-1 flex h-10 w-10 shrink-0 items-center justify-center border-2 border-border bg-card text-secondary">
-                  <MapPin className="h-5 w-5" strokeWidth={2} />
+                  <Type className="h-5 w-5" strokeWidth={2} />
                 </span>
                 <div className="min-w-0">
-                  <p className="text-base font-black uppercase text-secondary">Lokasi Jelas</p>
+                  <p className="text-base font-black uppercase text-secondary">Judul Spesifik</p>
                   <p className="mt-2 text-sm font-medium leading-relaxed text-muted-foreground">
-                    Sebutkan kelurahan/kecamatan, patokan, atau titik yang mudah dikenali.
+                    Gunakan judul yang singkat namun jelas menggambarkan inti laporan atau masukan Anda.
                   </p>
                 </div>
               </li>
               <li className="flex gap-4 border-2 border-border bg-muted p-5">
                 <span className="mt-1 flex h-10 w-10 shrink-0 items-center justify-center border-2 border-border bg-card text-secondary">
-                  <Clock3 className="h-5 w-5" strokeWidth={2} />
+                  <AlignLeft className="h-5 w-5" strokeWidth={2} />
                 </span>
                 <div className="min-w-0">
-                  <p className="text-base font-black uppercase text-secondary">Waktu & Kronologi Singkat</p>
+                  <p className="text-base font-black uppercase text-secondary">Deskripsi & Detail Lokasi</p>
                   <p className="mt-2 text-sm font-medium leading-relaxed text-muted-foreground">
-                    Tuliskan kapan terjadi, apa yang terlihat, dan dampaknya (mis. genangan, longsor kecil, pohon tumbang).
-                  </p>
-                </div>
-              </li>
-              <li className="flex gap-4 border-2 border-border bg-muted p-5">
-                <span className="mt-1 flex h-10 w-10 shrink-0 items-center justify-center border-2 border-border bg-card text-secondary">
-                  <ImageIcon className="h-5 w-5" strokeWidth={2} />
-                </span>
-                <div className="min-w-0">
-                  <p className="text-base font-black uppercase text-secondary">Foto Pendukung (Opsional)</p>
-                  <p className="mt-2 text-sm font-medium leading-relaxed text-muted-foreground">
-                    Foto membantu verifikasi cepat. Hindari menampilkan data pribadi orang lain.
+                    Jelaskan kronologi, dampak, atau masukan Anda secara lengkap. Sebutkan detail waktu kejadian dan lokasi (kecamatan, kelurahan, patokan) di dalam teks deskripsi agar mudah ditelusuri.
                   </p>
                 </div>
               </li>
@@ -197,7 +191,7 @@ export default function AspirasiPage() {
           <div className="border-2 border-destructive bg-destructive/5 p-6 sm:p-8">
             <div className="flex items-start gap-4">
               <span className="mt-1 flex h-12 w-12 shrink-0 items-center justify-center border-2 border-destructive bg-destructive text-destructive-foreground">
-                <Siren className="h-6 w-6" strokeWidth={2.5} />
+                <Siren className="h-6 w-6 text-white" strokeWidth={2.5} />
               </span>
               <div>
                 <p className="font-mono text-xs font-bold uppercase tracking-widest text-destructive">
@@ -212,15 +206,27 @@ export default function AspirasiPage() {
               Jika ada bahaya langsung (mis. kebakaran besar, korban terjebak, banjir bandang),
               gunakan kanal darurat agar respons lebih cepat.
             </p>
-            <Button 
-              asChild 
-              className="mt-6 w-full rounded-none border-2 border-destructive bg-destructive px-6 py-6 font-mono text-xs font-bold uppercase tracking-widest text-destructive-foreground transition-colors hover:bg-background hover:text-destructive"
-            >
-              <a href="tel:04022821110" aria-label="Hubungi posko BPBD">
-                <PhoneCall className="mr-2 h-4 w-4" strokeWidth={2.5} />
-                Hubungi Posko BPBD
-              </a>
-            </Button>
+            {poskoTelHref && poskoPhone ? (
+              <Button
+                asChild
+                className="mt-6 w-full rounded-none border-2 border-destructive bg-destructive px-6 py-6 font-mono text-xs font-bold uppercase tracking-widest text-destructive-foreground transition-colors hover:bg-background hover:text-destructive"
+              >
+                <a
+                  href={poskoTelHref}
+                  className="text-white"
+                  aria-label={`Hubungi posko BPBD di ${poskoPhone}`}
+                >
+                  <PhoneCall className="mr-2 h-4 w-4" strokeWidth={2.5} />
+                  Hubungi Posko BPBD
+                </a>
+              </Button>
+            ) : (
+              <p className="mt-6 rounded-none border-2 border-dashed border-destructive/50 bg-background px-4 py-4 text-sm font-medium leading-relaxed text-destructive/90">
+                Nomor telepon posko belum diatur. Untuk
+                keadaan darurat, segera hubungi layanan darurat setempat atau datang langsung ke
+                kantor BPBD Kota Baubau.
+              </p>
+            )}
           </div>
         </div>
       </section>

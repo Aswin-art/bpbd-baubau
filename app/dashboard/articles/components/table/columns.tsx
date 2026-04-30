@@ -176,7 +176,7 @@ export function useColumns(): ColumnDef<Article>[] {
       cell: ({ row }) => {
         const publishedAt = row.getValue("publishedAt") as string | null;
         return (
-          <div className="text-sm text-muted-foreground">
+          <div className="text-sm text-muted-foreground whitespace-nowrap">
             {publishedAt ? formatDateTime(publishedAt) : "-"}
           </div>
         );

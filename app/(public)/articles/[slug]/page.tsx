@@ -161,7 +161,7 @@ export default async function NewsDetailPage({ params }: PageProps) {
               />
             </div>
 
-            <div className="mt-8 border-2 border-border bg-card p-6 sm:p-8">
+            <div className="mt-8 border-2 border-border bg-card overflow-hidden">
               <ArticleContent value={news.content} />
             </div>
 

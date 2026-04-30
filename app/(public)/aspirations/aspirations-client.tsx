@@ -6,7 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 import { parseAsInteger, parseAsString, useQueryState } from "nuqs";
 import { Badge } from "@/components/ui/badge";
 import Wrapper from "@/components/wrapper";
-import { aspirationStatusLabels } from "@/data/dummy-data";
+import { aspirationStatusLabels } from "@/lib/public-labels";
 import { AspirasiForm } from "./aspirasi-form";
 import { AspirationsErrorFallback, AspirationsSkeleton } from "./aspirations-fallback";
 

@@ -31,6 +31,11 @@ type EditorProps = {
   disabled?: boolean;
   className?: string;
   scope?: string;
+  /**
+   * When true, prevents the read-only editor from using negative margins that
+   * can visually overflow bordered containers (cards, panels).
+   */
+  bounded?: boolean;
 };
 
 const EMPTY_DOCUMENT_HTML = "<p><br /></p>";
@@ -108,6 +113,7 @@ export function Editor({
   disabled = false,
   className,
   scope = "news",
+  bounded = false,
 }: EditorProps) {
   const isInitializedRef = useRef(false);
   const { resolvedTheme } = useTheme();
@@ -201,13 +207,20 @@ export function Editor({
 
   return (
     <>
-      <div onClick={handleEditorClick} className={cn("relative", className)}>
+      <div
+        onClick={handleEditorClick}
+        className={cn("relative max-w-full", bounded && "overflow-hidden", className)}
+      >
         <BlockNoteView
           sideMenu={disabled ? false : true}
           theme={resolvedTheme === "dark" ? "dark" : "light"}
           editor={editor}
           editable={!disabled}
-          className={cn("p-0 mt-4", disabled && "-ml-14")}
+          className={cn(
+            "p-0 mt-4 max-w-full",
+            disabled && !bounded && "-ml-14",
+            disabled && bounded && "ml-0",
+          )}
           formattingToolbar={false}
         >
           <FormattingToolbarController

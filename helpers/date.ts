@@ -37,7 +37,7 @@ function toDate(date: DateInput): Date | null {
  */
 export function formatDate(
   date: DateInput,
-  formatStr = "dd MMM yyyy",
+  formatStr = "d MMMM yyyy",
   fallback = "-",
 ): string {
   const d = toDate(date);
@@ -56,7 +56,7 @@ export function formatDate(
  */
 export function formatDateTime(
   date: DateInput,
-  formatStr = "dd MMM yyyy, HH:mm",
+  formatStr = "d MMMM yyyy, HH:mm",
   fallback = "-",
 ): string {
   return formatDate(date, formatStr, fallback);
@@ -93,7 +93,7 @@ export function formatSmartRelative(date: DateInput, fallback = "-"): string {
     return formatRelative(d, now, { locale: id });
   }
 
-  return format(d, "dd MMM yyyy, HH:mm", { locale: id });
+  return format(d, "d MMMM yyyy, HH:mm", { locale: id });
 }
 
 /**

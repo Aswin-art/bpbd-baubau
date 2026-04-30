@@ -6,6 +6,7 @@ import { DataTableColumnHeader } from "@/components/datatable/table-header";
 import type { ArchiveDocument } from "./archives-table";
 import { CellAction } from "./cell-action";
 import { Checkbox } from "@/components/ui/checkbox";
+import { formatDate } from "@/helpers/date";
 
 function getDescriptionPreview(description: unknown): string {
   if (typeof description === "string") {
@@ -101,6 +102,10 @@ export function useColumns(): ColumnDef<ArchiveDocument>[] {
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Tanggal dokumen" />
     ),
+    cell: ({ row }) => {
+      const dateLabel = row.getValue("dateLabel") as string;
+      return <span className="text-sm text-muted-foreground whitespace-nowrap">{dateLabel ? formatDate(dateLabel) : "-"}</span>;
+    },
   },
   {
     accessorKey: "fileSize",

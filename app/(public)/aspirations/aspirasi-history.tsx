@@ -2,10 +2,29 @@
 
 import { Clock, CheckCircle2, XCircle, Loader2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { aspirations, type Aspiration } from "@/data/dummy-data";
+import { useQuery } from "@tanstack/react-query";
+
+type AspirationStatus = "pending" | "in_progress" | "completed" | "rejected";
+
+type AspirationHistoryItem = {
+  id: string;
+  submitterName: string;
+  description: string;
+  status: AspirationStatus;
+  createdAt: string;
+};
+
+type AspirationsApiResponse = {
+  requiresAuth?: boolean;
+  items: AspirationHistoryItem[];
+  page: number;
+  perPage: number;
+  total: number;
+  totalPages: number;
+};
 
 const statusConfig: Record<
-  Aspiration["status"],
+  AspirationStatus,
   { label: string; icon: typeof Clock; className: string }
 > = {
   pending: {
@@ -38,7 +57,63 @@ function formatDate(iso: string) {
   });
 }
 
+async function fetchAspirations(): Promise<AspirationsApiResponse> {
+  const res = await fetch("/api/public/aspirations", { cache: "no-store" });
+  if (!res.ok) throw new Error("Gagal memuat riwayat aspirasi.");
+  return res.json();
+}
+
 export function AspirasiHistory() {
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ["public-aspiration-history"],
+    queryFn: fetchAspirations,
+  });
+
+  if (isLoading) {
+    return (
+      <section className="mt-12 pt-10 border-t border-border">
+        <div className="mb-6">
+          <h2 className="text-lg font-bold text-foreground">Riwayat Aspirasi</h2>
+          <p className="text-sm text-muted-foreground mt-1">Memuat…</p>
+        </div>
+      </section>
+    );
+  }
+
+  if (isError) {
+    return (
+      <section className="mt-12 pt-10 border-t border-border">
+        <div className="mb-6">
+          <h2 className="text-lg font-bold text-foreground">Riwayat Aspirasi</h2>
+          <p className="text-sm text-destructive mt-1">
+            Gagal memuat riwayat. Silakan coba lagi.
+          </p>
+        </div>
+      </section>
+    );
+  }
+
+  if (data?.requiresAuth) {
+    return (
+      <section className="mt-12 pt-10 border-t border-border">
+        <div className="mb-6">
+          <h2 className="text-lg font-bold text-foreground">Riwayat Aspirasi</h2>
+          <p className="text-sm text-muted-foreground mt-1">
+            Masuk untuk melihat riwayat aspirasi yang pernah Anda kirim.
+          </p>
+          <a
+            href="/sign-in"
+            className="mt-4 inline-flex rounded-md bg-secondary px-4 py-2 text-sm font-semibold text-secondary-foreground"
+          >
+            Masuk
+          </a>
+        </div>
+      </section>
+    );
+  }
+
+  const items = data?.items ?? [];
+
   return (
     <section className="mt-12 pt-10 border-t border-border">
       <div className="mb-6">
@@ -51,7 +126,7 @@ export function AspirasiHistory() {
       </div>
 
       <div className="space-y-3">
-        {aspirations.map((item) => {
+        {items.map((item) => {
           const status = statusConfig[item.status];
           const StatusIcon = status.icon;
 

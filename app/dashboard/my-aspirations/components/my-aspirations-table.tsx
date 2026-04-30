@@ -5,6 +5,7 @@ import { useQuery, useQueryClient, keepPreviousData } from "@tanstack/react-quer
 import { useMemo, useState } from "react";
 import { useQueryState, parseAsInteger, parseAsString } from "nuqs";
 import { Eye, Pencil, Trash2 } from "lucide-react";
+import { formatDateTime } from "@/helpers/date";
 
 import { DataTable } from "@/components/datatable/table-data";
 import { Button } from "@/components/ui/button";
@@ -152,11 +153,7 @@ export function MyAspirationsTable() {
         header: "Dibuat",
         cell: ({ row }) => (
           <span className="text-sm text-muted-foreground whitespace-nowrap">
-            {new Date(row.original.createdAt).toLocaleDateString("id-ID", {
-              day: "numeric",
-              month: "short",
-              year: "numeric",
-            })}
+            {formatDateTime(row.original.createdAt)}
           </span>
         ),
       },

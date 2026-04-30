@@ -8,7 +8,7 @@ import { Download, ChevronLeft, ChevronRight, ArrowUpRight } from "lucide-react"
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import Wrapper from "@/components/wrapper";
-import { categoryLabels } from "@/data/dummy-data";
+import { categoryLabels } from "@/lib/public-labels";
 import { DocumentsErrorFallback, DocumentsSkeleton } from "./documents-fallback";
 import { DocumentFilter } from "./document-filter";
 

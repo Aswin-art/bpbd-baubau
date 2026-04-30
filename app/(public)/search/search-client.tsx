@@ -25,7 +25,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { categoryLabels } from "@/data/dummy-data";
+import { categoryLabels } from "@/lib/public-labels";
 
 type PublicArticleListItem = {
   id: string;

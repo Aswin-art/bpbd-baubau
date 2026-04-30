@@ -25,9 +25,10 @@ const publicNavItems = [
   { name: "Beranda", href: "/" },
   { name: "Profil", href: "/profiles" },
   { name: "Berita", href: "/articles" },
-  { name: "Dokumen & SOP", href: "/dokumen" },
-  { name: "Aspirasi", href: "/aspirasi" },
-  { name: "Arsip Bencana", href: "/arsip" },
+  { name: "Dokumen & SOP", href: "/documents" },
+  { name: "Aspirasi", href: "/aspirations" },
+  { name: "Arsip Bencana", href: "/archives" },
+  { name: "Pencarian Global", href: "/search" },
 ] as const;
 
 export type NavbarProps = {

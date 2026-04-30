@@ -6,6 +6,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { DataTableColumnHeader } from "@/components/datatable/table-header";
 import type { MapDisasterPointDTO } from "@/lib/map-disaster-types";
 import { getMapTypeColor } from "@/lib/map-disaster-colors";
+import { formatDate } from "@/helpers/date";
 import { CellAction } from "./cell-action";
 
 export const columns: ColumnDef<MapDisasterPointDTO, unknown>[] = [
@@ -73,6 +74,10 @@ export const columns: ColumnDef<MapDisasterPointDTO, unknown>[] = [
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Tanggal" />
     ),
+    cell: ({ row }) => {
+      const date = row.getValue("date") as string;
+      return <span className="text-sm text-muted-foreground whitespace-nowrap">{date ? formatDate(date) : "-"}</span>;
+    },
   },
   {
     id: "coordinate",

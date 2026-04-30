@@ -33,7 +33,6 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { DashboardHeader } from "./components/dashboard-header";
 import { PermissionGuard } from "./components/permission-guard";
 import { authClient } from "@/lib/auth-client";
-import { aspirations, documents } from "@/data/dummy-data";
 import type { MapDisasterPointDTO } from "@/lib/map-disaster-types";
 
 type DashboardNewsItem = {
@@ -113,9 +112,17 @@ function getDisasterTypeCounts(records: MapDisasterPointDTO[]) {
     }));
 }
 
-function getAspirasiStatusCounts() {
+type DashboardAspirationItem = {
+  id: string;
+  submitterName: string;
+  description: string;
+  status: "pending" | "in_progress" | "completed" | "rejected";
+  createdAt: string;
+};
+
+function getAspirasiStatusCounts(items: DashboardAspirationItem[]) {
   const counts = { pending: 0, in_progress: 0, completed: 0, rejected: 0 };
-  aspirations.forEach((a) => {
+  items.forEach((a) => {
     counts[a.status]++;
   });
   return counts;
@@ -125,6 +132,8 @@ export default function DashboardPage() {
   const { data: session } = authClient.useSession();
   const [mapPoints, setMapPoints] = useState<MapDisasterPointDTO[]>([]);
   const [recentNews, setRecentNews] = useState<DashboardNewsItem[]>([]);
+  const [aspirations, setAspirations] = useState<DashboardAspirationItem[]>([]);
+  const [documentsTotal, setDocumentsTotal] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
@@ -156,11 +165,47 @@ export default function DashboardPage() {
     };
   }, []);
 
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/dashboard/aspirations?page=1&limit=100", { cache: "no-store" })
+      .then((r) => (r.ok ? r.json() : Promise.reject(new Error("aspirations"))))
+      .then(
+        (json: {
+          status?: string;
+          data?: { aspirations?: DashboardAspirationItem[] };
+        }) => {
+          const items = json?.data?.aspirations ?? [];
+          if (!cancelled) setAspirations(items);
+        },
+      )
+      .catch(() => {
+        if (!cancelled) setAspirations([]);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/public/documents?hal=1", { cache: "no-store" })
+      .then((r) => (r.ok ? r.json() : Promise.reject(new Error("documents"))))
+      .then((json: { total?: number }) => {
+        if (!cancelled) setDocumentsTotal(Number(json.total) || 0);
+      })
+      .catch(() => {
+        if (!cancelled) setDocumentsTotal(0);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   const typeCounts = useMemo(
     () => getDisasterTypeCounts(mapPoints),
     [mapPoints]
   );
-  const aspirasiCounts = getAspirasiStatusCounts();
+  const aspirasiCounts = useMemo(() => getAspirasiStatusCounts(aspirations), [aspirations]);
   const recentDisasters = mapPoints.slice(0, 5);
   const totalAspirations = aspirations.length;
 
@@ -193,7 +238,7 @@ export default function DashboardPage() {
       },
       {
         label: "Dokumen Aktif",
-        value: String(documents.length),
+        value: String(documentsTotal),
         change: "+1",
         trend: "up" as const,
         period: "dokumen baru",
@@ -212,7 +257,7 @@ export default function DashboardPage() {
         bg: "bg-amber-50",
       },
     ],
-    [mapPoints.length, totalMengungsi]
+    [mapPoints.length, totalMengungsi, documentsTotal, aspirations.length]
   );
 
   if (session?.user?.role === "masyarakat") {
@@ -222,7 +267,7 @@ export default function DashboardPage() {
           title="Portal layanan"
           description="Kelola aspirasi dan profil Anda. Informasi kebencanaan tetap dapat diakses dari menu samping."
         />
-        <div className="grid gap-4 sm:grid-cols-2 max-w-3xl">
+        <div className="grid gap-4 sm:grid-cols-3">
           <Card className="border-border/60 shadow-sm hover:border-primary/30 transition-colors">
             <Link href="/dashboard/my-aspirations" className="block p-6 space-y-2">
               <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-amber-50 text-amber-700">
@@ -247,7 +292,7 @@ export default function DashboardPage() {
             </Link>
           </Card>
           <Card className="border-border/60 shadow-sm hover:border-primary/30 transition-colors">
-            <Link href="/dashboard/articles" className="block p-6 space-y-2">
+            <Link href="/articles" className="block p-6 space-y-2">
               <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-sky-50 text-sky-700">
                 <Newspaper className="h-5 w-5" />
               </div>
@@ -461,7 +506,8 @@ export default function DashboardPage() {
                           aspirasiCounts[
                             d.status as keyof typeof aspirasiCounts
                           ];
-                        const pct = count / totalAspirations;
+                        const pct =
+                          totalAspirations > 0 ? count / totalAspirations : 0;
                         const dashLength = pct * circumference;
                         const dashOffset = cumulative * circumference;
                         cumulative += pct;
@@ -632,7 +678,7 @@ export default function DashboardPage() {
                         </Badge>
                       </div>
                       <p className="text-[12px] text-muted-foreground line-clamp-1">
-                        {item.description.text}
+                        {item.description}
                       </p>
                       <p className="text-[10px] text-muted-foreground/70 mt-1">
                         {new Date(item.createdAt).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" })}
