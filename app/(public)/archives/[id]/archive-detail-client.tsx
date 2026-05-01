@@ -256,10 +256,6 @@ function ArchiveDetailClientInner({ id }: { id: string }) {
                 <div className="h-4 w-1 rounded-full bg-primary" />
                 Dokumen Laporan Bencana
               </h2>
-              <p className="text-xs text-muted-foreground mb-4 max-w-2xl">
-                Arsip laporan bersifat tahunan dan terpisah dari data titik peta
-                bencana (CRUD di dashboard).
-              </p>
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 {relatedDocs.map((doc) => (
                   <div

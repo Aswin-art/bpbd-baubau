@@ -9,6 +9,7 @@ import type {
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { AppError } from "@/lib/app-error";
+import { Prisma } from "@/generated/prisma/client";
 
 export const usersService = {
   async list(params: UserListParams) {
@@ -56,23 +57,51 @@ export const usersService = {
     // Update profile fields stored in our user table.
     const wantsDbUpdate =
       input.name !== undefined ||
+      input.email !== undefined ||
       input.role !== undefined ||
-      input.isActive !== undefined;
+      input.isActive !== undefined ||
+      input.photoUrl !== undefined ||
+      input.bio !== undefined ||
+      input.phoneNumber !== undefined ||
+      input.homeAddress !== undefined ||
+      input.dateOfBirth !== undefined;
 
     if (wantsDbUpdate) {
       await usersRepository.updateFields(id, {
         ...(input.name !== undefined ? { name: input.name } : {}),
+        ...(input.email !== undefined
+          ? { email: input.email.trim().toLowerCase(), emailVerified: false }
+          : {}),
         ...(input.role !== undefined ? { role: input.role } : {}),
         ...(input.isActive !== undefined ? { isActive: input.isActive } : {}),
-        ...(input.photoUrl !== undefined ? { photoUrl: input.photoUrl } : {}),
+        ...(input.photoUrl !== undefined ? { photoUrl: input.photoUrl || null } : {}),
+        ...(input.bio !== undefined
+          ? {
+              bio:
+                input.bio == null
+                  ? Prisma.JsonNull
+                  : (input.bio as Prisma.InputJsonValue),
+            }
+          : {}),
+        ...(input.phoneNumber !== undefined ? { phoneNumber: input.phoneNumber || null } : {}),
+        ...(input.homeAddress !== undefined ? { homeAddress: input.homeAddress || null } : {}),
+        ...(input.dateOfBirth !== undefined ? { dateOfBirth: input.dateOfBirth || null } : {}),
       });
     }
 
     if (input.newPassword) {
-      await auth.api.setUserPassword({
-        body: { userId: id, newPassword: input.newPassword },
-        headers: await headers(),
-      });
+      try {
+        const authContext = await auth.$context;
+        const hashedPassword = await authContext.password.hash(input.newPassword);
+        await usersRepository.upsertCredentialPassword(id, hashedPassword);
+      } catch (err: unknown) {
+        const message =
+          err && typeof err === "object" && "message" in err
+            ? String((err as { message: unknown }).message)
+            : "Password baru tidak valid";
+
+        throw AppError.badRequest(message, "PASSWORD_VALIDATION_ERROR");
+      }
     }
 
     return { id };

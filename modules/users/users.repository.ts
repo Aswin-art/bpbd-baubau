@@ -35,6 +35,10 @@ export const usersRepository = {
           email: true,
           role: true,
           photoUrl: true,
+          bio: true,
+          phoneNumber: true,
+          homeAddress: true,
+          dateOfBirth: true,
           isActive: true,
           banned: true,
           emailVerified: true,
@@ -67,12 +71,45 @@ export const usersRepository = {
 
   async updateFields(
     id: string,
-    data: { name?: string; role?: string; isActive?: boolean; photoUrl?: string | null },
+    data: Prisma.UserUpdateInput,
   ) {
     return db.user.update({
       where: { id },
       data,
-      select: { id: true, name: true, role: true, isActive: true, updatedAt: true },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        photoUrl: true,
+        bio: true,
+        phoneNumber: true,
+        homeAddress: true,
+        dateOfBirth: true,
+        isActive: true,
+        updatedAt: true,
+      },
+    });
+  },
+
+  async upsertCredentialPassword(userId: string, hashedPassword: string) {
+    return db.account.upsert({
+      where: {
+        providerId_accountId: {
+          providerId: "credential",
+          accountId: userId,
+        },
+      },
+      create: {
+        providerId: "credential",
+        accountId: userId,
+        userId,
+        password: hashedPassword,
+      },
+      update: {
+        password: hashedPassword,
+      },
+      select: { id: true },
     });
   },
 

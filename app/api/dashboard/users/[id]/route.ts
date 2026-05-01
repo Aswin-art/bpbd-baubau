@@ -1,11 +1,10 @@
 import { NextRequest } from "next/server";
-import { z } from "zod";
 
 import { apiHandler, apiSuccess } from "@/lib/api-handler";
 import { AppError } from "@/lib/app-error";
 import { getServerSession } from "@/lib/server";
 import { checkPermission } from "@/lib/permission-cache";
-import { usersService } from "@/modules/users";
+import { updateUserSchema, usersService } from "@/modules/users";
 
 export const PATCH = apiHandler(async (req: NextRequest, context) => {
   const session = await getServerSession();
@@ -27,24 +26,7 @@ export const PATCH = apiHandler(async (req: NextRequest, context) => {
   if (!id) throw AppError.badRequest("Missing id", "MISSING_ID");
 
   const body = await req.json();
-  const parsed = z
-    .object({
-      name: z.string().trim().min(2).optional(),
-      role: z.string().trim().min(1).optional(),
-      photoUrl: z.string().trim().url().optional(),
-      isActive: z.boolean().optional(),
-      newPassword: z.string().min(6).optional(),
-    })
-    .refine(
-      (v) =>
-        v.name !== undefined ||
-        v.role !== undefined ||
-        v.photoUrl !== undefined ||
-        v.isActive !== undefined ||
-        v.newPassword !== undefined,
-      { message: "No fields to update" },
-    )
-    .safeParse(body);
+  const parsed = updateUserSchema.safeParse(body);
   if (!parsed.success) {
     throw AppError.badRequest(
       parsed.error.issues[0]?.message || "Invalid payload",
@@ -53,10 +35,11 @@ export const PATCH = apiHandler(async (req: NextRequest, context) => {
   }
 
   const wantsActiveChange = parsed.data.isActive !== undefined;
-  const wantsUpdateFields =
-    parsed.data.name !== undefined ||
-    parsed.data.role !== undefined ||
-    parsed.data.newPassword !== undefined;
+  const updateFields = { ...parsed.data };
+  delete updateFields.isActive;
+  const wantsUpdateFields = Object.values(updateFields).some(
+    (value) => value !== undefined,
+  );
 
   if (wantsActiveChange && !canBan) {
     throw AppError.forbidden(

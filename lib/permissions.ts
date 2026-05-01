@@ -30,6 +30,9 @@ const usersResourceActions = [
 
 export const statement = {
   ...defaultStatementsRest,
+  // Better Auth admin plugin checks the singular `user` resource internally.
+  // The app-facing RBAC and permission UI keep using `users`.
+  user: defaultUserActions,
 
   dashboard: ["view"],
   profile: ["view", "update"],
@@ -91,6 +94,7 @@ const adminUsersActions = [
 /** admin – full system access */
 export const adminRole = ac.newRole({
   ...adminStatementsRest,
+  user: adminPluginUserActions,
   dashboard: ["view"],
   profile: ["view", "update"],
   menu_articles: ["view"],

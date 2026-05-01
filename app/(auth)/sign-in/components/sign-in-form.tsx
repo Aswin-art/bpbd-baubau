@@ -47,7 +47,7 @@ export function SignInForm() {
       await new Promise<void>((resolve, reject) => {
         void authClient.signIn.email(
           {
-            email: values.email,
+            email: values.email.trim().toLowerCase(),
             password: values.password,
             rememberMe: values.rememberMe,
           },

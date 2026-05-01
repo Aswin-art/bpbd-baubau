@@ -285,7 +285,7 @@ export function SiteSettingsSection() {
                         value={field.value ?? ""}
                         onChange={(url) => field.onChange(url || null)}
                         onUpload={onUpload}
-                        aspectRatio={4 / 3}
+                        aspectRatio={16 / 9}
                       />
                     </FormControl>
                     <FormDescription>

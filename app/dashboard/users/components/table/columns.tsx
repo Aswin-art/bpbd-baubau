@@ -13,6 +13,10 @@ export type UserRow = {
   email: string;
   role: string;
   photoUrl?: string | null;
+  bio?: unknown;
+  phoneNumber?: string | null;
+  homeAddress?: string | null;
+  dateOfBirth?: string | Date | null;
   isActive: boolean;
   banned?: boolean;
   emailVerified: boolean;
