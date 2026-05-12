@@ -32,7 +32,7 @@ export function CellAction({ data }: CellActionProps) {
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           <DropdownMenuItem asChild>
-            <Link href="/arsip" target="_blank" rel="noopener noreferrer">
+            <Link href="/archives" target="_blank" rel="noopener noreferrer">
               <ExternalLink className="h-4 w-4" />
               Lihat di Peta Publik
             </Link>
